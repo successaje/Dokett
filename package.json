@@ -1,0 +1,27 @@
+{
+  "name": "covenant",
+  "version": "1.0.0",
+  "description": "The obligation layer for the open economy — a registry where a promise to pay is a first-class on-chain object, advanced only by cryptographic evidence.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "forge test && npm run test:lens",
+    "test:lens": "node --test \"lens/test/*.test.js\"",
+    "keeper": "node worker/src/index.js",
+    "lens": "node lens/src/index.js",
+    "fixtures": "node demo/gen-fixtures.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@gluwa/usc-contracts": "^0.1.2",
+    "@gluwa/usc-sdk": "^0.18.0",
+    "@openzeppelin/contracts": "^5.6.1",
+    "ethers": "^6.17.0"
+  }
+}

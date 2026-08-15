@@ -1,0 +1,21 @@
+# foundry
+out/
+cache/
+broadcast/
+!broadcast/**/dry-run/
+
+# node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# env & secrets — the keeper reads KEEPER_PRIVATE_KEY from here
+.env
+.env.*
+!.env.example
+
+# local strategy notes, not part of the protocol
+creditcoin-opportunity-research.md
+
+# os
+.DS_Store

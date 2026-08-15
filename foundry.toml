@@ -1,0 +1,26 @@
+[profile.default]
+src = "src"
+out = "out"
+test = "test"
+script = "script"
+libs = ["node_modules", "lib"]
+solc = "0.8.28"
+# Creditcoin CC3 runs Frontier (polkadot-stable2409). Shanghai avoids any
+# reliance on Cancun-only opcodes (TSTORE/MCOPY) until confirmed on-chain.
+evm_version = "shanghai"
+optimizer = true
+optimizer_runs = 200
+bytecode_hash = "none"
+fs_permissions = [{ access = "read", path = "./demo" }]
+
+[fuzz]
+runs = 1024
+
+[invariant]
+runs = 256
+depth = 32
+fail_on_revert = false
+
+[rpc_endpoints]
+cc3_testnet = "${CC3_TESTNET_RPC}"
+ethereum = "${ETH_MAINNET_RPC}"
