@@ -255,10 +255,10 @@ Every transaction referenced by the demo is listed in `demo/fixtures.json` with 
 
 ## 8. References
 
-- ASC docs — https://docs.creditcoin.org/creditcoin-usc
-- Architecture overview — https://docs.creditcoin.org/usc/overview/usc-architecture-overview
-- Chains & environments — https://docs.creditcoin.org/creditcoin-usc/usc-chains-environments
-- Readability gas costs — https://docs.creditcoin.org/creditcoin-usc/readability/gas-costs
-- dApp design patterns — https://docs.creditcoin.org/creditcoin-usc/dapp-builder-infrastructure/dapp-design-patterns-readability
-- ASC SDK — https://docs.creditcoin.org/creditcoin-usc/dapp-builder-infrastructure/usc-sdk
-- Attestor operator guide — https://docs.creditcoin.org/creditcoin-usc/usc-operator-guides/attestor-operator-guide
+- ASC docs — https://docs.creditcoin.org/attestcoin-protocol
+- Architecture overview — https://docs.creditcoin.org/attestcoin-protocol/overview/usc-architecture-overview
+- Chains & environments — https://docs.creditcoin.org/attestcoin-protocol/attestcoin-protocol-chains-environments
+- Readability gas costs — https://docs.creditcoin.org/attestcoin-protocol/readability/gas-costs
+- dApp design patterns — https://docs.creditcoin.org/attestcoin-protocol/dapp-builder-infrastructure/dapp-design-patterns-readability
+- ASC SDK — https://docs.creditcoin.org/attestcoin-protocol/dapp-builder-infrastructure/usc-sdk
+- Attestor operator guide — https://docs.creditcoin.org/attestcoin-protocol/usc-operator-guides/attestor-operator-guide
