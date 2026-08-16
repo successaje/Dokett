@@ -1,7 +1,7 @@
 {
   "name": "covenant",
   "version": "1.0.0",
-  "description": "The obligation layer for the open economy — a registry where a promise to pay is a first-class on-chain object, advanced only by cryptographic evidence.",
+  "description": "The obligation layer for the open economy \u2014 a registry where a promise to pay is a first-class on-chain object, advanced only by cryptographic evidence.",
   "main": "index.js",
   "directories": {
     "doc": "docs",
@@ -16,7 +16,8 @@
     "lens:demo": "node lens/src/demo.js",
     "app": "npm --prefix app run dev",
     "app:build": "npm --prefix app run build",
-    "demo": "node lens/src/demo.js & npm --prefix app run dev"
+    "demo": "node lens/src/demo.js & npm --prefix app run dev",
+    "prove:one": "node demo/prove-one.js"
   },
   "keywords": [],
   "author": "",
