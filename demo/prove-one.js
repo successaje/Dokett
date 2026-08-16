@@ -33,9 +33,33 @@ const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const erc20 = new ethers.Interface(['event Transfer(address indexed from, address indexed to, uint256 value)']);
 const TRANSFER_TOPIC = erc20.getEvent('Transfer').topicHash;
 
+/**
+ * Guidance, not just a name.
+ *
+ * "missing required env: PROBE" is technically accurate and useless — PROBE is
+ * a contract address that does not exist until something deploys it, and a
+ * reader has no way to know that from the variable name. Each hint says what
+ * the value is and where to get it.
+ */
+const HINTS = {
+  PROBE:
+    'the deployed Probe address. It does not exist yet on a fresh checkout:\n' +
+    '      run  npm run deploy:probe  and copy the address it prints into .env',
+  ETH_MAINNET_RPC:
+    'an Ethereum mainnet RPC url. Any provider works; the script only reads.',
+  CHAIN_KEY:
+    'the source chain key for THIS network. Ethereum mainnet is 3 on CC3\n' +
+    '      testnet and 1 on CC3 mainnet — npm run deploy:probe prints the table.',
+  KEEPER_PRIVATE_KEY:
+    'a funded CC3 testnet key. It sends one transaction; faucet CTC is enough.',
+};
+
 const need = (n) => {
   const v = process.env[n];
-  if (!v) throw new Error(`missing required env: ${n}`);
+  if (!v) {
+    const hint = HINTS[n] ? `\n\n  ${n} is ${HINTS[n]}` : '';
+    throw new Error(`missing required env: ${n}${hint}\n`);
+  }
   return v;
 };
 
