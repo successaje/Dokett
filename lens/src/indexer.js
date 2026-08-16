@@ -2,6 +2,7 @@
 
 const { ethers } = require('ethers');
 const { REGISTER, BOND } = require('../../worker/src/abi');
+const { identityOf } = require('./directory');
 
 const STATUS = ['None', 'Active', 'Current', 'Delinquent', 'Default', 'Settled', 'ChargedOff'];
 
@@ -58,6 +59,8 @@ class Index {
         outstanding: o.outstanding.toString(),
         periodAmount: o.periodAmount.toString(),
         periodsTotal: Number(o.periodsTotal),
+        startHeight: o.startHeight.toString(),
+        periodBlocks: o.periodBlocks.toString(),
         periodsSatisfied: Number(o.periodsSatisfied),
         windowEndHeight: o.windowEndHeight.toString(),
         cureEndHeight: (o.windowEndHeight + o.cureBlocks).toString(),
@@ -177,6 +180,95 @@ class Index {
     const o = this.obligations.get(String(id));
     if (!o) return null;
     return { ...o, bonds: [...this.bonds.values()].filter((b) => b.obligationId === String(id)) };
+  }
+
+  /**
+   * A subject's profile: what the register proves, and separately, what people
+   * have claimed about them.
+   *
+   * The split is the whole point. `proven` is derived from obligations and is
+   * recomputable by any stranger with an RPC endpoint — nobody, including us,
+   * can adjust it. `attested` is a list of statements by named issuers, each
+   * carrying who said it and what they staked.
+   *
+   * Rendering those as the same kind of fact is how a registry starts lying, so
+   * they are returned as two separate objects that cannot be accidentally
+   * merged, and `notIndexed` names the facts we deliberately do NOT report
+   * rather than defaulting them to a flattering zero.
+   */
+  profile(subject) {
+    const needle = String(subject).toLowerCase();
+    const mine = [...this.obligations.values()].filter(
+      (o) => o.obligor.toLowerCase() === needle || o.sourcePayer.toLowerCase() === needle,
+    );
+
+    // Only bonded claims count toward a subject's proven record. An unbonded
+    // claim is unpriced and anyone can register one, so letting it into these
+    // figures would let a griefer author someone else's credit history.
+    const bonded = mine.filter((o) => o.bonded);
+    const adverse = bonded.filter((o) => ['Default', 'ChargedOff'].includes(o.status));
+
+    const sum = (list, k) => list.reduce((a, o) => a + BigInt(o[k]), 0n).toString();
+    const count = (list, k) => list.reduce((a, o) => a + Number(o[k] || 0), 0);
+
+    const heights = bonded.map((o) => BigInt(o.startHeight || 0)).filter((h) => h > 0n);
+    const firstSeen = heights.length ? heights.reduce((a, h) => (h < a ? h : a)).toString() : null;
+
+    const identity = identityOf(subject);
+
+    return {
+      subject,
+      asOfBlock: this.lastBlock,
+
+      identity: identity
+        ? {
+            displayName: identity.displayName,
+            latinName: identity.latinName,
+            kind: identity.kind,
+            jurisdiction: identity.jurisdiction,
+            sector: identity.sector,
+            disclosure: identity.disclosure,
+          }
+        : null,
+
+      proven: {
+        obligationsRegistered: bonded.length,
+        paymentsProven: count(bonded, 'periodsSatisfied'),
+        paymentsScheduled: count(bonded, 'periodsTotal'),
+        defaults: adverse.length,
+        delinquentNow: bonded.filter((o) => o.status === 'Delinquent').length,
+        openNow: bonded.filter((o) => ['Active', 'Current', 'Delinquent'].includes(o.status)).length,
+        lifetimePrincipal: sum(bonded, 'principal'),
+        outstanding: sum(
+          bonded.filter((o) => !['Settled', 'ChargedOff'].includes(o.status)),
+          'outstanding',
+        ),
+        firstSeenHeight: firstSeen,
+      },
+
+      attested: identity ? identity.attestations : [],
+
+      // Registered against this subject but carrying no registrar bond. Reported
+      // so the subject can see what is being claimed about them, and never mixed
+      // into `proven`.
+      unbondedClaims: mine.filter((o) => !o.bonded).length,
+
+      /**
+       * Facts a credit file would normally carry that this projection cannot
+       * derive yet. Named explicitly, because silently reporting `curedLate: 0`
+       * would be indistinguishable from a clean record.
+       */
+      notIndexed: [
+        'curedLate — requires replaying StatusChanged transitions, not just current state',
+        'timeToCure — same',
+        'counterpartyConcentration — needs registrar clustering',
+      ],
+
+      note:
+        'PROVEN figures are derived from the register and recomputable by anyone. ' +
+        'ATTESTED claims are statements by named issuers and are not proof. ' +
+        'Only bonded claims contribute to proven figures.',
+    };
   }
 
   /**

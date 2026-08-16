@@ -6,6 +6,7 @@ import type {
   ObligationDetail,
   Solvency,
   Underwriter,
+  Profile,
 } from './types';
 
 const BASE = import.meta.env.VITE_LENS_URL ?? '/api';
@@ -50,6 +51,7 @@ export const lens = {
   solvency: (entity: string, s?: AbortSignal) => get<Solvency>(`/solvency/${entity}`, s),
   encumbrance: (asset: string, s?: AbortSignal) => get<Encumbrance>(`/encumbrance/${asset}`, s),
   underwriter: (addr: string, s?: AbortSignal) => get<Underwriter>(`/underwriter/${addr}`, s),
+  profile: (subject: string, s?: AbortSignal) => get<Profile>(`/profile/${subject}`, s),
 };
 
 export type Async<T> =

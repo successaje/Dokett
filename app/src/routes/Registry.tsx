@@ -1,5 +1,5 @@
 import { lens, useLens } from '../lib/lens';
-import { big, units } from '../lib/format';
+import { big, units, truncate } from '../lib/format';
 import {
   Addr,
   Empty,
@@ -114,7 +114,7 @@ export default function Registry() {
                     <th>ID</th>
                     <th>Status</th>
                     <th>Registrar</th>
-                    <th>Payer</th>
+                    <th>Obligor</th>
                     <th className="num">Outstanding</th>
                     <th className="num">Periods</th>
                     <th className="num">Coverage</th>
@@ -145,7 +145,16 @@ export default function Registry() {
                         </span>
                       </td>
                       <td>
-                        <Addr value={o.sourcePayer} />
+                        {/* stopPropagation: the row navigates to the obligation,
+                            but this cell is about the SUBJECT, not the claim. */}
+                        <a
+                          className="mono"
+                          href={`#/profile/${o.obligor}`}
+                          onClick={(e) => e.stopPropagation()}
+                          title="Open this subject's file"
+                        >
+                          {truncate(o.obligor, 8, 6)}
+                        </a>
                       </td>
                       <td className="num">{units(o.outstanding)}</td>
                       <td className="num" style={{ color: 'var(--ink-3)' }}>

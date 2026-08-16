@@ -1072,6 +1072,68 @@ table.data td.num {
   }
 }
 
+/* ─────────────────────────── onboarding ───────────────────────────── */
+
+/*
+ * Inline, not modal. Bordered on all sides so it reads as an editor's note set
+ * beside the record rather than part of it.
+ */
+.onboard {
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--paper-2);
+  padding: 16px 18px 4px;
+  margin: 22px 0 4px;
+}
+
+.onboard-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.onboard-close {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+  padding: 0;
+}
+
+.onboard-close:hover {
+  color: var(--ink);
+}
+
+.onboard-points {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0 26px;
+}
+
+.onboard-point {
+  padding-bottom: 16px;
+}
+
+.onboard-point-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.onboard-point-body {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  margin: 5px 0 0;
+  max-width: 46ch;
+}
+
 /* ───────────────────────────── landing ─────────────────────────────── */
 
 /*

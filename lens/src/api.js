@@ -21,6 +21,7 @@ function createServer(index, log = console) {
     [/^\/encumbrance\/(0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64})$/, (m) => index.encumbrance(m[1])],
     [/^\/obligation\/(\d+)$/, (m) => index.obligation(m[1])],
     [/^\/underwriter\/(0x[0-9a-fA-F]{40})$/, (m) => index.underwriter(m[1])],
+    [/^\/profile\/(0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64})$/, (m) => index.profile(m[1])],
     [/^\/obligations$/, () => ({ asOfBlock: index.lastBlock, obligations: [...index.obligations.values()] })],
   ];
 
@@ -61,6 +62,7 @@ function createServer(index, log = console) {
         'GET /encumbrance/:asset    — is this collateral already pledged?',
         'GET /obligation/:id',
         'GET /underwriter/:address',
+        'GET /profile/:subject      — proven record, and separately, what is claimed',
         'GET /obligations',
       ],
     });

@@ -36,6 +36,7 @@ const base = {
   periodsTotal: 3,
   collateralRef: '0x' + '0'.repeat(64),
   coverage: '0',
+  periodBlocks: '216000',
 };
 
 const OBLIGATIONS = [
@@ -49,6 +50,7 @@ const OBLIGATIONS = [
     principal: '3000000000',
     outstanding: '2000000000',
     periodsSatisfied: 1,
+    startHeight: '22934000',
     windowEndHeight: '23150000',
     cureEndHeight: '23200400',
     lastProvenHeight: '22940120',
@@ -68,6 +70,7 @@ const OBLIGATIONS = [
     principal: '1500000000',
     outstanding: '1500000000',
     periodsSatisfied: 0,
+    startHeight: '23150000',
     windowEndHeight: '23366000',
     cureEndHeight: '23416400',
     lastProvenHeight: '0',
@@ -85,6 +88,7 @@ const OBLIGATIONS = [
     principal: '3000000000',
     outstanding: '3000000000',
     periodsSatisfied: 0,
+    startHeight: '22884000',
     windowEndHeight: '23100000',
     cureEndHeight: '23150400',
     lastProvenHeight: '0',
@@ -103,6 +107,7 @@ const OBLIGATIONS = [
     principal: '2000000000',
     outstanding: '2000000000',
     periodsSatisfied: 0,
+    startHeight: '22584000',
     windowEndHeight: '22800000',
     cureEndHeight: '22850400',
     lastProvenHeight: '0',
@@ -121,6 +126,7 @@ const OBLIGATIONS = [
     principal: '3000000000',
     outstanding: '0',
     periodsSatisfied: 3,
+    startHeight: '22384000',
     windowEndHeight: '22600000',
     cureEndHeight: '22650400',
     lastProvenHeight: '22598000',
@@ -141,6 +147,7 @@ const OBLIGATIONS = [
     principal: '999000000000',
     outstanding: '999000000000',
     periodsSatisfied: 0,
+    startHeight: '23184000',
     windowEndHeight: '23400000',
     cureEndHeight: '23450400',
     lastProvenHeight: '0',
@@ -165,7 +172,14 @@ for (const b of BONDS) index.bonds.set(b.bondId, b);
 const port = Number(process.env.PORT || 8787);
 createServer(index).listen(port, () => {
   console.log(`lens (DEMO FIXTURES, no chain) on http://localhost:${port}`);
-  console.log(`  borrower with cross-venue exposure: ${ALICE}`);
-  console.log(`  underwriter:                        ${UNDERWRITER}`);
-  console.log(`  double-pledged asset:               ${ASSET}`);
+  console.log('');
+  console.log('  scenarios');
+  console.log(`    대현상사 · cross-venue exposure   ${ALICE}`);
+  console.log(`      profile   http://localhost:${port}/profile/0x${'a1'.repeat(32)}`);
+  console.log(`      solvency  http://localhost:${port}/solvency/${ALICE}`);
+  console.log(`    한빛식자재 · delinquent, cure open ${BORROWER_2}`);
+  console.log(`    ADA EZE ELECTRONICS · settled     ${'0x' + 'd4'.repeat(32)}`);
+  console.log(`    서일캐피탈 · underwriter          ${UNDERWRITER}`);
+  console.log(`    pledged asset (전세-style)        ${ASSET}`);
+  console.log(`      encumbrance http://localhost:${port}/encumbrance/${ASSET}`);
 });

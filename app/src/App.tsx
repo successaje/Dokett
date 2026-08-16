@@ -7,6 +7,8 @@ import Solvency from './routes/Solvency';
 import Encumbrance from './routes/Encumbrance';
 import Obligation from './routes/Obligation';
 import Underwriter from './routes/Underwriter';
+import Profile from './routes/Profile';
+import Onboarding from './components/Onboarding';
 
 /** Hash routing: no dependency, and every view stays a shareable deep link. */
 function useHashRoute(): string {
@@ -108,6 +110,10 @@ function View({ route }: { route: string }) {
   const underwriter = route.match(/^\/underwriter\/(0x[0-9a-fA-F]{40})$/);
   if (underwriter?.[1]) return <Underwriter address={underwriter[1]} />;
 
+  // 40 hex chars for a payment address, 64 for an obligor commitment.
+  const profile = route.match(/^\/profile\/(0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64})$/);
+  if (profile?.[1]) return <Profile subject={profile[1]} />;
+
   switch (route) {
     case '/solvency':
       return <Solvency />;
@@ -190,6 +196,9 @@ export default function App() {
       <LivenessStrip />
 
       <main style={{ flex: 1 }}>
+        <div className="page">
+          <Onboarding />
+        </div>
         <View route={route} />
       </main>
 

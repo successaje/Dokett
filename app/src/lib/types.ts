@@ -108,3 +108,58 @@ export interface Health {
   asOfBlock: number;
   obligations: number;
 }
+
+/* ─────────────────────────── profile ─────────────────────────── */
+
+/**
+ * An attested claim: something a named issuer said, with what they staked.
+ *
+ * Never proof. The Console must render these in a visually distinct register
+ * from `ProvenRecord` — collapsing the two is how a registry starts laundering
+ * assertions into evidence.
+ */
+export interface Attestation {
+  kind: string;
+  claim: string;
+  issuer: string;
+  issuerName: string;
+  method: 'signature' | 'document' | 'site-visit' | string;
+  /** CTC the issuer staked against being wrong. '0' means unbonded. */
+  bondedCtc: string;
+  at: string;
+}
+
+/** Derived from the register. Recomputable by any stranger; adjustable by nobody. */
+export interface ProvenRecord {
+  obligationsRegistered: number;
+  paymentsProven: number;
+  paymentsScheduled: number;
+  defaults: number;
+  delinquentNow: number;
+  openNow: number;
+  lifetimePrincipal: string;
+  outstanding: string;
+  firstSeenHeight: string | null;
+}
+
+export interface DisclosedIdentity {
+  displayName: string;
+  latinName: string | null;
+  kind: string;
+  jurisdiction: string;
+  sector: string;
+  disclosure: string;
+}
+
+export interface Profile {
+  subject: string;
+  asOfBlock: number;
+  /** Null is normal: most subjects never disclose, and the record stands alone. */
+  identity: DisclosedIdentity | null;
+  proven: ProvenRecord;
+  attested: Attestation[];
+  unbondedClaims: number;
+  /** Facts deliberately NOT reported, rather than defaulted to a flattering zero. */
+  notIndexed: string[];
+  note: string;
+}
