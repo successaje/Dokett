@@ -104,16 +104,22 @@ End to end: [`docs/USE-CASES.md`](docs/USE-CASES.md) · Design spec: [`docs/ARCH
 ```bash
 git clone https://github.com/successaje/covenant && cd covenant
 npm install
-forge test          # 62 contract tests
-npm test            # contracts + lens projection tests
+npm test            # 66 contract tests + 7 lens projection tests
+npm run demo        # seeded Lens + Console on :5173 — no chain required
 ```
 
-Run the stack:
+`npm run demo` serves a fixture projection covering every state in the
+lifecycle, including a defaulted obligation with a slashed bond and an unbonded
+claim registered in bad faith. It is the fastest way to see what this is.
+
+Against a real deployment:
 
 ```bash
-npm run lens        # indexer + read API on :8787
-npm run keeper      # poke / prove / sweep   (DRY_RUN=1 to observe only)
-npm run app         # Covenant Console on :5173
+cp .env.example .env   # endpoints are pre-filled; add your RPC and keys
+npm run prove:one      # verify ONE real mainnet tx — the evidence-layer gate
+npm run lens           # indexer + read API on :8787
+npm run keeper         # poke / prove / sweep   (DRY_RUN=1 to observe only)
+npm run app            # Covenant Console on :5173
 ```
 
 Regenerate the mainnet fixtures:
