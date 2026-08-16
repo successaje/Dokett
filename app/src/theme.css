@@ -1003,6 +1003,75 @@ table.data td.num {
   }
 }
 
+/* ───────────────────────────── motion ──────────────────────────────── */
+
+/*
+ * Every rule here is nested under [data-motion="on"], which JavaScript sets only
+ * after confirming the browser can animate and the reader has not asked it not
+ * to. Absent that attribute nothing below applies and the page is plain static
+ * content — the hidden state can never strand the record behind a script that
+ * failed to run.
+ *
+ * Distances are short and durations are quick. This is a register; motion should
+ * settle the eye onto the next line, not perform.
+ */
+
+[data-motion="on"] .reveal {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+[data-motion="on"] .reveal[data-in="true"] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) var(--reveal-delay, 0ms),
+    transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) var(--reveal-delay, 0ms);
+}
+
+/* Above the fold there is nothing to wait for, so the cover animates on load
+   rather than on intersection. */
+[data-motion="on"] .rise {
+  animation: rise 0.62s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The cure band drawing itself in is the one animation that carries meaning:
+   it is the stretch of height in which a late proof still saves the obligation. */
+[data-motion="on"] .reveal[data-in="true"] .ruler-band {
+  animation: band 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s both;
+  transform-origin: left center;
+}
+
+@keyframes band {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-motion="on"] .reveal,
+  [data-motion="on"] .rise {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 /* ───────────────────────────── landing ─────────────────────────────── */
 
 /*
@@ -1234,6 +1303,148 @@ table.data td.num {
 
 .lp-close {
   padding-top: 78px;
+}
+
+/* ── specimen ─────────────────────────────────────────────────────────
+ * A working component from the console, dropped into the argument. Showing
+ * the instrument beats describing it, and it is honest in a way a marketing
+ * illustration is not: this is the actual thing, at the actual size.
+ */
+.lp-specimen {
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  padding: 22px 24px 24px;
+  background: var(--paper-2);
+  margin-top: 26px;
+}
+
+.lp-specimen-cap {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  margin: 16px 0 0;
+  max-width: 68ch;
+  line-height: 1.6;
+}
+
+.lp-specimen .ruler {
+  background: var(--paper);
+}
+
+/* ── footer ──────────────────────────────────────────────────────────── */
+
+.lp-footer {
+  border-top: 1px solid var(--ink);
+  margin-top: 80px;
+}
+
+.lp-cols {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, minmax(120px, 1fr));
+  gap: 32px;
+  padding: 34px 0 30px;
+}
+
+@media (max-width: 720px) {
+  .lp-cols {
+    grid-template-columns: 1fr 1fr;
+    gap: 26px;
+  }
+}
+
+.lp-col h4 {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.lp-col a {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-2);
+  text-decoration: none;
+  padding: 3px 0;
+  width: fit-content;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.lp-col a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--rule-strong);
+}
+
+.lp-col-about p {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 38ch;
+}
+
+/*
+ * The oversized wordmark, set as an imprint rather than a banner.
+ *
+ * It is clipped at the baseline and rendered close to the paper: at the foot of
+ * a document you want the impression of a name pressed into the page, not a
+ * second headline competing with the one at the top.
+ */
+.lp-imprint {
+  overflow: hidden;
+  padding: 0 12px;
+  line-height: 0.76;
+}
+
+.lp-imprint span {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(74px, 19.2vw, 290px);
+  letter-spacing: -0.045em;
+  color: var(--paper-3);
+  text-align: center;
+  user-select: none;
+  margin-bottom: -0.17em;
+  white-space: nowrap;
+}
+
+.lp-legal {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 16px 0 22px;
+  border-top: 1px solid var(--rule);
+  font-size: 11.5px;
+  color: var(--ink-4);
+}
+
+/* ── interaction polish ──────────────────────────────────────────────── */
+
+.lp-btn {
+  transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+
+.lp-btn:hover {
+  transform: translateY(-1px);
+}
+
+.lp-btn:active {
+  transform: translateY(0);
+}
+
+.nav a,
+table.data tbody tr,
+.status {
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-btn:hover {
+    transform: none;
+  }
 }
 
 /* ───────────────────────────── colophon ────────────────────────────── */
