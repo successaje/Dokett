@@ -267,6 +267,16 @@ hr {
   font-weight: 600;
   text-decoration: none;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Optical baseline: the mark's bowl sits low against a serif cap height, so it
+   is nudged up rather than aligned by its box. */
+.wordmark svg {
+  flex: none;
+  margin-top: -2px;
 }
 
 .wordmark-sub {

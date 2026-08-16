@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"
+     stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+     role="img" aria-label="Covenant">
+  <!--
+    An open C held by a vertical rule.
+
+    The promise stays open; the rule is what holds it. Which is the protocol:
+    an obligation is not made binding by a seal, it is held by the record.
+    Geometry is optically centred rather than centred on the viewBox — the C
+    carries more mass than the rule.
+  -->
+  <path d="M21.8 9.8a9.2 9.2 0 1 0 0 12.4"/>
+  <path d="M26.2 4.8v22.4"/>
+</svg>

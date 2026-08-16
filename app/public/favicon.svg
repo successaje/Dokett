@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <style>
+    /* A favicon sits on the tab bar, so it follows the browser chrome rather
+       than the page theme. */
+    :root { --m: #16181c; }
+    @media (prefers-color-scheme: dark) { :root { --m: #ece9e2; } }
+  </style>
+  <!-- Heavier stroke: at 16px the 2.4 weight goes thin and the gap closes up. -->
+  <g stroke="var(--m)" stroke-width="3" stroke-linecap="round">
+    <path d="M21.8 9.8a9.2 9.2 0 1 0 0 12.4"/>
+    <path d="M26.2 4.8v22.4"/>
+  </g>
+</svg>

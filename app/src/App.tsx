@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { lens, useLens } from './lib/lens';
+import { Mark } from './components/primitives';
 import Landing from './routes/Landing';
 import Registry from './routes/Registry';
 import Solvency from './routes/Solvency';
@@ -143,6 +144,7 @@ export default function App() {
         <header className="masthead">
           <div className="page masthead-inner">
             <a className="wordmark" href="#/">
+              <Mark />
               Covenant
               <span className="wordmark-sub">Register of Obligations</span>
             </a>
@@ -170,6 +172,7 @@ export default function App() {
       <header className="masthead">
         <div className="page masthead-inner">
           <a className="wordmark" href="#/">
+            <Mark />
             Covenant
             <span className="wordmark-sub">Register of Obligations</span>
           </a>

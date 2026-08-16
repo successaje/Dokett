@@ -2,6 +2,37 @@ import type { ReactNode } from 'react';
 import type { Status } from '../lib/types';
 import { STATUS_MEANING, truncate } from '../lib/format';
 
+/* ──────────────────────────────── mark ──────────────────────────────── */
+
+/**
+ * The Covenant mark: an open C held by a vertical rule.
+ *
+ * The promise stays open; the rule is what holds it — which is the protocol.
+ * An obligation is not made binding by a seal, it is held by the record.
+ *
+ * Inlined rather than an <img> so it inherits `currentColor` and flips with the
+ * theme for free, and so it costs no request. Geometry is optically centred, not
+ * centred on the viewBox: the C carries more mass than the rule.
+ */
+export function Mark({ size = 26, strokeWidth = 2.4 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M21.8 9.8a9.2 9.2 0 1 0 0 12.4" />
+      <path d="M26.2 4.8v22.4" />
+    </svg>
+  );
+}
+
 /* ─────────────────────────────── status ─────────────────────────────── */
 
 /**
