@@ -12,7 +12,11 @@
     "test:lens": "node --test \"lens/test/*.test.js\"",
     "keeper": "node worker/src/index.js",
     "lens": "node lens/src/index.js",
-    "fixtures": "node demo/gen-fixtures.js"
+    "fixtures": "node demo/gen-fixtures.js",
+    "lens:demo": "node lens/src/demo.js",
+    "app": "npm --prefix app run dev",
+    "app:build": "npm --prefix app run build",
+    "demo": "node lens/src/demo.js & npm --prefix app run dev"
   },
   "keywords": [],
   "author": "",

@@ -19,3 +19,6 @@ creditcoin-opportunity-research.md
 
 # os
 .DS_Store
+
+# vite
+app/dist/
