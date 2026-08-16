@@ -1,195 +1,252 @@
 /*
- * Covenant Console — design tokens.
+ * Covenant Console — design system.
  *
- * The register is deliberately closer to a settlement terminal than to a dapp:
- * dense, monospaced where precision matters, quiet with colour. Colour is spent
- * only on protocol state (healthy / curable / defaulted / stalled), so when
- * something on screen is coloured it is because the protocol is saying
- * something, not because a designer wanted emphasis.
+ * ─── THE THESIS ────────────────────────────────────────────────────────────
  *
- * Light is the base palette; dark is a token swap. Both are defined explicitly
- * — nothing inherits a background from the host.
+ * Covenant is not a yield product, so it must not look like one. Maple,
+ * Goldfinch and every other lending front-end are storefronts for depositors:
+ * brand accent everywhere, rounded cards, APY as the hero number. They are
+ * selling something, and they look like it.
+ *
+ * A registry sells nothing. Its closest relatives are a credit bureau file, a
+ * UCC lien search and a court docket — documents that earn trust by looking
+ * like they cannot be edited. Hence four rules:
+ *
+ *   1. MONOCHROME, WITH ONE EXCEPTION. Colour is spent exclusively on protocol
+ *      state. There is no brand accent and no blue button anywhere. When
+ *      something on screen is coloured, the protocol is saying something; it is
+ *      never decoration. Interaction is carried by rules, weight and underline.
+ *
+ *   2. THE HERO NUMBER IS A BLOCK HEIGHT, never a yield. The attested head is
+ *      the most consequential fact in the system, so it lives in the masthead.
+ *
+ *   3. RULES, NOT CARDS. Hairlines and editorial density instead of floating
+ *      panels with shadows. Documents are ruled; dashboards are boxed.
+ *
+ *   4. SERIF FOR AUTHORITY, MONO FOR FACT. A serif masthead reads as record
+ *      rather than app. Every number that came off a chain is monospaced with
+ *      tabular figures, so columns align and digits cannot be misread.
+ *
+ * Both palettes are declared in full. Nothing inherits a background from the
+ * host, and no colour is defined only inside a media query.
  */
 
+/* ─────────────────────────────── tokens ─────────────────────────────── */
+
 :root {
-  --bg: #f7f8fa;
-  --surface: #ffffff;
-  --surface-2: #f1f3f6;
-  --border: #dfe3ea;
-  --border-strong: #c6ccd8;
+  /* paper & ink — warm, not clinical */
+  --paper: #faf9f6;
+  --paper-2: #f3f1ec;
+  --paper-3: #eae7e0;
+  --ink: #16181c;
+  --ink-2: #4a4741;
+  --ink-3: #78746c;
+  --ink-4: #a8a49b;
 
-  --text: #10141c;
-  --text-dim: #59616f;
-  --text-faint: #8a93a3;
+  --rule: #e0ddd5;
+  --rule-strong: #c8c4b9;
 
-  --accent: #1f5eff;
-  --accent-dim: #e8eeff;
+  /* protocol state — the only chroma in the system */
+  --st-active: #6b6760;
+  --st-current: #1c6b48;
+  --st-delinquent: #9a6206;
+  --st-default: #96291d;
+  --st-settled: #35506b;
+  --st-void: #8a867e;
 
-  --good: #0f7a4d;
-  --good-dim: #e2f5ec;
-  --warn: #9a6400;
-  --warn-dim: #fdf1d9;
-  --bad: #b3231f;
-  --bad-dim: #fdeaea;
-  --done: #4a5262;
-  --done-dim: #eceef2;
+  --st-active-bg: #eeece7;
+  --st-current-bg: #e4f0ea;
+  --st-delinquent-bg: #f8eeda;
+  --st-default-bg: #f7e6e3;
+  --st-settled-bg: #e6ecf3;
+  --st-void-bg: #eeece7;
 
+  --serif: ui-serif, "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
-  --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
 
-  --r: 6px;
-  --shadow: 0 1px 2px rgb(16 20 28 / 6%), 0 4px 12px rgb(16 20 28 / 4%);
+  --page: 1180px;
+  --r: 3px;
+
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --bg: #0b0d12;
-    --surface: #12151c;
-    --surface-2: #171b24;
-    --border: #222836;
-    --border-strong: #323a4c;
+  :root:not([data-theme="light"]) {
+    --paper: #131418;
+    --paper-2: #191a1f;
+    --paper-3: #202127;
+    --ink: #ece9e2;
+    --ink-2: #b3afa6;
+    --ink-3: #8a867d;
+    --ink-4: #625f58;
 
-    --text: #e8ecf3;
-    --text-dim: #99a2b3;
-    --text-faint: #6b7385;
+    --rule: #2a2c33;
+    --rule-strong: #3d3f48;
 
-    --accent: #5b8cff;
-    --accent-dim: #15203a;
+    --st-active: #9c978d;
+    --st-current: #4fbc8a;
+    --st-delinquent: #d9a13f;
+    --st-default: #e0705f;
+    --st-settled: #7ba3cf;
+    --st-void: #7c7970;
 
-    --good: #3ecf8e;
-    --good-dim: #10251c;
-    --warn: #e0a83c;
-    --warn-dim: #2a1f0c;
-    --bad: #ff6b64;
-    --bad-dim: #2c1414;
-    --done: #8b93a5;
-    --done-dim: #1b1f28;
+    --st-active-bg: #232228;
+    --st-current-bg: #14251d;
+    --st-delinquent-bg: #2a2110;
+    --st-default-bg: #2b1a17;
+    --st-settled-bg: #17202b;
+    --st-void-bg: #232228;
 
-    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 14px rgb(0 0 0 / 24%);
+    color-scheme: dark;
   }
 }
 
-:root[data-theme='dark'] {
-  --bg: #0b0d12;
-  --surface: #12151c;
-  --surface-2: #171b24;
-  --border: #222836;
-  --border-strong: #323a4c;
+:root[data-theme="dark"] {
+  --paper: #131418;
+  --paper-2: #191a1f;
+  --paper-3: #202127;
+  --ink: #ece9e2;
+  --ink-2: #b3afa6;
+  --ink-3: #8a867d;
+  --ink-4: #625f58;
 
-  --text: #e8ecf3;
-  --text-dim: #99a2b3;
-  --text-faint: #6b7385;
+  --rule: #2a2c33;
+  --rule-strong: #3d3f48;
 
-  --accent: #5b8cff;
-  --accent-dim: #15203a;
+  --st-active: #9c978d;
+  --st-current: #4fbc8a;
+  --st-delinquent: #d9a13f;
+  --st-default: #e0705f;
+  --st-settled: #7ba3cf;
+  --st-void: #7c7970;
 
-  --good: #3ecf8e;
-  --good-dim: #10251c;
-  --warn: #e0a83c;
-  --warn-dim: #2a1f0c;
-  --bad: #ff6b64;
-  --bad-dim: #2c1414;
-  --done: #8b93a5;
-  --done-dim: #1b1f28;
+  --st-active-bg: #232228;
+  --st-current-bg: #14251d;
+  --st-delinquent-bg: #2a2110;
+  --st-default-bg: #2b1a17;
+  --st-settled-bg: #17202b;
+  --st-void-bg: #232228;
 
-  --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 14px rgb(0 0 0 / 24%);
+  color-scheme: dark;
 }
 
-* {
+/* ──────────────────────────────── base ──────────────────────────────── */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-/*
- * min-height, never height. `height: 100%` here clamps the document to the
- * viewport, which then squeezes the flex column in .shell instead of letting it
- * grow — everything below the fold becomes unreachable rather than scrollable.
- */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* min-height, never height: `height: 100%` clamps the document to the viewport
+   and squeezes the flex column instead of letting it grow. */
 html,
-body,
-#root {
+body {
   min-height: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--sans);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "kern" 1;
+}
+
+/* Every on-chain number is tabular. Columns must align, and an 8 must never be
+   confusable with a 3 in an amount someone is about to lend against. */
+.mono,
+td.num,
+th.num,
+.tnum {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
 }
 
 a {
-  color: var(--accent);
-  text-decoration: none;
+  color: inherit;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 3px;
 }
+
 a:hover {
-  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 
 button {
   font: inherit;
   color: inherit;
-  cursor: pointer;
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
-code,
-.mono {
-  font-family: var(--mono);
-  font-size: 0.92em;
-  font-variant-numeric: tabular-nums;
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
 }
 
-/* Numbers must line up: a column of balances that jitters is unreadable. */
-.num {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── layout ─────────────────────────────────────────────────────────── */
+/* ─────────────────────────────── layout ─────────────────────────────── */
 
 .shell {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: 100vh;
 }
 
-.wrap {
-  width: 100%;
-  max-width: 1180px;
+.page {
+  max-width: var(--page);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 28px;
+  width: 100%;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 0 16px;
+  }
 }
 
 .stack {
   display: flex;
   flex-direction: column;
-  gap: 20px;
 }
+
 .row {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-.spread {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
 }
 
-/* ── header ─────────────────────────────────────────────────────────── */
+.between {
+  justify-content: space-between;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.grow {
+  flex: 1;
+}
+
+/* ────────────────────────────── masthead ────────────────────────────── */
 
 .masthead {
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -197,333 +254,762 @@ code,
 
 .masthead-inner {
   display: flex;
-  align-items: center;
-  gap: 28px;
-  height: 56px;
-}
-
-.brand {
-  display: flex;
   align-items: baseline;
-  gap: 9px;
-  font-weight: 640;
-  letter-spacing: -0.015em;
-  color: var(--text);
-  font-size: 15px;
-}
-.brand:hover {
-  text-decoration: none;
-}
-.brand small {
-  font-weight: 450;
-  font-size: 11px;
-  color: var(--text-faint);
-  letter-spacing: 0.02em;
-}
-
-.nav {
-  display: flex;
-  gap: 2px;
-  margin-left: auto;
+  gap: 20px;
+  padding: 18px 0 12px;
   flex-wrap: wrap;
 }
-.nav a {
-  padding: 6px 11px;
-  border-radius: var(--r);
-  color: var(--text-dim);
-  font-size: 13px;
+
+.wordmark {
+  font-family: var(--serif);
+  font-size: 25px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.wordmark-sub {
+  font-family: var(--sans);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-left: 9px;
   font-weight: 500;
 }
-.nav a:hover {
-  background: var(--surface-2);
-  color: var(--text);
+
+/* Navigation set as an index, not a button bar. */
+.nav {
+  display: flex;
+  gap: 22px;
+  margin-left: auto;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.nav a {
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
   text-decoration: none;
-}
-.nav a[aria-current='page'] {
-  background: var(--accent-dim);
-  color: var(--accent);
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
 }
 
-/* ── cards & panels ─────────────────────────────────────────────────── */
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  box-shadow: var(--shadow);
+.nav a:hover {
+  color: var(--ink);
 }
-.card-head {
-  padding: 13px 16px;
-  border-bottom: 1px solid var(--border);
+
+.nav a[aria-current="page"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+  font-weight: 600;
+}
+
+/*
+ * Narrow screens: the wordmark and the theme control hold the first line, and
+ * the index drops to its own full-width line that scrolls rather than
+ * truncating. A navigation item you cannot reach is worse than one you have to
+ * swipe to.
+ */
+@media (max-width: 720px) {
+  .masthead-inner {
+    padding: 14px 0 6px;
+    gap: 10px;
+  }
+
+  .wordmark {
+    font-size: 21px;
+  }
+
+  .wordmark-sub {
+    display: block;
+    padding: 2px 0 0;
+  }
+
+  .masthead-inner > .btn {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    gap: 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ───────────────────── liveness strip (invariant I7) ────────────────── */
+
+/*
+ * Permanent, not a toast. Whether the attested head is advancing decides
+ * whether anyone can be penalised at all, so it is a standing condition of the
+ * entire record rather than a passing event. When it degrades, the strip
+ * changes state and stays changed.
+ */
+.liveness {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 18px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  background: var(--paper-2);
+  flex-wrap: wrap;
 }
-.card-title {
-  font-size: 13px;
-  font-weight: 620;
-  letter-spacing: -0.005em;
+
+.liveness-item {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  white-space: nowrap;
 }
-.card-body {
-  padding: 16px;
+
+.liveness-label {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 9.5px;
+  color: var(--ink-4);
 }
-.card-note {
-  padding: 11px 16px;
-  border-top: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text-dim);
+
+.liveness-value {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
   font-size: 12px;
-  line-height: 1.55;
+}
+
+.liveness[data-degraded="true"] {
+  background: var(--st-delinquent-bg);
+  border-bottom-color: var(--st-delinquent);
+  color: var(--st-delinquent);
+}
+
+.liveness[data-degraded="true"] .liveness-value,
+.liveness[data-degraded="true"] .liveness-label {
+  color: var(--st-delinquent);
+}
+
+/* On narrow screens keep the facts and drop the explainer — projection height
+   and obligation count are data; "clock: attested source height" is a caption,
+   and a caption that wraps onto three lines is just noise. */
+@media (max-width: 720px) {
+  .liveness {
+    gap: 14px;
+    font-size: 11px;
+  }
+
+  .liveness-item[data-caption="true"] {
+    display: none;
+  }
+}
+
+/* ─────────────────────────── page furniture ─────────────────────────── */
+
+.page-head {
+  padding: 34px 0 18px;
+}
+
+.page-title {
+  font-family: var(--serif);
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.page-lede {
+  margin: 9px 0 0;
+  color: var(--ink-2);
+  max-width: 62ch;
+  font-size: 13.5px;
 }
 
 .eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--ink-4);
+  font-weight: 600;
 }
 
-/* ── tables ─────────────────────────────────────────────────────────── */
+.section {
+  padding: 26px 0;
+  border-top: 1px solid var(--rule);
+}
 
-.table-scroll {
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.005em;
+}
+
+.note {
+  font-size: 12px;
+  color: var(--ink-3);
+  max-width: 74ch;
+  line-height: 1.6;
+}
+
+/* ──────────────────────────── figures ───────────────────────────────── */
+
+/* A ledger header rule of key figures — not stat cards. No boxes and no
+   shadows; the numbers carry themselves and one rule holds the row together. */
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+
+.figure {
+  padding: 15px 20px 16px;
+  border-right: 1px solid var(--rule);
+}
+
+.figure:last-child {
+  border-right: 0;
+}
+
+.figure-label {
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  font-weight: 600;
+}
+
+.figure-value {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 26px;
+  line-height: 1.2;
+  margin-top: 7px;
+  letter-spacing: -0.02em;
+}
+
+.figure-sub {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  margin-top: 3px;
+}
+
+@media (max-width: 720px) {
+  .figure-value {
+    font-size: 21px;
+  }
+}
+
+/* ───────────────────────────── tables ───────────────────────────────── */
+
+/*
+ * Editorial tables: no zebra striping, no card wrapper. A heavy rule under the
+ * header and hairlines between rows, the way a financial statement is set.
+ */
+.table-wrap {
   overflow-x: auto;
 }
-table {
+
+table.data {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 }
-th {
+
+table.data th {
   text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-size: 9.5px;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: var(--text-faint);
-  padding: 9px 14px;
-  border-bottom: 1px solid var(--border);
+  color: var(--ink-4);
+  font-weight: 600;
+  padding: 0 14px 8px 0;
+  border-bottom: 1px solid var(--ink);
   white-space: nowrap;
 }
-td {
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-tbody tr:last-child td {
-  border-bottom: 0;
-}
-tbody tr:hover {
-  background: var(--surface-2);
-}
-.right {
+
+table.data th.num,
+table.data td.num {
   text-align: right;
+  padding-right: 14px;
 }
 
-/* ── pills ──────────────────────────────────────────────────────────── */
+table.data td {
+  padding: 11px 14px 11px 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: baseline;
+}
 
-.pill {
+table.data tbody tr:hover {
+  background: var(--paper-2);
+}
+
+table.data tr.clickable {
+  cursor: pointer;
+}
+
+table.data td:last-child,
+table.data th:last-child {
+  padding-right: 0;
+}
+
+/* An identifier must never break across lines. A hash split mid-value is
+   unreadable and, worse, misreadable — the table scrolls instead. */
+table.data td .mono,
+table.data td.num {
+  white-space: nowrap;
+}
+
+/* ──────────────────────── definition list ───────────────────────────── */
+
+.dl {
+  display: grid;
+  grid-template-columns: minmax(140px, max-content) 1fr;
+  gap: 0;
+  margin: 0;
+}
+
+.dl dt {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  padding: 9px 22px 9px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.dl dd {
+  margin: 0;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+/* ──────────────────────────── status ────────────────────────────────── */
+
+.status {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 2px 8px;
-  border-radius: 100px;
-  font-size: 11.5px;
+  gap: 6px;
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 8px 2px 6px;
+  border-radius: 2px;
   white-space: nowrap;
-  border: 1px solid transparent;
-}
-.pill-good {
-  background: var(--good-dim);
-  color: var(--good);
-}
-.pill-warn {
-  background: var(--warn-dim);
-  color: var(--warn);
-}
-.pill-bad {
-  background: var(--bad-dim);
-  color: var(--bad);
-}
-.pill-done {
-  background: var(--done-dim);
-  color: var(--done);
-}
-.pill-neutral {
-  background: var(--surface-2);
-  color: var(--text-dim);
-  border-color: var(--border);
+  text-transform: uppercase;
 }
 
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 100px;
+.status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
   background: currentColor;
   flex: none;
 }
 
-/* ── forms ──────────────────────────────────────────────────────────── */
+.status[data-s="Active"] { color: var(--st-active); background: var(--st-active-bg); }
+.status[data-s="Current"] { color: var(--st-current); background: var(--st-current-bg); }
+.status[data-s="Delinquent"] { color: var(--st-delinquent); background: var(--st-delinquent-bg); }
+.status[data-s="Default"] { color: var(--st-default); background: var(--st-default-bg); }
+.status[data-s="Settled"] { color: var(--st-settled); background: var(--st-settled-bg); }
+.status[data-s="ChargedOff"],
+.status[data-s="None"],
+.status[data-s="Unknown"] { color: var(--st-void); background: var(--st-void-bg); }
 
-.field {
+/* an unbonded claim must never be mistaken for a bonded one */
+.flag-unbonded {
+  display: inline-block;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+  border: 1px dashed var(--rule-strong);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+/* ───────────────────────── lifecycle rail ──────────────────────────── */
+
+.rail {
   display: flex;
-  gap: 8px;
-  width: 100%;
-}
-input[type='text'] {
-  flex: 1;
-  min-width: 0;
-  padding: 9px 12px;
-  border: 1px solid var(--border-strong);
+  align-items: stretch;
+  border: 1px solid var(--rule);
   border-radius: var(--r);
-  background: var(--surface);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 13px;
-}
-input[type='text']::placeholder {
-  color: var(--text-faint);
-  font-family: var(--sans);
-}
-input[type='text']:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-dim);
+  overflow: hidden;
 }
 
-.btn {
-  padding: 9px 16px;
+.rail-step {
+  flex: 1;
+  padding: 10px 12px;
+  border-right: 1px solid var(--rule);
+  background: var(--paper);
+  min-width: 0;
+}
+
+.rail-step:last-child {
+  border-right: 0;
+}
+
+.rail-step[data-state="past"] {
+  background: var(--paper-2);
+}
+
+.rail-step[data-state="past"] .rail-name {
+  color: var(--ink-3);
+}
+
+.rail-step[data-state="here"] {
+  background: var(--paper-3);
+  box-shadow: inset 3px 0 0 var(--ink);
+}
+
+.rail-step[data-state="future"] .rail-name,
+.rail-step[data-state="future"] .rail-idx {
+  color: var(--ink-4);
+}
+
+.rail-idx {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-4);
+}
+
+.rail-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.rail-note {
+  font-size: 10.5px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+/* ───────────────────────── height ruler ────────────────────────────── */
+
+/*
+ * Covenant's clock is attested source-chain height, not wall time. Rendering
+ * that as a physical scale — window close, cure expiry, and the live head as a
+ * travelling marker — is the only chart in this app, because it is the one
+ * thing users must reason about spatially: how much room is left before a
+ * default becomes final.
+ */
+.ruler {
+  position: relative;
+  height: 46px;
+  border: 1px solid var(--rule);
   border-radius: var(--r);
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
-  font-size: 13px;
-  font-weight: 550;
+  background: var(--paper-2);
+  overflow: hidden;
+}
+
+.ruler-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--paper-3);
+}
+
+.ruler-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--st-delinquent-bg);
+}
+
+.ruler-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule-strong);
+}
+
+.ruler-mark[data-kind="window"] { background: var(--st-delinquent); }
+.ruler-mark[data-kind="cure"] { background: var(--st-default); }
+
+.ruler-mark[data-kind="head"] {
+  background: var(--ink);
+  width: 2px;
+}
+
+.ruler-mark::after {
+  content: attr(data-label);
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
   white-space: nowrap;
 }
+
+.ruler-mark[data-flip="true"]::after {
+  left: auto;
+  right: 5px;
+}
+
+.ruler-mark[data-kind="head"]::after {
+  color: var(--ink);
+  font-weight: 700;
+  top: auto;
+  bottom: 4px;
+}
+
+.ruler-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.ruler-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ruler-key i {
+  width: 9px;
+  height: 2px;
+  display: inline-block;
+}
+
+/* ──────────────────────────── docket ───────────────────────────────── */
+
+/*
+ * The lifecycle as a chronological record. Each entry names the evidence that
+ * caused the transition, because in this system nothing moves without one.
+ */
+.docket {
+  border-left: 1px solid var(--rule);
+  margin-left: 5px;
+}
+
+.docket-entry {
+  position: relative;
+  padding: 0 0 20px 22px;
+}
+
+.docket-entry::before {
+  content: "";
+  position: absolute;
+  left: -4.5px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1.5px solid var(--rule-strong);
+}
+
+.docket-entry[data-emphasis="true"]::before {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.docket-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.docket-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.docket-height {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.docket-body {
+  font-size: 12px;
+  color: var(--ink-2);
+  margin-top: 3px;
+  max-width: 70ch;
+}
+
+/* ───────────────────────────── search ──────────────────────────────── */
+
+.search {
+  display: flex;
+  gap: 0;
+  border-bottom: 1.5px solid var(--ink);
+  max-width: 640px;
+}
+
+.search input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  padding: 9px 2px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink);
+  min-width: 0;
+}
+
+.search input::placeholder {
+  color: var(--ink-4);
+  font-family: var(--sans);
+}
+
+.search input:focus {
+  outline: none;
+}
+
+.search button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 9px 4px 9px 12px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.search button:hover {
+  color: var(--ink);
+}
+
+/* ───────────────────────────── buttons ─────────────────────────────── */
+
+.btn {
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  border-radius: var(--r);
+  padding: 5px 11px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+
 .btn:hover {
-  background: var(--surface-2);
-}
-.btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-.btn-primary:hover {
-  filter: brightness(1.08);
-  background: var(--accent);
-}
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
-/* ── states ─────────────────────────────────────────────────────────── */
+/* ────────────────────── bonded / unbonded split ────────────────────── */
 
-.msg {
-  padding: 28px 16px;
-  text-align: center;
-  color: var(--text-dim);
+/*
+ * The protocol refuses to sum these, so the layout refuses too: a visible
+ * gutter between the columns and no total anywhere. Registration is
+ * permissionless, and a combined figure would make defamation-by-registration
+ * free.
+ */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 26px;
+  align-items: start;
+}
+
+.split-rule {
+  background: var(--rule);
+  align-self: stretch;
+}
+
+@media (max-width: 800px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .split-rule {
+    height: 1px;
+    width: 100%;
+  }
+}
+
+/* ───────────────────────────── states ──────────────────────────────── */
+
+.state {
+  padding: 40px 0;
+  color: var(--ink-3);
   font-size: 13px;
 }
-.msg-error {
-  color: var(--bad);
+
+.state-title {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  margin-bottom: 5px;
 }
 
 .skeleton {
-  height: 12px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--surface-2), var(--border), var(--surface-2));
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
+  background: linear-gradient(90deg, var(--paper-2) 25%, var(--paper-3) 37%, var(--paper-2) 63%);
+  background-size: 400% 100%;
+  animation: sheen 1.3s ease infinite;
+  border-radius: 2px;
+  height: 11px;
 }
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
-  }
+
+@keyframes sheen {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
     animation: none;
   }
+  * {
+    transition: none !important;
+  }
 }
 
-/* ── metrics ────────────────────────────────────────────────────────── */
+/* ───────────────────────────── colophon ────────────────────────────── */
 
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border-radius: var(--r);
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-.metric {
-  background: var(--surface);
-  padding: 14px 16px;
-}
-.metric-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  margin-bottom: 5px;
-}
-.metric-value {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 21px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-.metric-sub {
+.colophon {
+  border-top: 1px solid var(--ink);
+  margin-top: 46px;
+  padding: 22px 0 56px;
   font-size: 11.5px;
-  color: var(--text-dim);
-  margin-top: 3px;
+  color: var(--ink-3);
+  max-width: 78ch;
+  line-height: 1.7;
 }
 
-/* ── progress ───────────────────────────────────────────────────────── */
-
-.meter {
-  height: 5px;
-  border-radius: 100px;
-  background: var(--surface-2);
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-.meter-fill {
-  height: 100%;
-  background: var(--accent);
-  transition: width 240ms ease;
-}
-.meter-fill.good {
-  background: var(--good);
-}
-.meter-fill.warn {
-  background: var(--warn);
-}
-.meter-fill.bad {
-  background: var(--bad);
+.colophon p {
+  margin: 0 0 9px;
 }
 
-hr.rule {
-  border: 0;
-  border-top: 1px solid var(--border);
-  margin: 0;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
-}
-
-.foot {
-  margin-top: auto;
-  padding: 28px 0 36px;
-  color: var(--text-faint);
-  font-size: 12px;
-  line-height: 1.6;
+.colophon strong {
+  color: var(--ink-2);
+  font-weight: 600;
 }

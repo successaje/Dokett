@@ -1,282 +1,315 @@
 import { lens, useLens } from '../lib/lens';
-import { big, blocksToDuration, bps, units, STATUS_MEANING } from '../lib/format';
-import { Addr, Card, ErrorMsg, Loading, Meter, Metric, Pill, StatusPill } from '../components/primitives';
-import type { Status } from '../lib/types';
-
-const LIFECYCLE: Status[] = ['Active', 'Current', 'Delinquent', 'Default'];
-
-function Lifecycle({ status }: { status: Status }) {
-  // Settled and ChargedOff are terminal and sit off the degradation path.
-  const terminal = status === 'Settled' || status === 'ChargedOff';
-  const idx = LIFECYCLE.indexOf(status);
-
-  return (
-    <div className="card-body">
-      <div className="row" style={{ gap: 0, flexWrap: 'wrap' }}>
-        {LIFECYCLE.map((s, i) => {
-          const reached = !terminal && idx >= i;
-          const isNow = !terminal && idx === i;
-          return (
-            <div key={s} className="row" style={{ gap: 0 }}>
-              <div
-                title={STATUS_MEANING[s]}
-                style={{
-                  padding: '4px 11px',
-                  borderRadius: 100,
-                  fontSize: 12,
-                  fontWeight: isNow ? 650 : 500,
-                  background: isNow ? 'var(--accent-dim)' : reached ? 'var(--surface-2)' : 'transparent',
-                  color: isNow ? 'var(--accent)' : reached ? 'var(--text)' : 'var(--text-faint)',
-                  border: `1px solid ${isNow ? 'var(--accent)' : 'transparent'}`,
-                }}
-              >
-                {s}
-              </div>
-              {i < LIFECYCLE.length - 1 && (
-                <div
-                  aria-hidden
-                  style={{
-                    width: 22,
-                    height: 1,
-                    background: reached && idx > i ? 'var(--border-strong)' : 'var(--border)',
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
-        {terminal && (
-          <>
-            <div aria-hidden style={{ width: 22, height: 1, background: 'var(--border)' }} />
-            <StatusPill status={status} />
-          </>
-        )}
-      </div>
-      <p style={{ margin: '14px 0 0', color: 'var(--text-dim)', fontSize: 13 }}>
-        {STATUS_MEANING[status]}
-      </p>
-    </div>
-  );
-}
+import { big, blocksToDuration, bps, units } from '../lib/format';
+import {
+  Addr,
+  DL,
+  Docket,
+  Empty,
+  Failed,
+  Figure,
+  Figures,
+  HeightRuler,
+  LifecycleRail,
+  Loading,
+  Row,
+  Section,
+  StatusPill,
+  UnbondedFlag,
+  type DocketEntry,
+} from '../components/primitives';
+import type { ObligationDetail } from '../lib/types';
 
 /**
- * Obligation detail.
+ * The obligation dossier.
+ *
+ * Laid out as a document rather than a dashboard, because the reader's question
+ * is "what is this claim, and what backs each step of it".
  *
  * Two things this screen refuses to fudge:
  *
- *   1. Deadlines are shown in ATTESTED SOURCE-CHAIN HEIGHT, with the wall-clock
- *      estimate clearly marked as an estimate. The protocol's clock is Ethereum's
- *      block height; presenting a confident date would be inventing precision the
- *      contract does not have.
+ *   1. Deadlines are shown in ATTESTED SOURCE-CHAIN HEIGHT, with any wall-clock
+ *      figure explicitly marked an estimate. The protocol's clock is Ethereum's
+ *      block height; a confident date would be precision the contract does not
+ *      have and cannot enforce.
  *
  *   2. A delinquent obligation always shows the cure path, because a delinquency
  *      is reversible right up until the cure height passes — and the borrower is
- *      the person most likely to be reading this.
+ *      the person most likely to be reading this page.
  */
+
+/** The lifecycle as a record of what evidence moved each step. */
+function buildDocket(o: ObligationDetail): DocketEntry[] {
+  const entries: DocketEntry[] = [
+    {
+      title: 'Registered',
+      body: (
+        <>
+          Registered by <Addr value={o.registrar} /> against obligor commitment{' '}
+          <Addr value={o.obligor} lead={10} tail={6} />.{' '}
+          {o.bonded
+            ? 'A registrar bond was posted, so the claim carries weight in the Lens.'
+            : 'No registrar bond was posted, so this claim carries no weight and is never summed with bonded claims.'}
+        </>
+      ),
+    },
+  ];
+
+  if (o.periodsSatisfied > 0) {
+    entries.push({
+      title: `${o.periodsSatisfied} of ${o.periodsTotal} periods proven`,
+      height: o.lastProvenHeight,
+      emphasis: true,
+      body: (
+        <>
+          Each advance required an ASC proof that a qualifying transfer of at least{' '}
+          {units(o.periodAmount)} was included on the source chain at a height inside the open
+          window. Admissibility keys off the proven height, never the submission time.
+        </>
+      ),
+    });
+  }
+
+  if (o.status === 'Delinquent' || o.status === 'Default') {
+    entries.push({
+      title: 'Window closed unproven',
+      height: o.windowEndHeight,
+      emphasis: true,
+      body: (
+        <>
+          No admissible proof of payment reached the registry before the attested head passed the
+          window. This records an absence of evidence — it does not assert that no payment occurred.
+        </>
+      ),
+    });
+  }
+
+  if (o.status === 'Default') {
+    entries.push({
+      title: 'Cure expired — default finalised',
+      height: o.cureEndHeight,
+      emphasis: true,
+      body: <>First-loss capital was slashed to the creditor in the same transaction.</>,
+    });
+  }
+
+  if (o.status === 'Settled') {
+    entries.push({
+      title: 'Settled',
+      height: o.lastProvenHeight,
+      emphasis: true,
+      body: <>Schedule satisfied in full. Underwriters may reclaim principal and premium.</>,
+    });
+  }
+
+  return entries;
+}
+
 export default function Obligation({ id }: { id: string }) {
   const res = useLens((s) => lens.obligation(id, s), [id]);
 
   if (res.state === 'loading')
     return (
-      <Card title={`Obligation #${id}`}>
-        <Loading rows={5} />
-      </Card>
+      <div className="page page-head">
+        <Loading rows={6} />
+      </div>
     );
 
   if (res.state === 'error')
     return (
-      <Card title={`Obligation #${id}`}>
-        <ErrorMsg onRetry={res.reload}>
-          {res.error.status === 404 ? `No obligation #${id} in the registry.` : res.error.message}
-        </ErrorMsg>
-      </Card>
+      <div className="page page-head">
+        {res.error.status === 404 ? (
+          <Empty title={`No obligation ${id} in the register`}>
+            <a href="#/">Back to the register</a>
+          </Empty>
+        ) : (
+          <Failed what={`obligation ${id}`} detail={res.error.message} onRetry={res.reload} />
+        )}
+      </div>
     );
 
   if (res.state !== 'ok') return null;
   const o = res.data;
 
-  const paidPct = o.periodsTotal === 0 ? 0 : o.periodsSatisfied / o.periodsTotal;
   const repaid = big(o.principal) - big(o.outstanding);
   const cureBlocks = big(o.cureEndHeight) - big(o.windowEndHeight);
   const liveBonds = o.bonds.filter((b) => !b.released);
-  const coverage = big(o.coverage);
+
+  const windowEnd = big(o.windowEndHeight);
+  const cureEnd = big(o.cureEndHeight);
+  const lastProven = big(o.lastProvenHeight);
+
+  /*
+   * The Lens projects Creditcoin events and never observes the source chain, so
+   * it has no attested head to report. Rather than invent one, derive only what
+   * the status logically guarantees:
+   *
+   *   Delinquent → the head passed windowEnd, or the mark could not have happened
+   *   Default    → the head passed cureEnd, or the default could not have been finalised
+   *   otherwise  → unknown, and shown as unknown
+   *
+   * These are lower bounds, labelled as such. A precise-looking marker on the one
+   * screen whose entire subject is precision would be the worst possible lie.
+   */
+  const head =
+    o.status === 'Default' ? cureEnd : o.status === 'Delinquent' ? windowEnd : undefined;
 
   return (
-    <div className="stack">
-      <Card
-        title={
-          <span className="row">
-            Obligation <span className="mono">#{o.id}</span> <StatusPill status={o.status} />
-          </span>
-        }
-        actions={<span className="eyebrow">source chainKey {o.chainKey}</span>}
-      >
-        <Lifecycle status={o.status} />
-      </Card>
-
-      <div className="metrics">
-        <Metric
-          label="Outstanding"
-          value={units(o.outstanding)}
-          sub={`of ${units(o.principal)} principal`}
-        />
-        <Metric
-          label="Repaid"
-          value={units(repaid.toString())}
-          sub={`${o.periodsSatisfied} of ${o.periodsTotal} periods proven`}
-          tone={paidPct === 1 ? 'good' : undefined}
-        />
-        <Metric
-          label="First-loss coverage"
-          value={units(o.coverage)}
-          sub={`${liveBonds.length} live bond${liveBonds.length === 1 ? '' : 's'}`}
-          tone={coverage > 0n ? 'good' : 'warn'}
-        />
-        <Metric label="Period amount" value={units(o.periodAmount)} sub="minimum qualifying payment" />
+    <>
+      <div className="page page-head">
+        <div className="eyebrow">Obligation</div>
+        <div className="row wrap" style={{ gap: 14, alignItems: 'baseline' }}>
+          <h1 className="page-title mono">{o.id}</h1>
+          <StatusPill status={o.status} />
+          {!o.bonded && <UnbondedFlag />}
+        </div>
+        <p className="page-lede">
+          Source chainKey {o.chainKey} · {o.periodsSatisfied} of {o.periodsTotal} periods proven ·{' '}
+          {liveBonds.length} live bond{liveBonds.length === 1 ? '' : 's'}
+        </p>
       </div>
 
-      <div className="grid-2">
-        <Card
-          title="Schedule"
-          note="Deadlines are denominated in attested source-chain block height, not wall time. No timestamp exists in anything an ASC proof binds, so height is the only clock the contract can actually verify — and it makes stall protection structural: a frozen attested head expires nothing."
+      <div className="page">
+        <Figures>
+          <Figure label="Outstanding" value={units(o.outstanding)} sub={`of ${units(o.principal)} principal`} />
+          <Figure label="Repaid" value={units(repaid.toString())} sub="proven on the source chain" />
+          <Figure
+            label="First-loss coverage"
+            value={units(o.coverage)}
+            sub={liveBonds.length ? 'staked against this obligor' : 'creditor fully exposed'}
+          />
+          <Figure label="Period amount" value={units(o.periodAmount)} sub="minimum qualifying payment" />
+        </Figures>
+
+        <Section
+          title="Lifecycle"
+          aside={<>Status moves only on verified evidence or an attested-height comparison.</>}
         >
-          <div className="card-body stack" style={{ gap: 14 }}>
-            <div>
-              <div className="spread" style={{ marginBottom: 6 }}>
-                <span className="eyebrow">Periods proven</span>
-                <span className="num">
-                  {o.periodsSatisfied}/{o.periodsTotal}
-                </span>
-              </div>
-              <Meter
-                value={o.periodsSatisfied}
-                max={o.periodsTotal}
-                tone={o.status === 'Default' ? 'bad' : o.status === 'Delinquent' ? 'warn' : 'good'}
+          <LifecycleRail status={o.status} />
+        </Section>
+
+        <Section
+          title="Deadlines, in attested block height"
+          aside={
+            <>
+              No timestamp exists in anything an ASC proof binds, so height is the only clock the
+              contract can verify. It also makes stall protection structural: a frozen attested head
+              expires nothing.
+            </>
+          }
+        >
+          <HeightRuler windowEnd={windowEnd} cureEnd={cureEnd} head={head} headIsLowerBound />
+
+          <div style={{ marginTop: 20, maxWidth: 560 }}>
+            <DL>
+              <Row k="Window closes" v={o.windowEndHeight} />
+              <Row k="Cure expires" v={o.cureEndHeight} />
+              <Row
+                k="Cure window"
+                v={`${cureBlocks.toString()} blocks · ~${blocksToDuration(cureBlocks)} est.`}
+                title="Estimated from a 12s source-chain block time. The contract enforces blocks, not time."
               />
-            </div>
-
-            <hr className="rule" />
-
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Window closes at height</span>
-              <span className="num">{o.windowEndHeight}</span>
-            </div>
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Cure expires at height</span>
-              <span className="num">{o.cureEndHeight}</span>
-            </div>
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Cure window</span>
-              <span className="num" style={{ color: 'var(--text-faint)' }}>
-                {cureBlocks.toString()} blocks · ~{blocksToDuration(cureBlocks)} est.
-              </span>
-            </div>
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Last proven payment</span>
-              <span className="num">
-                {big(o.lastProvenHeight) === 0n ? '— none' : o.lastProvenHeight}
-              </span>
-            </div>
+              <Row k="Last proven payment" v={lastProven === 0n ? '— none' : o.lastProvenHeight} />
+            </DL>
           </div>
-        </Card>
+        </Section>
 
-        <Card title="Source-chain binding">
-          <div className="card-body stack" style={{ gap: 12 }}>
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Token</span>
-              <Addr value={o.sourceToken} />
-            </div>
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Payer</span>
-              <Addr value={o.sourcePayer} />
-            </div>
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Payee</span>
-              <Addr value={o.sourcePayee} />
-            </div>
-            <hr className="rule" />
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Obligor commitment</span>
-              <Addr value={o.obligor} lead={10} tail={6} />
-            </div>
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Registrar</span>
-              <span className="row">
-                <Addr value={o.registrar} />
-                <Pill tone={o.bonded ? 'good' : 'warn'}>{o.bonded ? 'bonded' : 'unbonded'}</Pill>
-              </span>
-            </div>
-            <div className="spread">
-              <span style={{ color: 'var(--text-dim)' }}>Collateral</span>
-              <Addr value={o.collateralRef} lead={10} tail={6} />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {o.status === 'Delinquent' && (
-        <Card title="This delinquency is still curable">
-          <div className="card-body" style={{ color: 'var(--text-dim)' }}>
-            <p style={{ marginTop: 0 }}>
-              A delinquency means no admissible proof of payment reached the registry before the window
-              closed. It does <strong>not</strong> assert that no payment happened — that cannot be proven
-              with an inclusion proof, and Covenant does not claim to.
+        {o.status === 'Delinquent' && (
+          <Section title="This delinquency is still curable">
+            <p className="note" style={{ marginTop: 0 }}>
+              A delinquency means no admissible proof of payment reached the registry before the
+              window closed. It does <strong>not</strong> assert that no payment happened — that
+              cannot be proven with an inclusion proof, and Covenant does not claim to.
             </p>
-            <p style={{ marginBottom: 0 }}>
-              If a qualifying payment was made on the source chain at a height inside the missed window,
-              proving it now restores <strong>Current</strong> — however late the proof arrives — until the
-              attested head passes <span className="mono">{o.cureEndHeight}</span>. Submission is
-              permissionless and costs a fraction of a cent.
+            <p className="note">
+              If a qualifying payment was made on the source chain at a height inside the missed
+              window, proving it now restores <strong>Current</strong> — however late the proof
+              arrives — until the attested head passes{' '}
+              <span className="mono">{o.cureEndHeight}</span>. Submission is permissionless and
+              costs a fraction of a cent.
             </p>
-          </div>
-        </Card>
-      )}
-
-      <Card title="Underwriting" actions={<span className="eyebrow">Named first-loss capital</span>}>
-        {o.bonds.length === 0 ? (
-          <div className="msg">
-            No bonds posted. This obligation carries no first-loss protection — a creditor here is fully
-            exposed.
-          </div>
-        ) : (
-          <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Bond</th>
-                  <th>Underwriter</th>
-                  <th className="right">Posted</th>
-                  <th className="right">Slashed</th>
-                  <th className="right">Spread</th>
-                  <th>State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {o.bonds.map((b) => (
-                  <tr key={b.bondId}>
-                    <td className="mono">#{b.bondId}</td>
-                    <td>
-                      <a className="mono" href={`#/underwriter/${b.underwriter}`}>
-                        {b.underwriter.slice(0, 6)}…{b.underwriter.slice(-4)}
-                      </a>
-                    </td>
-                    <td className="right num">{units(b.amount)}</td>
-                    <td className="right num" style={{ color: big(b.slashed) > 0n ? 'var(--bad)' : undefined }}>
-                      {units(b.slashed)}
-                    </td>
-                    <td className="right num">{bps(b.spreadBps)}</td>
-                    <td>
-                      <Pill tone={b.released ? 'done' : big(b.slashed) > 0n ? 'bad' : 'good'}>
-                        {b.released ? 'released' : big(b.slashed) > 0n ? 'slashed' : 'live'}
-                      </Pill>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          </Section>
         )}
-      </Card>
-    </div>
+
+        <Section title="Record of transitions">
+          <Docket entries={buildDocket(o)} />
+        </Section>
+
+        <Section title="Source-chain binding">
+          <div style={{ maxWidth: 620 }}>
+            <DL>
+              <Row k="Token" v={<Addr value={o.sourceToken} />} />
+              <Row k="Payer" v={<Addr value={o.sourcePayer} />} />
+              <Row k="Payee" v={<Addr value={o.sourcePayee} />} />
+              <Row
+                k="Obligor"
+                v={<Addr value={o.obligor} lead={10} tail={6} />}
+                title="A commitment, not an identity. The chain never learns who this is."
+              />
+              <Row
+                k="Registrar"
+                v={
+                  <span className="row" style={{ gap: 7 }}>
+                    <Addr value={o.registrar} />
+                    {!o.bonded && <UnbondedFlag />}
+                  </span>
+                }
+              />
+              <Row k="Collateral" v={<Addr value={o.collateralRef} lead={10} tail={6} />} />
+            </DL>
+          </div>
+        </Section>
+
+        <Section title="Underwriting" aside={<>Named first-loss capital, slashed by proof.</>}>
+          {o.bonds.length === 0 ? (
+            <Empty title="No bonds posted">
+              This obligation carries no first-loss protection — a creditor here is fully exposed.
+            </Empty>
+          ) : (
+            <div className="table-wrap">
+              <table className="data">
+                <thead>
+                  <tr>
+                    <th>Bond</th>
+                    <th>Underwriter</th>
+                    <th className="num">Posted</th>
+                    <th className="num">Slashed</th>
+                    <th className="num">Spread</th>
+                    <th>State</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {o.bonds.map((b) => {
+                    const slashed = big(b.slashed) > 0n;
+                    return (
+                      <tr key={b.bondId}>
+                        <td className="mono">{b.bondId}</td>
+                        <td>
+                          <a className="mono" href={`#/underwriter/${b.underwriter}`}>
+                            {b.underwriter.slice(0, 6)}…{b.underwriter.slice(-4)}
+                          </a>
+                        </td>
+                        <td className="num">{units(b.amount)}</td>
+                        <td className="num" style={{ color: slashed ? 'var(--st-default)' : undefined }}>
+                          {units(b.slashed)}
+                        </td>
+                        <td className="num">{bps(b.spreadBps)}</td>
+                        <td>
+                          <span
+                            className="status"
+                            data-s={b.released ? 'Settled' : slashed ? 'Default' : 'Current'}
+                          >
+                            {b.released ? 'released' : slashed ? 'slashed' : 'live'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Section>
+      </div>
+    </>
   );
 }

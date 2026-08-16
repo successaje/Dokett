@@ -1,7 +1,102 @@
 import { useState } from 'react';
 import { lens, useLens } from '../lib/lens';
 import { big, bps, isAddress, units } from '../lib/format';
-import { Card, ErrorMsg, Loading, Metric, Pill } from '../components/primitives';
+import { Empty, Failed, Figure, Figures, Loading, Section } from '../components/primitives';
+
+function Book({ address }: { address: string }) {
+  const res = useLens((s) => lens.underwriter(address, s), [address]);
+
+  if (res.state === 'loading') return <Loading rows={5} />;
+  if (res.state === 'error')
+    return <Failed what="the underwriter book" detail={res.error.message} onRetry={res.reload} />;
+  if (res.state !== 'ok') return null;
+
+  const u = res.data;
+
+  if (u.bondsWritten === 0) {
+    return (
+      <Empty title="No bonds written by this address">
+        Nothing has been staked against a named obligor here.
+      </Empty>
+    );
+  }
+
+  const live = u.bonds.filter((b) => !b.released && big(b.slashed) === 0n).length;
+
+  return (
+    <>
+      <Figures>
+        <Figure label="Bonds written" value={u.bondsWritten} sub={`${live} live`} />
+        <Figure label="Total posted" value={units(u.totalPosted)} sub="first-loss capital staked" />
+        <Figure
+          label="Total slashed"
+          value={units(u.totalSlashed)}
+          sub="paid to creditors on proven default"
+        />
+        <Figure
+          label="Loss rate"
+          value={bps(u.lossRateBps)}
+          sub="slashed ÷ posted"
+          title="Derived from bond events, never stored. There is no score here to lobby."
+        />
+      </Figures>
+
+      <Section
+        title="Positions"
+        aside={
+          <>
+            Every figure above is derived from bond events rather than stored. Reputation as a view
+            over history — not a mutable score — is the difference between this and every on-chain
+            credit score that came before.
+          </>
+        }
+      >
+        <div className="table-wrap">
+          <table className="data">
+            <thead>
+              <tr>
+                <th>Bond</th>
+                <th>Obligation</th>
+                <th className="num">Posted</th>
+                <th className="num">Slashed</th>
+                <th className="num">Spread</th>
+                <th>State</th>
+              </tr>
+            </thead>
+            <tbody>
+              {u.bonds.map((b) => {
+                const slashed = big(b.slashed) > 0n;
+                return (
+                  <tr key={b.bondId}>
+                    <td className="mono">{b.bondId}</td>
+                    <td>
+                      <a className="mono" href={`#/obligation/${b.obligationId}`}>
+                        {b.obligationId}
+                      </a>
+                    </td>
+                    <td className="num">{units(b.amount)}</td>
+                    <td className="num" style={{ color: slashed ? 'var(--st-default)' : undefined }}>
+                      {units(b.slashed)}
+                    </td>
+                    <td className="num">{bps(b.spreadBps)}</td>
+                    <td>
+                      <span
+                        className="status"
+                        data-s={b.released ? 'Settled' : slashed ? 'Default' : 'Current'}
+                      >
+                        {b.released ? 'released' : slashed ? 'slashed' : 'live'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+    </>
+  );
+}
 
 /**
  * An underwriter's book.
@@ -13,112 +108,66 @@ import { Card, ErrorMsg, Loading, Metric, Pill } from '../components/primitives'
  */
 export default function Underwriter({ address }: { address?: string }) {
   const [input, setInput] = useState(address ?? '');
-  const [query, setQuery] = useState(address ?? '');
-  const valid = isAddress(input);
-  const res = useLens((s) => lens.underwriter(query, s), [query], isAddress(query));
+  const active = address ?? null;
+
+  const trimmed = input.trim();
+  const valid = isAddress(trimmed);
 
   return (
-    <div className="stack">
-      <Card title="Underwriter book">
-        <div className="card-body stack" style={{ gap: 12 }}>
-          <p style={{ margin: 0, color: 'var(--text-dim)' }}>
-            Who stakes first-loss capital against named borrowers, and how have they done?
+    <>
+      <div className="page page-head">
+        <div className="eyebrow">Named first-loss capital</div>
+        <h1 className="page-title">Underwriters</h1>
+        <p className="page-lede">
+          Who stakes capital against named borrowers, and how have they done? Bonds are slashed by
+          proof, so a track record here was paid for.
+        </p>
+
+        <form
+          className="search"
+          style={{ marginTop: 22 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valid) window.location.hash = `#/underwriter/${trimmed}`;
+          }}
+        >
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Underwriter address (0x…40)"
+            aria-label="Underwriter address"
+            spellCheck={false}
+          />
+          <button type="submit" disabled={!valid}>
+            Look up
+          </button>
+        </form>
+
+        {trimmed && !valid && (
+          <p className="note" style={{ marginTop: 8, color: 'var(--st-delinquent)' }}>
+            Not a 20-byte address.
           </p>
-          <form
-            className="field"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (valid) setQuery(input.trim());
-            }}
-          >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="0x… underwriter address"
-              spellCheck={false}
-              aria-label="Underwriter address"
-            />
-            <button className="btn btn-primary" type="submit" disabled={!valid}>
-              Look up
-            </button>
-          </form>
-        </div>
-      </Card>
+        )}
+      </div>
 
-      {res.state === 'loading' && (
-        <Card title="Loading book"><Loading rows={3} /></Card>
-      )}
-      {res.state === 'error' && (
-        <Card title="Lookup failed">
-          <ErrorMsg onRetry={res.reload}>{res.error.message}</ErrorMsg>
-        </Card>
-      )}
-
-      {res.state === 'ok' && (
-        <>
-          <div className="metrics">
-            <Metric label="Bonds written" value={res.data.bondsWritten} />
-            <Metric label="Total posted" value={units(res.data.totalPosted)} sub="capital put at risk" />
-            <Metric
-              label="Total slashed"
-              value={units(res.data.totalSlashed)}
-              tone={big(res.data.totalSlashed) > 0n ? 'bad' : 'good'}
-              sub="paid out to creditors on proven default"
-            />
-            <Metric
-              label="Loss rate"
-              value={bps(res.data.lossRateBps)}
-              tone={res.data.lossRateBps > 500 ? 'bad' : res.data.lossRateBps > 0 ? 'warn' : 'good'}
-              sub="slashed / posted"
-            />
-          </div>
-
-          <Card
-            title="Positions"
-            note="A loss rate is not a verdict. An underwriter writing thin-file credit in a frontier market should carry losses; one showing zero across a large book is either exceptional or not taking real risk. The number is an input to a price, not a score."
-          >
-            {res.data.bonds.length === 0 ? (
-              <div className="msg">No bonds written by this address.</div>
-            ) : (
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Bond</th>
-                      <th>Obligation</th>
-                      <th className="right">Posted</th>
-                      <th className="right">Slashed</th>
-                      <th className="right">Spread</th>
-                      <th>State</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {res.data.bonds.map((b) => (
-                      <tr key={b.bondId}>
-                        <td className="mono">#{b.bondId}</td>
-                        <td>
-                          <a className="mono" href={`#/obligation/${b.obligationId}`}>#{b.obligationId}</a>
-                        </td>
-                        <td className="right num">{units(b.amount)}</td>
-                        <td className="right num" style={{ color: big(b.slashed) > 0n ? 'var(--bad)' : undefined }}>
-                          {units(b.slashed)}
-                        </td>
-                        <td className="right num">{bps(b.spreadBps)}</td>
-                        <td>
-                          <Pill tone={b.released ? 'done' : big(b.slashed) > 0n ? 'bad' : 'good'}>
-                            {b.released ? 'released' : big(b.slashed) > 0n ? 'slashed' : 'live'}
-                          </Pill>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
-        </>
-      )}
-    </div>
+      <div className="page">
+        {active ? (
+          <Book address={active} />
+        ) : (
+          <Section title="Why named, not pooled">
+            <p className="note" style={{ marginTop: 0 }}>
+              A bond backs one obligation against one obligor. Pooling is what let correlated risk
+              hide inside a single APY, and it is why the delegate model died.
+            </p>
+            <p className="note">
+              Staking against a name puts the credit decision where the information actually is —
+              the loan officer, the employer, the co-op, the merchant acquirer — rather than with
+              whoever happens to hold the deposits. The price of underwriting someone becomes their
+              cost of credit: a live market number instead of a model's guess.
+            </p>
+          </Section>
+        )}
+      </div>
+    </>
   );
 }

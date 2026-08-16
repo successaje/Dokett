@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { lens, useLens } from './lib/lens';
-import { Pill } from './components/primitives';
 import Registry from './routes/Registry';
 import Solvency from './routes/Solvency';
 import Encumbrance from './routes/Encumbrance';
@@ -19,35 +18,48 @@ function useHashRoute(): string {
 }
 
 /**
- * Indexer freshness.
+ * The liveness strip — invariant I7, made permanent furniture.
  *
- * The Lens is a projection, so "as of block N" is a real caveat rather than
- * decoration — every figure on screen is that stale. A console for a credit
- * registry that renders numbers without saying when they were true is inviting
- * someone to lend against them.
+ * Whether the attested head is advancing decides whether ANY obligation can be
+ * penalised. That makes it a standing condition of the whole record rather than
+ * a passing event, so it gets a fixed rail under the masthead instead of a
+ * toast that can be dismissed and forgotten.
+ *
+ * It also carries the projection's own staleness. The Lens is a projection, so
+ * "as of block N" is a real caveat, not decoration: every figure on screen is
+ * exactly that stale. A console for a credit registry that renders numbers
+ * without saying when they were true is inviting someone to lend against them.
  */
-function IndexStatus() {
+function LivenessStrip() {
   const res = useLens((s) => lens.health(s), []);
 
-  if (res.state === 'error')
-    return (
-      <Pill tone="bad" dot>
-        Lens unreachable
-      </Pill>
-    );
-  if (res.state !== 'ok')
-    return (
-      <Pill tone="neutral" dot>
-        connecting…
-      </Pill>
-    );
+  const unreachable = res.state === 'error';
 
   return (
-    <span title={`Projection current to Creditcoin block ${res.data.asOfBlock}`}>
-      <Pill tone="good" dot>
-        block {res.data.asOfBlock}
-      </Pill>
-    </span>
+    <div className="liveness" data-degraded={unreachable ? 'true' : 'false'}>
+      <div className="page row wrap" style={{ gap: 18, padding: 0 }}>
+        <span className="liveness-item">
+          <span className="liveness-label">Projection</span>
+          <span className="liveness-value">
+            {unreachable ? 'unreachable' : res.state === 'ok' ? `block ${res.data.asOfBlock}` : '—'}
+          </span>
+        </span>
+
+        <span className="liveness-item">
+          <span className="liveness-label">Obligations</span>
+          <span className="liveness-value">
+            {res.state === 'ok' ? res.data.obligations : '—'}
+          </span>
+        </span>
+
+        <span className="liveness-item" data-caption="true" style={{ marginLeft: 'auto' }}>
+          <span className="liveness-label">Clock</span>
+          <span className="liveness-value" title="Deadlines are denominated in attested source-chain block height, never wall time.">
+            attested source height
+          </span>
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -71,7 +83,6 @@ function ThemeToggle() {
   return (
     <button
       className="btn"
-      style={{ padding: '5px 10px', fontSize: 12 }}
       onClick={() => setTheme(next)}
       title={`Theme: ${theme}. Click for ${next}.`}
       aria-label={`Theme: ${theme}. Switch to ${next}.`}
@@ -106,9 +117,10 @@ function View({ route }: { route: string }) {
       return <Registry />;
     default:
       return (
-        <div className="card">
-          <div className="msg">
-            No such view. <a href="#/">Back to the registry</a>.
+        <div className="page">
+          <div className="state">
+            <div className="state-title">No such view</div>
+            <a href="#/">Back to the registry</a>
           </div>
         </div>
       );
@@ -117,14 +129,19 @@ function View({ route }: { route: string }) {
 
 export default function App() {
   const route = useHashRoute();
-  const active = route.startsWith('/obligation') ? '/' : route.startsWith('/underwriter') ? '/underwriter' : route;
+  const active = route.startsWith('/obligation')
+    ? '/'
+    : route.startsWith('/underwriter')
+      ? '/underwriter'
+      : route;
 
   return (
     <div className="shell">
       <header className="masthead">
-        <div className="wrap masthead-inner">
-          <a className="brand" href="#/">
-            Covenant <small>CONSOLE</small>
+        <div className="page masthead-inner">
+          <a className="wordmark" href="#/">
+            Covenant
+            <span className="wordmark-sub">Register of Obligations</span>
           </a>
           <nav className="nav">
             {NAV.map(([href, label]) => (
@@ -133,26 +150,33 @@ export default function App() {
               </a>
             ))}
           </nav>
-          <div className="row" style={{ gap: 8 }}>
-            <IndexStatus />
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
       </header>
 
-      <main className="wrap" style={{ padding: '24px', flex: 1 }}>
+      <LivenessStrip />
+
+      <main style={{ flex: 1 }}>
         <View route={route} />
       </main>
 
-      <footer className="wrap foot">
-        <div style={{ maxWidth: 720 }}>
-          Every status in this console was reached through a cryptographically verified ASC proof or a
-          comparison against the attested source-chain height. Nothing here was asserted by a reporter,
-          voted on by a committee, or supplied by an oracle operator.
-          <br />
-          <br />
-          Testnet, synthetic data. Identity is a commitment, but payment addresses and amounts are public
-          by construction — do not put real borrower data in this registry.
+      <footer className="page">
+        <div className="colophon">
+          <p>
+            <strong>Every status in this register was reached by evidence.</strong> A
+            cryptographically verified ASC proof of an Ethereum event, or a comparison against the
+            attested source-chain height. Nothing here was asserted by a reporter, voted on by a
+            committee, or supplied by an oracle operator.
+          </p>
+          <p>
+            Deadlines are denominated in <strong>attested block height</strong>, never wall time.
+            The protocol's clock is the head of a foreign chain, which can stall; showing dates
+            would imply a deadline the contracts do not enforce.
+          </p>
+          <p>
+            Testnet, synthetic data. Identity is a commitment, but payment addresses and amounts are
+            public by construction — do not put real borrower data in this registry.
+          </p>
         </div>
       </footer>
     </div>

@@ -1,168 +1,241 @@
 import { useState } from 'react';
 import { lens, useLens } from '../lib/lens';
 import { isAddress, isBytes32, units } from '../lib/format';
-import { Addr, Card, ErrorMsg, Loading, Metric, StatusPill } from '../components/primitives';
+import {
+  Addr,
+  Empty,
+  Failed,
+  Loading,
+  Section,
+  StatusPill,
+  UnbondedFlag,
+} from '../components/primitives';
 import type { Bucket } from '../lib/types';
 
-function BucketTable({ bucket, kind }: { bucket: Bucket; kind: 'bonded' | 'unbonded' }) {
-  if (bucket.count === 0) {
-    return (
-      <div className="msg">
-        No {kind} claims registered against this entity.
+function BucketColumn({
+  bucket,
+  kind,
+  caption,
+}: {
+  bucket: Bucket;
+  kind: 'bonded' | 'unbonded';
+  caption: string;
+}) {
+  return (
+    <div>
+      <div className="row between" style={{ alignItems: 'baseline', marginBottom: 4 }}>
+        <span className="eyebrow">{kind}</span>
+        <span className="eyebrow">
+          {bucket.count} claim{bucket.count === 1 ? '' : 's'}
+        </span>
       </div>
+
+      <div
+        className="mono"
+        style={{
+          fontSize: 26,
+          letterSpacing: '-0.02em',
+          lineHeight: 1.2,
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {units(bucket.outstanding)}
+      </div>
+      <p className="note" style={{ marginTop: 6 }}>
+        {caption}
+      </p>
+
+      {bucket.count === 0 ? (
+        <p className="note" style={{ marginTop: 14, color: 'var(--ink-4)' }}>
+          No {kind} claims registered against this entity.
+        </p>
+      ) : (
+        <div className="table-wrap" style={{ marginTop: 14 }}>
+          <table className="data">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th className="num">Outstanding</th>
+                <th>Registrar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bucket.obligations.map((o) => (
+                <tr key={o.id}>
+                  <td>
+                    <a className="mono" href={`#/obligation/${o.id}`}>
+                      {o.id}
+                    </a>
+                  </td>
+                  <td>
+                    <StatusPill status={o.status} />
+                  </td>
+                  <td className="num">{units(o.outstanding)}</td>
+                  <td>
+                    <span className="row" style={{ gap: 7 }}>
+                      <Addr value={o.registrar} lead={6} tail={4} />
+                      {kind === 'unbonded' && <UnbondedFlag />}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Result({ entity }: { entity: string }) {
+  const res = useLens((s) => lens.solvency(entity, s), [entity]);
+
+  if (res.state === 'loading') return <Loading rows={6} />;
+  if (res.state === 'error')
+    return <Failed what="solvency" detail={res.error.message} onRetry={res.reload} />;
+  if (res.state !== 'ok') return null;
+
+  const s = res.data;
+
+  if (s.bonded.count === 0 && s.unbonded.count === 0) {
+    return (
+      <Empty title="No claims registered against this entity">
+        That is not the same as “this entity owes nothing”. Coverage is partial by construction — the
+        register only knows what someone chose to record.
+      </Empty>
     );
   }
+
   return (
-    <div className="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Status</th>
-            <th>Payer</th>
-            <th className="right">Outstanding</th>
-            <th className="right">Periods</th>
-            <th>Registrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bucket.obligations.map((o) => (
-            <tr key={o.id}>
-              <td>
-                <a className="mono" href={`#/obligation/${o.id}`}>
-                  #{o.id}
-                </a>
-              </td>
-              <td>
-                <StatusPill status={o.status} />
-              </td>
-              <td>
-                <Addr value={o.sourcePayer} />
-              </td>
-              <td className="right num">{units(o.outstanding)}</td>
-              <td className="right num">
-                {o.periodsSatisfied}/{o.periodsTotal}
-              </td>
-              <td>
-                <Addr value={o.registrar} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <Section
+        title="Registered claims"
+        aside={
+          <>
+            Reported in two buckets and never summed. Registration is permissionless, so anyone can
+            record a claim against anyone — a combined total would make defamation-by-registration
+            free. There is deliberately no figure for “total owed”.
+          </>
+        }
+      >
+        <div className="split">
+          <BucketColumn
+            bucket={s.bonded}
+            kind="bonded"
+            caption="Registrar posted a bond. Spam here has a price, so these claims carry weight."
+          />
+          <div className="split-rule" aria-hidden />
+          <BucketColumn
+            bucket={s.unbonded}
+            kind="unbonded"
+            caption="No bond posted. Free to register, therefore free to fabricate. Read with suspicion."
+          />
+        </div>
+      </Section>
+
+      {s.adverse.count > 0 && (
+        <Section title="Adverse history">
+          <div className="row wrap" style={{ gap: 14 }}>
+            {s.adverse.statuses.map((a) => (
+              <a
+                key={a.id}
+                href={`#/obligation/${a.id}`}
+                className="row"
+                style={{ gap: 8, textDecoration: 'none' }}
+              >
+                <span className="mono" style={{ fontSize: 12.5 }}>
+                  {a.id}
+                </span>
+                <StatusPill status={a.status} />
+              </a>
+            ))}
+          </div>
+          <p className="note" style={{ marginTop: 14 }}>
+            Each of these was reached by evidence — a window that closed with no admissible proof, or
+            a cure that expired. None was reported by a person.
+          </p>
+        </Section>
+      )}
+    </>
   );
 }
 
 /**
  * The hero query.
  *
- * A lender asks what a counterparty already owes — across venues that have never
- * spoken to each other — BEFORE extending credit. This is the query that does
- * not exist anywhere else in crypto, and the reason every credit blowup of the
- * last cycle was invisible until it broke.
+ * A lender asks what a counterparty already owes, across venues that have never
+ * spoken to each other, BEFORE extending credit. This is the query that does not
+ * exist anywhere else in crypto, and the reason every credit blowup of the last
+ * cycle stayed invisible until it broke.
  *
- * The screen deliberately renders bonded and unbonded claims as two separate
- * panels with no combined figure anywhere. Reintroducing a total in the UI would
- * undo the exact property the protocol refuses to give up: registration is
- * permissionless, so anyone can register fictional debts against a competitor,
- * and only the registrar's bond makes a claim mean anything.
+ * The screen renders bonded and unbonded claims as two columns with a literal
+ * gutter and no combined figure anywhere. Reintroducing a total in the UI would
+ * undo the exact property the protocol refuses to give up.
  */
 export default function Solvency() {
   const [input, setInput] = useState('');
-  const [query, setQuery] = useState('');
+  const [entity, setEntity] = useState<string | null>(null);
 
-  const valid = isAddress(input) || isBytes32(input);
-  const res = useLens((s) => lens.solvency(query, s), [query], query !== '');
+  const trimmed = input.trim();
+  const valid = isAddress(trimmed) || isBytes32(trimmed);
 
   return (
-    <div className="stack">
-      <Card
-        title="Counterparty solvency"
-        note="Bonded and unbonded claims are reported separately and are never summed. Registration is permissionless by design — a registry that gatekeeps registration is a private database — so a registrar's bond is what gives a claim weight."
-      >
-        <div className="card-body stack" style={{ gap: 12 }}>
-          <p style={{ margin: 0, color: 'var(--text-dim)' }}>
-            What does this counterparty already owe? Enter a payer address or an obligor commitment.
+    <>
+      <div className="page page-head">
+        <div className="eyebrow">The query that does not exist</div>
+        <h1 className="page-title">Solvency</h1>
+        <p className="page-lede">
+          What does this counterparty already owe? Ask before you lend — across venues that have
+          never spoken to each other.
+        </p>
+
+        <form
+          className="search"
+          style={{ marginTop: 22 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valid) setEntity(trimmed);
+          }}
+        >
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Address (0x…40) or obligor commitment (0x…64)"
+            aria-label="Entity address or obligor commitment"
+            spellCheck={false}
+          />
+          <button type="submit" disabled={!valid}>
+            Search
+          </button>
+        </form>
+
+        {trimmed && !valid && (
+          <p className="note" style={{ marginTop: 8, color: 'var(--st-delinquent)' }}>
+            Not a 20-byte address or 32-byte commitment.
           </p>
-          <form
-            className="field"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (valid) setQuery(input.trim());
-            }}
-          >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="0x… address or 32-byte commitment"
-              spellCheck={false}
-              aria-label="Entity address or commitment"
-            />
-            <button className="btn btn-primary" type="submit" disabled={!valid}>
-              Query
-            </button>
-          </form>
-          {input !== '' && !valid && (
-            <div style={{ color: 'var(--warn)', fontSize: 12 }}>
-              Expecting a 20-byte address or a 32-byte commitment.
-            </div>
-          )}
-        </div>
-      </Card>
+        )}
+      </div>
 
-      {res.state === 'loading' && (
-        <Card title="Querying">
-          <Loading />
-        </Card>
-      )}
-
-      {res.state === 'error' && (
-        <Card title="Query failed">
-          <ErrorMsg onRetry={res.reload}>{res.error.message}</ErrorMsg>
-        </Card>
-      )}
-
-      {res.state === 'ok' && (
-        <>
-          <div className="metrics">
-            <Metric
-              label="Bonded claims"
-              value={res.data.bonded.count}
-              sub={`${units(res.data.bonded.outstanding)} outstanding`}
-            />
-            <Metric
-              label="Unbonded claims"
-              value={res.data.unbonded.count}
-              sub={`${units(res.data.unbonded.outstanding)} — unweighted`}
-              tone={res.data.unbonded.count > 0 ? 'warn' : 'neutral'}
-            />
-            <Metric
-              label="Adverse history"
-              value={res.data.adverse.count}
-              sub={res.data.adverse.count > 0 ? 'delinquent, default or charged off' : 'none on record'}
-              tone={res.data.adverse.count > 0 ? 'bad' : 'good'}
-            />
-            <Metric label="As of block" value={res.data.asOfBlock} sub="Creditcoin height" />
-          </div>
-
-          <Card
-            title="Bonded claims"
-            actions={<span className="eyebrow">Registrar posted a bond</span>}
-          >
-            <BucketTable bucket={res.data.bonded} kind="bonded" />
-          </Card>
-
-          <Card
-            title="Unbonded claims"
-            actions={<span className="eyebrow">Unweighted — treat with suspicion</span>}
-            note="These claims carry no registrar bond. Anyone may register an obligation against any address, so an unbonded claim is an assertion, not evidence. They are shown because hiding them would be its own distortion — but they must never be added to the bonded figure."
-          >
-            <BucketTable bucket={res.data.unbonded} kind="unbonded" />
-          </Card>
-        </>
-      )}
-    </div>
+      <div className="page">
+        {entity ? (
+          <Result entity={entity} />
+        ) : (
+          <Section title="Why two buckets">
+            <p className="note" style={{ marginTop: 0 }}>
+              Anyone may register an obligation against any address. That is deliberate — a registry
+              that gatekeeps registration is just a private database. The cost is that anyone can
+              also register a fiction.
+            </p>
+            <p className="note">
+              So the Lens reports bonded and unbonded claims separately and refuses to add them
+              together. Weighting by registrar bond is what makes the number mean anything; a single
+              “total owed” would throw that away and hand an adversary a free way to poison a
+              competitor's record.
+            </p>
+          </Section>
+        )}
+      </div>
+    </>
   );
 }
