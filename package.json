@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "forge test && npm run test:lens",
+    "test": "forge test && npm run test:lens && npm run test:relay",
     "test:lens": "node --test \"lens/test/*.test.js\"",
     "keeper": "node worker/src/index.js",
     "lens": "node lens/src/index.js",
@@ -17,7 +17,9 @@
     "app": "npm --prefix app run dev",
     "app:build": "npm --prefix app run build",
     "demo": "node lens/src/demo.js & npm --prefix app run dev",
-    "prove:one": "node demo/prove-one.js"
+    "prove:one": "node demo/prove-one.js",
+    "relay": "node relay/src/index.js",
+    "test:relay": "node --test \"relay/test/*.test.js\""
   },
   "keywords": [],
   "author": "",

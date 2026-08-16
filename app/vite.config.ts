@@ -24,6 +24,16 @@ export default defineConfig({
     // The Lens is a separate read-only service. Proxying in dev keeps the app
     // origin-clean so a judge does not have to think about CORS.
     proxy: {
+      /*
+       * More specific first: Vite matches proxy keys in insertion order, so
+       * '/api' would otherwise swallow '/api/cure' and post a write to the
+       * read-only Lens.
+       */
+      '/api/cure': {
+        target: process.env.RELAY_URL || 'http://localhost:8788',
+        changeOrigin: true,
+        rewrite: () => '/cure',
+      },
       '/api': {
         target: process.env.LENS_URL || 'http://localhost:8787',
         changeOrigin: true,

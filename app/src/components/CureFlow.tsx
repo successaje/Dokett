@@ -46,15 +46,9 @@ export default function CureFlow({ obligation }: { obligation: Obligation }) {
 
     try {
       /*
-       * Wiring note, left visible rather than faked: this needs a submitter with
-       * CTC for gas. The honest options are a relay endpoint or the signed-in
-       * user's embedded wallet, and which one ships depends on whether a
-       * paymaster is available on CC3 — Creditcoin supports EIP-4337, so
-       * sponsorship is possible but not yet configured.
-       *
-       * Until that decision is made this reports the real state instead of
-       * pretending to have submitted. A cure screen that silently does nothing
-       * is worse than no cure screen: the borrower stops looking for help.
+       * The relay builds the proof itself from this hash and pays the gas. It
+       * deliberately cannot accept proof bytes from here — that would let anyone
+       * hand it arbitrary payloads to burn its balance on.
        */
       const res = await fetch('/api/cure', {
         method: 'POST',
@@ -62,19 +56,33 @@ export default function CureFlow({ obligation }: { obligation: Obligation }) {
         body: JSON.stringify({ obligationId: obligation.id, txHash: txHash.trim() }),
       });
 
+      const body = await res.json().catch(() => ({}) as { error?: string; txHash?: string });
+
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `relay returned ${res.status}`);
+        /*
+         * Surface the relay's own message rather than a generic failure. It
+         * rejects for specific, fixable reasons — wrong window, too few
+         * confirmations, no matching transfer — and each one tells the borrower
+         * something different about what to do next.
+         */
+        const err = new Error(body.error ?? `relay returned ${res.status}`);
+        (err as Error & { status?: number }).status = res.status;
+        throw err;
       }
 
       setStage('done');
-      setMessage('Proof accepted and submitted. The obligation returns to Current once it confirms.');
+      setMessage(
+        `Proof submitted in ${body.txHash ?? 'the pending transaction'}. This obligation returns to Current once it confirms, and is recorded as cured rather than defaulted.`,
+      );
     } catch (err) {
       setStage('error');
+      const status = (err as Error & { status?: number }).status;
+      const detail = err instanceof Error ? err.message : String(err);
+
       setMessage(
-        err instanceof Error && err.message.includes('404')
-          ? 'No relay is configured on this deployment yet, so nothing was submitted. Anyone can still cure this obligation directly by calling provePayment with the proof for this transaction — the contract does not care who sends it.'
-          : `Nothing was submitted: ${err instanceof Error ? err.message : String(err)}`,
+        status === 404 || status === 502 || status === undefined
+          ? `${detail} — no relay appears to be running on this deployment, so nothing was submitted. Anyone can still cure this obligation by calling provePayment directly; the relay only pays the gas.`
+          : `Nothing was submitted. ${detail}`,
       );
     }
   }
