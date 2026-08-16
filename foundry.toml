@@ -11,7 +11,10 @@ evm_version = "shanghai"
 optimizer = true
 optimizer_runs = 200
 bytecode_hash = "none"
-fs_permissions = [{ access = "read", path = "./demo" }]
+fs_permissions = [
+  { access = "read", path = "./demo" },
+  { access = "read-write", path = "./deployments" },
+]
 
 [fuzz]
 runs = 1024

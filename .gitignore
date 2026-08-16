@@ -22,3 +22,6 @@ creditcoin-opportunity-research.md
 
 # vite
 app/dist/
+
+# local deploy rehearsals; real deployments are committed deliberately
+deployments/31337.json

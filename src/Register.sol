@@ -125,6 +125,10 @@ contract Register {
     /// @notice Contracts permitted to advance an obligation's status.
     mapping(address => bool) public isAdapter;
 
+    /// @notice True once {bootstrapAdapters} has run. See its note for why this
+    ///         path exists and why it can never reopen.
+    bool public bootstrapped;
+
     /// @notice adapter => earliest timestamp at which a pending change may execute.
     mapping(address => uint64) public adapterEta;
     mapping(address => bool) public adapterPendingState;
@@ -153,6 +157,7 @@ contract Register {
     event BountyPaid(uint256 indexed id, address indexed keeper, uint128 amount);
     event AdapterChangeQueued(address indexed adapter, bool enabled, uint64 eta);
     event AdapterChanged(address indexed adapter, bool enabled);
+    event Bootstrapped(address[] adapters);
     event BondEscrowReleased(uint256 indexed id, address indexed to, uint128 amount);
     event Withdrawn(address indexed to, uint256 amount);
 
@@ -167,6 +172,8 @@ contract Register {
     error IllegalTransition(Status from, Status to);
     error NothingQueued(address adapter);
     error TimelockNotElapsed(uint64 eta);
+    error AlreadyBootstrapped();
+    error RegistryNotEmpty(uint256 nextId);
     error BountyTransferFailed(address to);
 
     /* ──────────────────────────── construction ─────────────────────────── */
@@ -364,6 +371,40 @@ contract Register {
      *      by presenting evidence that satisfies {AscVerify}. The timelock exists so
      *      that installing a malicious adapter cannot be done quietly.
      */
+    /**
+     * @notice One-time genesis install of the initial adapter set.
+     *
+     * @dev Without this a fresh deployment is inert for 48 hours: no adapter can
+     *      be installed, so no obligation can ever advance, so the registry cannot
+     *      be used at all during its own timelock.
+     *
+     *      This is not a hole in the timelock, because of what the timelock is
+     *      actually for. Its purpose is to stop an adapter being installed
+     *      QUIETLY into a live registry — to guarantee anyone with capital at risk
+     *      gets 48 hours' warning. At genesis nobody has capital at risk: no
+     *      obligation exists, no bond has been posted, and anyone evaluating the
+     *      deployment is reading its constructor arguments anyway.
+     *
+     *      The `nextId == 1` guard makes that argument enforceable rather than
+     *      merely asserted. The instant the first obligation is registered this
+     *      path closes permanently, and every subsequent change — including
+     *      re-adding an adapter removed later — goes through the full queue. The
+     *      `bootstrapped` flag is redundant with it on purpose: either guard alone
+     *      is sufficient, so a future refactor has to defeat both to reopen this.
+     */
+    function bootstrapAdapters(address[] calldata adapters) external {
+        if (msg.sender != timelock) revert NotTimelock(msg.sender);
+        if (bootstrapped) revert AlreadyBootstrapped();
+        if (nextId != 1) revert RegistryNotEmpty(nextId);
+
+        bootstrapped = true;
+        for (uint256 i = 0; i < adapters.length; i++) {
+            isAdapter[adapters[i]] = true;
+            emit AdapterChanged(adapters[i], true);
+        }
+        emit Bootstrapped(adapters);
+    }
+
     function queueAdapter(address adapter, bool enabled) external {
         if (msg.sender != timelock) revert NotTimelock(msg.sender);
         uint64 eta = uint64(block.timestamp) + ADAPTER_TIMELOCK;

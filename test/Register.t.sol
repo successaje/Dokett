@@ -93,6 +93,79 @@ contract RegisterTest is Test {
         id = register.register{value: 2 ether}(_init(), ETH_CHAIN_ID);
     }
 
+    /* ─────────────────────── genesis bootstrap ────────────────────── */
+
+    /**
+     * @notice A fresh deployment must be usable without waiting out its own timelock.
+     * @dev Otherwise the registry is inert for 48h: no adapter installed means no
+     *      obligation can ever advance.
+     */
+    function test_Bootstrap_InstallsInitialAdapterSet() public {
+        Register fresh = new Register(ascVerify, timelock);
+        address[] memory set = new address[](2);
+        set[0] = makeAddr("payment");
+        set[1] = makeAddr("silence");
+
+        vm.prank(timelock);
+        fresh.bootstrapAdapters(set);
+
+        assertTrue(fresh.isAdapter(set[0]));
+        assertTrue(fresh.isAdapter(set[1]));
+        assertTrue(fresh.bootstrapped());
+    }
+
+    function test_Bootstrap_OnlyTimelock() public {
+        Register fresh = new Register(ascVerify, timelock);
+        address[] memory set = new address[](1);
+        set[0] = adapter;
+
+        vm.expectRevert(abi.encodeWithSelector(Register.NotTimelock.selector, address(this)));
+        fresh.bootstrapAdapters(set);
+    }
+
+    function test_Bootstrap_IsOneShot() public {
+        Register fresh = new Register(ascVerify, timelock);
+        address[] memory set = new address[](1);
+        set[0] = adapter;
+
+        vm.prank(timelock);
+        fresh.bootstrapAdapters(set);
+
+        vm.prank(timelock);
+        vm.expectRevert(Register.AlreadyBootstrapped.selector);
+        fresh.bootstrapAdapters(set);
+    }
+
+    /**
+     * @notice THE GUARD THE WHOLE ARGUMENT RESTS ON.
+     *
+     * @dev Bootstrap is defensible only because nobody has capital at risk yet.
+     *      The moment one obligation exists that stops being true, so the path must
+     *      close permanently — even though `bootstrapped` is still false here.
+     *      Without this, a timelock holder could bypass the 48h warning on a live
+     *      registry with real bonds posted against it.
+     */
+    function test_Bootstrap_ClosesPermanentlyOnceAnObligationExists() public {
+        Register fresh = new Register(ascVerify, timelock);
+
+        // Install an adapter the slow way, register one obligation.
+        vm.prank(timelock);
+        fresh.queueAdapter(adapter, true);
+        vm.warp(block.timestamp + fresh.ADAPTER_TIMELOCK());
+        fresh.setAdapter(adapter);
+
+        vm.prank(registrar);
+        fresh.register{value: 2 ether}(_init(), ETH_CHAIN_ID);
+
+        address[] memory set = new address[](1);
+        set[0] = makeAddr("late-adapter");
+
+        assertFalse(fresh.bootstrapped(), "never bootstrapped, yet still must refuse");
+        vm.prank(timelock);
+        vm.expectRevert(abi.encodeWithSelector(Register.RegistryNotEmpty.selector, uint256(2)));
+        fresh.bootstrapAdapters(set);
+    }
+
     /* ────────────────────── registration (I8) ─────────────────────── */
 
     function test_Register_IsPermissionlessAndBonded() public {
