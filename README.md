@@ -95,7 +95,7 @@ The `BlockProver` precompile **does not validate whether the proven transaction 
 | `lens/` | Indexer + free public read API. A pure projection; holds no privileged state. |
 | `app/` | Covenant Console — the protocol explorer. |
 
-Design spec: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Threat model: [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
+End to end: [`docs/USE-CASES.md`](docs/USE-CASES.md) · Design spec: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Threat model: [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
 
 ---
 
