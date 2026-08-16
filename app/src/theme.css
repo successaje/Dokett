@@ -1072,6 +1072,78 @@ table.data td.num {
   }
 }
 
+/* ────────────────────────────── cure ──────────────────────────────── */
+
+/*
+ * The one place the Console asks for input that changes the record. It gets the
+ * delinquent tone rather than a neutral panel, because the reader arriving here
+ * is in trouble and the page should look like it knows that.
+ */
+.cure {
+  border: 1px solid var(--st-delinquent);
+  background: var(--st-delinquent-bg);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  margin: 22px 0;
+}
+
+.cure-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.cure-head .eyebrow {
+  color: var(--st-delinquent);
+}
+
+.cure-deadline {
+  font-size: 11.5px;
+  color: var(--st-delinquent);
+}
+
+.cure-lede {
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--ink-2);
+  margin: 0 0 16px;
+  max-width: 68ch;
+}
+
+.cure-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.cure .search {
+  border-bottom-color: var(--st-delinquent);
+  max-width: 100%;
+}
+
+.cure .search button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cure-note {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  margin: 12px 0 0;
+  max-width: 72ch;
+}
+
+.cure-note[data-tone="good"] { color: var(--st-current); }
+.cure-note[data-tone="bad"] { color: var(--st-default); }
+
 /* ─────────────────────────── onboarding ───────────────────────────── */
 
 /*

@@ -18,6 +18,7 @@ import {
   type DocketEntry,
 } from '../components/primitives';
 import type { ObligationDetail } from '../lib/types';
+import CureFlow from '../components/CureFlow';
 
 /**
  * The obligation dossier.
@@ -227,6 +228,9 @@ export default function Obligation({ id }: { id: string }) {
               <span className="mono">{o.cureEndHeight}</span>. Submission is permissionless and
               costs a fraction of a cent.
             </p>
+
+            {/* T-04's mitigation, made operable rather than described. */}
+            <CureFlow obligation={o} />
           </Section>
         )}
 
