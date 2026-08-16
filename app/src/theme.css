@@ -993,6 +993,239 @@ table.data td.num {
   }
 }
 
+/* ───────────────────────────── landing ─────────────────────────────── */
+
+/*
+ * The title page runs at a different tempo to the console: the console is dense
+ * because you are reading records, this is open because you are reading an
+ * argument. Same palette, same type, roughly double the air.
+ */
+
+.landing {
+  padding-bottom: 40px;
+}
+
+.lp-cover {
+  padding: 92px 28px 64px;
+}
+
+@media (max-width: 720px) {
+  .lp-cover {
+    padding: 46px 16px 44px;
+  }
+
+  .lp-section {
+    padding-top: 48px;
+  }
+
+  .lp-close {
+    padding-top: 54px;
+  }
+}
+
+.lp-title {
+  font-family: var(--serif);
+  font-size: clamp(38px, 6.2vw, 66px);
+  line-height: 1.06;
+  letter-spacing: -0.028em;
+  font-weight: 600;
+  margin: 16px 0 0;
+  /* Sized to the longest line so the authored break is the ONLY break. A
+     headline that rewraps mid-clause reads as an accident. */
+  max-width: 27ch;
+}
+
+.lp-lede {
+  margin: 22px 0 0;
+  font-size: clamp(15px, 1.5vw, 17.5px);
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 60ch;
+}
+
+.lp-cta {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.lp-btn {
+  display: inline-block;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  padding: 10px 18px;
+  font-size: 13px;
+  text-decoration: none;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.lp-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* The only filled control in the entire app. Reserved for the one action the
+   page exists to produce, so it stays unambiguous. */
+.lp-btn-primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.lp-btn-primary:hover {
+  color: var(--paper);
+  opacity: 0.86;
+}
+
+.lp-figures {
+  margin-top: 8px;
+}
+
+.lp-figures .figure-value {
+  font-size: clamp(28px, 3.6vw, 40px);
+}
+
+.lp-section {
+  padding-top: 66px;
+}
+
+.lp-h2 {
+  font-family: var(--serif);
+  font-size: clamp(23px, 2.9vw, 31px);
+  line-height: 1.2;
+  letter-spacing: -0.018em;
+  font-weight: 600;
+  margin: 0 0 14px;
+  max-width: 24ch;
+}
+
+.lp-body {
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: var(--ink-2);
+  max-width: 66ch;
+  margin: 0 0 14px;
+}
+
+.lp-caveat {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 16px;
+  color: var(--ink-3);
+  font-size: 13.5px;
+  margin-top: 24px;
+}
+
+/* two-column definition rows, ruled like a statement */
+.lp-list {
+  margin-top: 26px;
+  border-top: 1px solid var(--ink);
+}
+
+.lp-list-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 2.2fr;
+  gap: 26px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lp-list-k {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.lp-list-v {
+  color: var(--ink-2);
+  font-size: 13.5px;
+  line-height: 1.62;
+}
+
+@media (max-width: 720px) {
+  .lp-list-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+
+/* the inversion, set as a contrast rather than a banner */
+.lp-pull {
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 32px 0;
+  margin-bottom: 28px;
+}
+
+.lp-pull-a,
+.lp-pull-b {
+  font-family: var(--serif);
+  font-size: clamp(20px, 2.7vw, 29px);
+  line-height: 1.28;
+  letter-spacing: -0.015em;
+  margin: 0;
+  max-width: 26ch;
+}
+
+.lp-pull-a {
+  color: var(--ink-4);
+}
+
+.lp-pull-b {
+  color: var(--ink);
+  margin-top: 8px;
+}
+
+.lp-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--ink);
+  margin-top: 26px;
+}
+
+.lp-step {
+  padding: 22px 26px 26px 0;
+  border-right: 1px solid var(--rule);
+  padding-right: 26px;
+}
+
+.lp-step:last-child {
+  border-right: 0;
+}
+
+@media (min-width: 721px) {
+  .lp-step + .lp-step {
+    padding-left: 26px;
+  }
+}
+
+@media (max-width: 720px) {
+  .lp-step {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    padding-right: 0;
+  }
+}
+
+.lp-step-title {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  margin: 6px 0 8px;
+}
+
+.lp-step-body {
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+.lp-close {
+  padding-top: 78px;
+}
+
 /* ───────────────────────────── colophon ────────────────────────────── */
 
 .colophon {

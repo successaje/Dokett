@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { lens, useLens } from './lib/lens';
+import Landing from './routes/Landing';
 import Registry from './routes/Registry';
 import Solvency from './routes/Solvency';
 import Encumbrance from './routes/Encumbrance';
@@ -93,7 +94,7 @@ function ThemeToggle() {
 }
 
 const NAV = [
-  ['/', 'Registry'],
+  ['/registry', 'Registry'],
   ['/solvency', 'Solvency'],
   ['/encumbrance', 'Encumbrance'],
   ['/underwriter', 'Underwriters'],
@@ -113,7 +114,7 @@ function View({ route }: { route: string }) {
       return <Encumbrance />;
     case '/underwriter':
       return <Underwriter />;
-    case '/':
+    case '/registry':
       return <Registry />;
     default:
       return (
@@ -129,8 +130,37 @@ function View({ route }: { route: string }) {
 
 export default function App() {
   const route = useHashRoute();
+
+  /*
+   * The title page runs without the console's chrome. Its job is to explain what
+   * this is to someone who does not know yet, and a nav bar of registry views —
+   * plus a liveness strip reporting an indexer they have no reason to care about
+   * — would answer a question they have not asked.
+   */
+  if (route === '/') {
+    return (
+      <div className="shell">
+        <header className="masthead">
+          <div className="page masthead-inner">
+            <a className="wordmark" href="#/">
+              Covenant
+              <span className="wordmark-sub">Register of Obligations</span>
+            </a>
+            <nav className="nav">
+              <a href="#/registry">Enter the register</a>
+            </nav>
+            <ThemeToggle />
+          </div>
+        </header>
+        <main style={{ flex: 1 }}>
+          <Landing />
+        </main>
+      </div>
+    );
+  }
+
   const active = route.startsWith('/obligation')
-    ? '/'
+    ? '/registry'
     : route.startsWith('/underwriter')
       ? '/underwriter'
       : route;
