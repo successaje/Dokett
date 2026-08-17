@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
-# Verify already-deployed contracts, for when a deploy succeeded but the
-# verification step did not — a broadcast is not worth repeating just to get a
-# source listing, and re-deploying to fix verification would orphan the record.
-set -euo pipefail
+#
+# Verify deployed contracts on Blockscout.
+#
+# Split out from deploying because `forge script --verify` refuses chain 102031
+# outright ("Chain not supported") — Foundry has no built-in entry for it —
+# while `forge verify-contract --chain-id 102031` works fine. Rather than fight
+# that, deployment broadcasts and this reads what was actually deployed.
+#
+#   npm run verify                              # everything in the last broadcast
+#   npm run verify 0xADDR src/Register.sol:Register
+#
+set -uo pipefail
 
-VERIFIER_URL="https://creditcoin-testnet.blockscout.com/api/"
 CHAIN=102031
+VERIFIER_URL="https://creditcoin-testnet.blockscout.com/api/"
 
-verify() { # <address> <fully:qualified:Name>
-  echo "── $2 @ $1"
+verify() {
+  echo "── $2"
+  echo "   $1"
   forge verify-contract "$1" "$2" \
     --chain-id "$CHAIN" \
     --verifier blockscout \
     --verifier-url "$VERIFIER_URL" \
-    --watch || echo "   (failed — may already be verified)"
+    --watch 2>&1 | tail -3
 }
 
 if [ $# -ge 2 ]; then
@@ -21,17 +30,35 @@ if [ $# -ge 2 ]; then
   exit 0
 fi
 
-DEPLOYMENT="deployments/${CHAIN}.json"
-if [ ! -f "$DEPLOYMENT" ]; then
-  echo "No $DEPLOYMENT. Pass an address and contract path instead:"
-  echo "  npm run verify 0xABC… src/Register.sol:Register"
-  exit 1
-fi
+# Resolve a bare contract name to the path Foundry needs, by finding where it is
+# declared. Cheaper and less brittle than maintaining a hand-written map.
+resolve() {
+  local name="$1"
+  local hit
+  hit=$(grep -rlE "^(abstract )?contract ${name}\b" src script 2>/dev/null | head -1)
+  [ -n "$hit" ] && echo "${hit}:${name}"
+}
 
-jqv() { node -p "require('./$DEPLOYMENT').$1 || ''"; }
+found=0
+for f in broadcast/*/"$CHAIN"/run-latest.json; do
+  [ -f "$f" ] || continue
+  echo "▸ $f"
+  while IFS=$'\t' read -r name addr; do
+    [ -z "$name" ] && continue
+    [ "$name" = "null" ] && continue
+    path=$(resolve "$name")
+    if [ -z "$path" ]; then
+      echo "── $name @ $addr — skipped, declaration not found in src/ or script/"
+      continue
+    fi
+    verify "$addr" "$path"
+    found=$((found + 1))
+  done < <(node -e "
+    const d=require('./$f');
+    for (const t of d.transactions||[])
+      if (t.contractAddress) console.log((t.contractName||'null')+'\t'+t.contractAddress);
+  ")
+done
 
-verify "$(jqv ascVerifier)"    src/AscVerifier.sol:AscVerifier
-verify "$(jqv register)"       src/Register.sol:Register
-verify "$(jqv bond)"           src/Bond.sol:Bond
-verify "$(jqv paymentAdapter)" src/adapters/PaymentAdapter.sol:PaymentAdapter
-verify "$(jqv silenceAdapter)" src/adapters/SilenceAdapter.sol:SilenceAdapter
+[ "$found" -eq 0 ] && echo "Nothing to verify. Deploy first, or pass an address and contract path."
+exit 0

@@ -272,19 +272,33 @@ who withholds observation can only *delay* penalties, never accelerate them.
 Measured: attestation lag runs ~34 blocks, comfortably inside the 15-minute
 `maxSampleGap`, so a healthy chain sustains the observation record easily.
 
-### 3.5 Batching
+### 3.5 Batching — measured
 
-Up to **10** proofs share one continuity proof via `verifyBatch()`. Batches form
-per source block, since that is the granularity at which a continuity proof is
-shared.
+Up to **10** proofs share one continuity proof via `verifyBatch()`. Since the
+continuity proof is the component that grows with age, a batch pays for it once.
+
+Measured on live CC3, ten real mainnet USDC transfers from one block:
 
 | Queries | Total gas | Per query | Saving |
 |---|---|---|---|
-| 1 | 380,674 | 380,674 | — |
-| 5 | <!-- FILL --> | <!-- FILL --> | <!-- FILL --> |
-| 10 | <!-- FILL --> | <!-- FILL --> | <!-- FILL --> |
+| 1 | 403,774 | 403,774 | — |
+| 5 | 572,950 | 114,590 | **71.6%** |
+| 10 | 870,559 | 87,055 | **78.4%** |
 
----
+Reproduce with `npm run prove:batch 1,5,10`.
+
+This is what makes a registry sweep tractable. A keeper reconciling thousands of
+obligations does not verify them one at a time, and at ten per batch the
+per-obligation cost falls by more than three quarters. Combined with §3.3 — deep
+history saturating at 232 roots — the cost of maintaining a permanent record does
+not grow the way a naive reading of the model suggests.
+
+> **A note on how this was measured.** The first attempt reverted with
+> `ProofAlreadyConsumed`. The harness had reused the same transactions across
+> batch sizes, and proof keys are global and single-use — so the replay guard
+> was working exactly as designed, on the test. Fixed by giving each batch
+> disjoint transactions. Worth recording because it is a case of the safety
+> property catching the people who wrote it.
 
 ## 4. `AscVerify.sol` — the guard layer
 

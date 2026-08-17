@@ -64,6 +64,21 @@ contract Probe is AscVerify {
         emit Probed(p.chainKey, p.height, d.emitter, d.topic0);
     }
 
+    /**
+     * @notice Verify N transactions sharing ONE continuity proof.
+     * @dev The economic claim behind batching: a continuity proof is the part
+     *      that grows with age, and a batch pays for it once. Proving ten
+     *      two-year-old facts should therefore not cost ten times one.
+     * @return count number of logs extracted, so the caller can assert coverage
+     */
+    function probeBatch(BatchProof calldata p) external returns (uint256 count) {
+        EvmV1Decoder.LogEntry[] memory logs = _verifyBatch(p);
+        count = logs.length;
+        for (uint256 i = 0; i < logs.length; i++) {
+            emit Probed(p.chainKey, p.heights[i], logs[i].address_, logs[i].topics[0]);
+        }
+    }
+
     /// @notice Read-only decode, without consuming the proof key. For dry runs.
     function inspect(bytes calldata encodedTransaction, uint32 logIndex)
         external

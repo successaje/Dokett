@@ -20,9 +20,10 @@
     "prove:one": "node --env-file-if-exists=.env demo/prove-one.js",
     "relay": "node --env-file-if-exists=.env relay/src/index.js",
     "test:relay": "node --test \"relay/test/*.test.js\"",
-    "deploy": "forge script script/Deploy.s.sol:Deploy --rpc-url cc3_testnet --broadcast --verify --verifier blockscout --verifier-url https://creditcoin-testnet.blockscout.com/api/",
-    "deploy:probe": "forge script script/ProveOne.s.sol:DeployProbe --rpc-url cc3_testnet --broadcast --verify --verifier blockscout --verifier-url https://creditcoin-testnet.blockscout.com/api/",
-    "verify": "bash script/verify.sh"
+    "deploy": "forge script script/Deploy.s.sol:Deploy --rpc-url cc3_testnet --broadcast && npm run verify",
+    "deploy:probe": "forge script script/ProveOne.s.sol:DeployProbe --rpc-url cc3_testnet --broadcast && npm run verify",
+    "verify": "bash script/verify.sh",
+    "prove:batch": "node --env-file-if-exists=.env demo/prove-batch.js"
   },
   "keywords": [],
   "author": "",

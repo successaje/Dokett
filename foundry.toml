@@ -37,8 +37,7 @@ fail_on_revert = false
 cc3_testnet = "${CC3_RPC}"
 ethereum = "${ETH_MAINNET_RPC}"
 
-# Source verification. Blockscout on CC3 testnet needs no API key, so there is
-# no excuse for shipping unverified bytecode — a registry whose whole claim is
-# that nothing can be asserted must let anyone read what they are trusting.
-[etherscan]
-cc3_testnet = { key = "", url = "https://creditcoin-testnet.blockscout.com/api", chain = 102031 }
+# NOTE: no [etherscan] section. Foundry validates it at config-parse time and
+# rejects chain 102031 outright ("Chain 102031 not supported") — which fails
+# EVERY forge command, not just verification. `forge verify-contract` with an
+# explicit --chain-id works fine, so verification lives in script/verify.sh.
