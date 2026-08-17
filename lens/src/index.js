@@ -29,7 +29,17 @@ async function main() {
   const interval = Number(process.env.SYNC_INTERVAL_MS || 30_000);
 
   const provider = new ethers.JsonRpcProvider(rpc);
-  const index = new Index(provider, { register, bond: process.env.BOND_ADDRESS || null }, log);
+  const index = new Index(
+    provider,
+    {
+      register,
+      bond: process.env.BOND_ADDRESS || null,
+      // Without this the first sync scans from genesis and times out.
+      deployBlock: process.env.DEPLOY_BLOCK || 0,
+      chunk: process.env.LOG_CHUNK || 50_000,
+    },
+    log,
+  );
 
   const first = await index.sync();
   log.info(`indexed ${first.obligations} obligation(s), ${first.bonds} bond(s) at block ${first.head}`);

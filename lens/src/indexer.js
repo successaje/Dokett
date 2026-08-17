@@ -22,6 +22,18 @@ class Index {
   constructor(provider, addresses, log = console) {
     this.provider = provider;
     this.log = log;
+
+    /**
+     * Where to start scanning logs.
+     *
+     * Scanning from genesis is not merely slow — on CC3 it exceeds the node's
+     * 10s query timeout outright, so the Lens never finishes its first sync and
+     * serves nothing. A registry has no history before the block its contracts
+     * were deployed in, so there is nothing above this worth reading.
+     */
+    this.fromBlock = Number(addresses.deployBlock || 0);
+    /** Log range per request. Large enough to be quick, small enough to return. */
+    this.chunk = Number(addresses.chunk || 50_000);
     this.register = new ethers.Contract(addresses.register, REGISTER, provider);
     this.bond = addresses.bond ? new ethers.Contract(addresses.bond, BOND, provider) : null;
 
@@ -79,12 +91,22 @@ class Index {
     return { head, obligations: this.obligations.size, bonds: this.bonds.size };
   }
 
+  /** Paged log query. One wide range is what the node refuses. */
+  async _logs(filter, head) {
+    const out = [];
+    for (let from = this.fromBlock; from <= head; from += this.chunk) {
+      const to = Math.min(from + this.chunk - 1, head);
+      out.push(...(await this.bond.queryFilter(filter, from, to)));
+    }
+    return out;
+  }
+
   async syncBonds(head) {
     if (!this.bond) return;
 
-    const posted = await this.bond.queryFilter(this.bond.filters.BondPosted(), 0, head);
-    const slashed = await this.bond.queryFilter(this.bond.filters.BondSlashed(), 0, head);
-    const released = await this.bond.queryFilter(this.bond.filters.BondReleased(), 0, head);
+    const posted = await this._logs(this.bond.filters.BondPosted(), head);
+    const slashed = await this._logs(this.bond.filters.BondSlashed(), head);
+    const released = await this._logs(this.bond.filters.BondReleased(), head);
 
     for (const e of posted) {
       this.bonds.set(e.args.bondId.toString(), {

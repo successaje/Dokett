@@ -1,0 +1,14 @@
+{
+  "ascVerifier": "0x02406b6d17E743deA7fBbfAE8A15c82e4481E168",
+  "bond": "0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e",
+  "chainKey": 3,
+  "expectedChainId": 1,
+  "maxSampleGap": 900,
+  "minConfirmations": 64,
+  "paymentAdapter": "0xA68f1CBff869a7f6c7A9BC9313E0B9E135A79a60",
+  "recoveryGrace": 3600,
+  "register": "0xCaFF129Ec344A98Da8C9a4091a239DF158Cf31A5",
+  "silenceAdapter": "0x8e827a12C78dED9459268eb05cce2C5d709FE6AF",
+  "timelock": "0x60eF148485C2a5119fa52CA13c52E9fd98F28e87",
+  "deployBlock": 5324811
+}

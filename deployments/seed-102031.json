@@ -1,0 +1,21 @@
+{
+  "register": "0xCaFF129Ec344A98Da8C9a4091a239DF158Cf31A5",
+  "obligor": "0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a",
+  "salt": "0xfd0567f98da775de18e0aec4a306a1f4",
+  "anchorTx": "0xace9b4b0e892618a3290a43937e04dabb68e380bfa0f68a482583266eaef568b",
+  "anchorBlock": 25773802,
+  "obligations": [
+    {
+      "id": "2",
+      "label": "PAYABLE  — window contains a real transfer, provable now"
+    },
+    {
+      "id": "3",
+      "label": "SILENT   — window long closed, nothing to prove → Delinquent"
+    },
+    {
+      "id": "4",
+      "label": "SECOND   — same obligor, different creditor → cross-venue query"
+    }
+  ]
+}

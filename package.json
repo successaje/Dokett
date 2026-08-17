@@ -20,10 +20,13 @@
     "prove:one": "node --env-file-if-exists=.env demo/prove-one.js",
     "relay": "node --env-file-if-exists=.env relay/src/index.js",
     "test:relay": "node --test \"relay/test/*.test.js\"",
-    "deploy": "forge script script/Deploy.s.sol:Deploy --rpc-url cc3_testnet --broadcast && npm run verify",
-    "deploy:probe": "forge script script/ProveOne.s.sol:DeployProbe --rpc-url cc3_testnet --broadcast && npm run verify",
+    "deploy": "npm run preflight && forge script script/Deploy.s.sol:Deploy --rpc-url cc3_testnet --broadcast --gas-estimate-multiplier 300 && npm run verify",
+    "deploy:probe": "forge script script/ProveOne.s.sol:DeployProbe --rpc-url cc3_testnet --broadcast --gas-estimate-multiplier 300 && npm run verify",
     "verify": "bash script/verify.sh",
-    "prove:batch": "node --env-file-if-exists=.env demo/prove-batch.js"
+    "prove:batch": "node --env-file-if-exists=.env demo/prove-batch.js",
+    "preflight": "node --env-file-if-exists=.env script/preflight.js",
+    "seed": "node --env-file-if-exists=.env script/seed.js",
+    "prove:payment": "node --env-file-if-exists=.env script/prove-payment.js"
   },
   "keywords": [],
   "author": "",
