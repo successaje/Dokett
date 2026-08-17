@@ -118,27 +118,48 @@ contract DeployProbe is Script {
         console2.log("Probe", address(probe));
         console2.log("");
 
-        IChainInfo ci = ChainInfoLib.getChainInfo();
+        /*
+         * Precompiles are read through low-level staticcalls, not typed calls.
+         *
+         * `forge script` executes locally against a fork, and a fork only
+         * carries code, storage and balances. A native Substrate precompile has
+         * no EVM bytecode, so revm sees an empty account and returns 0x — and
+         * Solidity's try/catch does NOT catch the resulting decode failure, so
+         * a typed call takes the whole deployment down with it.
+         *
+         * Checking `ok && data.length > 0` degrades cleanly instead: the table
+         * prints when run against a real node, and is skipped when simulating.
+         */
+        _report(chainKey);
 
-        try ci.get_supported_chains() returns (IChainInfo.ChainInfo[] memory chains) {
-            console2.log("=== chains this network attests ===");
-            for (uint256 i = 0; i < chains.length; i++) {
-                console2.log("  chainKey", chains[i].chainKey, "-> chainId", chains[i].chainId);
-            }
-        } catch {
-            console2.log("!! ChainInfo.get_supported_chains reverted - no ASC precompile on this network?");
+        console2.log("");
+        console2.log("next: set PROBE in .env, then npm run prove:one");
+    }
+
+    /// @dev Prints what the live precompile says, when it can be reached.
+    function _report(uint64 chainKey) internal view {
+        address ci = ChainInfoLib.PRECOMPILE_ADDRESS;
+
+        (bool ok, bytes memory data) =
+            ci.staticcall(abi.encodeWithSignature("get_chain_by_key(uint64)", chainKey));
+
+        if (!ok || data.length == 0) {
+            console2.log("");
+            console2.log("!! ChainInfo precompile unreachable here.");
+            console2.log("   Expected when simulating: forge executes locally and a fork");
+            console2.log("   carries no code for a native precompile. Verify against the node:");
+            console2.log("     cast call 0x0000000000000000000000000000000000000fD3 \\");
+            console2.log("       'get_supported_chains()((uint64,uint64,bytes,uint8)[])' --rpc-url $CC3_RPC");
+            return;
         }
 
-        console2.log("");
-        (bool exists, uint64 chainId, uint64 head, bool penalties) = probe.chainReport(chainKey);
-        console2.log("=== requested chainKey", chainKey, "===");
-        console2.log("  known         ", exists);
-        console2.log("  chainId       ", chainId);
-        console2.log("  attested head ", head);
-        console2.log("  penalties     ", penalties);
+        IChainInfo.ChainInfoResult memory r =
+            abi.decode(data, (IChainInfo.ChainInfoResult));
 
-        require(exists, "chainKey unknown on this network - check CHAIN_KEY for this environment");
         console2.log("");
-        console2.log("next: PROBE=%s node demo/prove-one.js", address(probe));
+        console2.log("=== chainKey", chainKey, "===");
+        console2.log("  known  ", r.exists);
+        console2.log("  chainId", r.info.chainId);
+        require(r.exists, "chainKey unknown on this network - check CHAIN_KEY for this environment");
     }
 }

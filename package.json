@@ -20,8 +20,8 @@
     "prove:one": "node --env-file-if-exists=.env demo/prove-one.js",
     "relay": "node --env-file-if-exists=.env relay/src/index.js",
     "test:relay": "node --test \"relay/test/*.test.js\"",
-    "deploy": "forge script script/Deploy.s.sol:Deploy --rpc-url $CC3_TESTNET_RPC --broadcast",
-    "deploy:probe": "forge script script/ProveOne.s.sol:DeployProbe --rpc-url $CC3_TESTNET_RPC --broadcast"
+    "deploy": "forge script script/Deploy.s.sol:Deploy --rpc-url cc3_testnet --broadcast",
+    "deploy:probe": "forge script script/ProveOne.s.sol:DeployProbe --rpc-url cc3_testnet --broadcast"
   },
   "keywords": [],
   "author": "",

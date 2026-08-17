@@ -5,9 +5,18 @@ test = "test"
 script = "script"
 libs = ["node_modules", "lib"]
 solc = "0.8.28"
-# Creditcoin CC3 runs Frontier (polkadot-stable2409). Shanghai avoids any
-# reliance on Cancun-only opcodes (TSTORE/MCOPY) until confirmed on-chain.
-evm_version = "shanghai"
+# Creditcoin CC3 runs Frontier (polkadot-stable2409), and its block headers say
+# what it supports: no mixHash (so no prevrandao), no withdrawalsRoot, and
+# difficulty pinned to 0x0. That is a pre-Shanghai header.
+#
+# Shanghai was wrong on two counts. Forge's fork header validation demands
+# prevrandao and panics without it, and solc emits PUSH0 — a Shanghai opcode
+# this build is unlikely to execute, which would surface as a deploy that
+# succeeds locally and reverts on chain.
+#
+# London matches the header evidence: difficulty instead of prevrandao, and no
+# PUSH0. Verified against a live CC3 testnet block.
+evm_version = "london"
 optimizer = true
 optimizer_runs = 200
 bytecode_hash = "none"
@@ -25,5 +34,5 @@ depth = 32
 fail_on_revert = false
 
 [rpc_endpoints]
-cc3_testnet = "${CC3_TESTNET_RPC}"
+cc3_testnet = "${CC3_RPC}"
 ethereum = "${ETH_MAINNET_RPC}"
