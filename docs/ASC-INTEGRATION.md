@@ -177,12 +177,13 @@ about old facts. So we measured it rather than quoting it.
 Every row below is a real Ethereum mainnet USDC transfer, proven on live CC3
 testnet. All four are reproducible: `npm run prove:one <txHash>`.
 
-| Age | Blocks back | Continuity roots | Gas | CTC | Source tx |
-|---|---|---|---|---|---|
-| ~20 min | 102 | 9 | 380,674 | 0.000190337 | `0x8090cdb3…` |
-| ~24 hours | 7,202 | 32 | 389,186 | 0.000194593 | `0xb7cba530…` |
-| ~1 year | 2,628,005 | 232 | 478,786 | 0.000239393 | `0x6b1b58e0…` |
-| ~2 years | 5,256,008 | 232 | 478,786 | 0.000239393 | `0xd789c95e…` |
+| Age | Blocks back | Roots | Encoded bytes | Gas | CTC | Type |
+|---|---|---|---|---|---|---|
+| ~20 min | 102 | 9 | 1,664 | 380,674 | 0.000190337 | 2 |
+| ~35 min | 162 | 6 | 1,536 | 375,746 | 0.000187873 | **0 (legacy)** |
+| ~24 hours | 7,202 | 32 | — | 389,186 | 0.000194593 | 2 |
+| ~1 year | 2,628,005 | 232 | — | 478,786 | 0.000239393 | 2 |
+| ~2 years | 5,256,008 | 232 | — | 478,786 | 0.000239393 | 2 |
 
 **The headline: 26% more cost for 51,529× the age.**
 
@@ -223,6 +224,34 @@ on top of the verification itself. That is a deliberate trade and worth stating
 plainly rather than hiding behind a formula: **the guards cost more than the
 proof does.** At 0.5 gwei it is still a fifth of a cent, which is the correct
 price for not accepting a reverted transfer as a payment.
+
+#### A second variable, and a bug it exposed
+
+The legacy row initially looked like an outlier — 3,608 gas *below* the model.
+It is not noise. That transaction encodes to 1,536 bytes against the type 2
+fixture's 1,664, and 3,608 gas over 128 bytes is **28.2 gas/byte**, which is
+what decoding costs (16 gas/byte for non-zero calldata, plus memory and decode
+overhead). Adding the term:
+
+```
+gas ≈ 376,714 + 440 × continuityRoots + 28 × (encodedBytes − 1664)
+```
+
+Residuals across all five measurements are ≤ 8 gas on the three points where
+byte counts match the fit. The model is not extrapolated; it is fitted to
+measurements and checked against the rest.
+
+**What that measurement actually caught.** Chasing the outlier revealed that
+*both* Foundry fixtures were EIP-1559 type 2, so the decoder's legacy branch had
+never been executed by a single test. The suite would have stayed green while
+pre-1559 transactions failed on chain — and Ethereum still carries plenty of
+them, so a registry that silently rejected legacy payments would wrongly default
+exactly the borrowers who make them. There is now a real type 0 mainnet fixture
+and a test asserting it decodes identically
+(`test_LegacyTransactionType_DecodesIdentically`).
+
+Worth noting how it surfaced: not from reading the decoder, but from a gas
+number that was 1% off.
 
 ### 3.4 Liveness
 

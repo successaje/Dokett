@@ -60,6 +60,7 @@ contract AscVerifyTest is Test {
 
     Fixture success;
     Fixture reverted;
+    Fixture legacy;
 
     function setUp() public {
         // Put the mocks at the real precompile addresses so the code under test is
@@ -73,6 +74,7 @@ contract AscVerifyTest is Test {
 
         success = _load("erc20-transfer-success.json", true);
         reverted = _load("tx-reverted.json", false);
+        legacy = _load("erc20-transfer-legacy.json", true);
 
         chainInfo.setChain(CHAIN_KEY, ETH_CHAIN_ID, success.blockNumber + MIN_CONF);
         vm.warp(1 days);
@@ -117,6 +119,29 @@ contract AscVerifyTest is Test {
         assertEq(log.address_, success.token, "log emitter should be the token");
         uint256 value = harness.requireErc20Transfer(log, success.token, success.from, success.to, 0);
         assertEq(value, success.value, "decoded value should match the real transfer");
+    }
+
+    /**
+     * @notice A LEGACY (type 0) mainnet transfer decodes identically to type 2.
+     *
+     * @dev Both other fixtures are EIP-1559 type 2, so the decoder's legacy
+     *      branch was never exercised — the suite would have passed while
+     *      pre-1559 transactions failed on chain. Ethereum still carries plenty
+     *      of them, and a registry that silently rejected legacy payments would
+     *      wrongly default the borrowers who make them.
+     *
+     *      Found by measuring gas against a real type 0 transaction: it came in
+     *      3,608 gas under the model fitted to type 2 fixtures, which turned out
+     *      to be its 128 fewer encoded bytes at ~28 gas/byte.
+     */
+    function test_LegacyTransactionType_DecodesIdentically() public {
+        chainInfo.setHead(CHAIN_KEY, legacy.blockNumber + MIN_CONF);
+
+        EvmV1Decoder.LogEntry memory log = harness.verify(_proof(legacy, 0, bytes32(uint256(7))));
+
+        assertEq(log.address_, legacy.token, "legacy log emitter");
+        uint256 value = harness.requireErc20Transfer(log, legacy.token, legacy.from, legacy.to, 0);
+        assertEq(value, legacy.value, "legacy transfer value must decode exactly as type 2 does");
     }
 
     /* ───────────────── the footgun: T-02 regression ─────────────── */
