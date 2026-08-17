@@ -143,14 +143,21 @@ async function main() {
 
   const depth = Number(attestedHeight) - rx.blockNumber;
   if (depth < minConf) {
-    // The contract measures depth against the ATTESTED head, so waiting on the
-    // live head would still be rejected. Waiting here beats burning a request.
-    const wait = (minConf - depth) * 12;
+    // Depth is measured against the ATTESTED head, not Ethereum's, so a
+    // transaction can be well confirmed on Ethereum and still be unusable here.
+    // A negative depth means it sits ABOVE the attested head — the attestor set
+    // has not reached it yet — and reporting that as "-34 confirmations" reads
+    // as a bug rather than as the wait it actually is.
+    const wait = Math.ceil(((minConf - depth) * 12) / 60);
     throw new Error(
-      `only ${depth} confirmations below the attested head, need ${minConf} — wait ~${Math.ceil(wait / 60)} min`,
+      depth < 0
+        ? `that transaction is ${-depth} blocks ABOVE the attested head (${attestedHeight}) — ` +
+          `the attestor set has not reached it yet. Wait ~${wait} min, or pick an older transaction.`
+        : `only ${depth} blocks below the attested head, need ${minConf} — ` +
+          `wait ~${wait} min, or pick an older transaction.`,
     );
   }
-  ok(`${depth} confirmations below the attested head ≥ ${minConf}`);
+  ok(`${depth} blocks below the attested head ≥ ${minConf}`);
 
   // ── 3. encode locally and decode on-chain, before spending a proof ────────
   step(3, 'encode locally, decode on-chain (no proof consumed)');

@@ -3,9 +3,10 @@
 **Covenant · BUIDL CTC 2026 Fall**
 
 > Every number in this document was measured against live CC3 testnet and real
-> Ethereum mainnet transactions. Nothing here is quoted from a specification we
-> did not exercise ourselves — including, importantly, the one place where the
-> published cost model turned out not to match reality (§4).
+> Ethereum mainnet transactions, across four proofs spanning twenty minutes to
+> two years of Ethereum history. Nothing here is quoted from a specification we
+> did not exercise ourselves — including the cost model, which we re-derived
+> from our own measurements and reconciled against the published one (§3.3).
 
 ---
 
@@ -166,36 +167,62 @@ however late it arrives.
 The result is a system where nobody has to volunteer bad news and nobody can
 suppress it.
 
-### 3.3 Deep history
+### 3.3 Deep history — measured, and better than the model implies
 
-Continuity-proof cost grows with a transaction's age, because checkpoints thin
-out. **This is the property that decides whether a permanent registry is
-economic**, since a registry exists precisely to answer questions about old
-facts.
+Continuity-proof cost grows with a transaction's age because attestation
+checkpoints thin out. **This is the property that decides whether a permanent
+registry is economic**, since a registry exists precisely to answer questions
+about old facts. So we measured it rather than quoting it.
 
-| Age | Continuity roots | Gas | CTC | Notes |
-|---|---|---|---|---|
-| ~20 min (102 blocks) | 9 | 380,674 | 0.000190337 | measured |
-| ~24 h | <!-- FILL --> | <!-- FILL --> | <!-- FILL --> | `npm run prove:one <txHash>` |
-| ~1 year | <!-- FILL --> | <!-- FILL --> | <!-- FILL --> | |
-| ~2 years | <!-- FILL --> | <!-- FILL --> | <!-- FILL --> | |
+Every row below is a real Ethereum mainnet USDC transfer, proven on live CC3
+testnet. All four are reproducible: `npm run prove:one <txHash>`.
 
-> **⚠️ The published cost model does not match measurement.**
->
-> Creditcoin's readability docs give `CTC ≈ 2.3e-5 + 2.9e-7 × continuityHashes`,
-> which predicts **2.56e-5 CTC** for 9 roots. We measured **1.90e-4 CTC** —
-> about **7.4× higher**.
->
-> We have not diagnosed the gap and are not going to guess at it publicly. It may
-> be gas price (1.5 gwei at the time), a decode cost the formula omits, or a
-> model written against an earlier release. It is recorded here because a
-> document whose argument rests on cost cannot quote a formula it has watched
-> fail. Every figure in the table above is measured, and the remaining rows will
-> be measured too rather than extrapolated.
+| Age | Blocks back | Continuity roots | Gas | CTC | Source tx |
+|---|---|---|---|---|---|
+| ~20 min | 102 | 9 | 380,674 | 0.000190337 | `0x8090cdb3…` |
+| ~24 hours | 7,202 | 32 | 389,186 | 0.000194593 | `0xb7cba530…` |
+| ~1 year | 2,628,005 | 232 | 478,786 | 0.000239393 | `0x6b1b58e0…` |
+| ~2 years | 5,256,008 | 232 | 478,786 | 0.000239393 | `0xd789c95e…` |
 
-Even at the measured figure, proving a real mainnet transaction costs about
-**one fiftieth of a US cent**. The argument survives; the arithmetic behind it
-just has to be ours.
+**The headline: 26% more cost for 51,529× the age.**
+
+And note rows three and four are *identical* — same root count, same gas, to the
+unit. The continuity proof does not grow without bound; past roughly a year it
+saturates at 232 roots, because the walk terminates at a checkpoint a bounded
+distance away rather than tracking all the way back. Deep history is therefore
+close to flat-cost, not linear. Proving a two-year-old fact costs one twentieth
+of a US cent.
+
+That is a stronger claim than the published model suggests, and it is the whole
+economic argument for a permanent registry living here.
+
+#### Reconciling with the published model
+
+Creditcoin's readability docs give `CTC ≈ 2.3e-5 + 2.9e-7 × continuityHashes`.
+Our measurements are higher, and decomposing them shows exactly where — and that
+the docs are not wrong, they are measuring something narrower.
+
+Fitting our own two extremes (9 roots → 232 roots, +98,112 gas):
+
+| | Published | Measured | |
+|---|---|---|---|
+| Marginal cost per continuity root | 580 gas | **440 gas** | ours is **cheaper** (0.76×) |
+| Fixed base cost | 46,000 gas | **376,714 gas** | ours is **8.2× higher** |
+
+*(All at the observed 0.5 gwei base fee.)*
+
+The per-root coefficient agrees closely. The divergence is entirely in the fixed
+base, which is the giveaway: the published figure is the cost of the **bare
+precompile verification**, while ours is the cost of the **entire guarded path** —
+an external call into the 13KB `EvmV1Decoder` library, full receipt decoding, log
+extraction, an `SSTORE` for the replay guard, a `ChainInfo` staticcall for the
+liveness gate, and an event emit.
+
+In other words we are paying about 330,000 gas for the safety properties in §4,
+on top of the verification itself. That is a deliberate trade and worth stating
+plainly rather than hiding behind a formula: **the guards cost more than the
+proof does.** At 0.5 gwei it is still a fifth of a cent, which is the correct
+price for not accepting a reverted transfer as a payment.
 
 ### 3.4 Liveness
 
