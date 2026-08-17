@@ -84,9 +84,20 @@ class Keeper {
   }
 
   every(ms, name, fn) {
-    const t = setInterval(() => this.safely(name, fn), ms);
-    if (t.unref) t.unref();
-    this.timers.push(t);
+    /*
+     * NOT unref'd, deliberately.
+     *
+     * These timers are the only thing keeping a keeper alive — it is a daemon
+     * whose entire job is to still be here later. Unref'ing them let the
+     * process exit the moment the first poke's I/O settled, silently, with a
+     * zero exit code and nothing in the log.
+     *
+     * That failure is worse than a crash. The keeper appears to be running, its
+     * observation record goes stale, and penaltiesEnabled quietly stays false —
+     * so no default can ever finalise and nobody is told why. I7 defended the
+     * protocol against this exact broken keeper; it should not have needed to.
+     */
+    this.timers.push(setInterval(() => this.safely(name, fn), ms));
   }
 
   /** One job failing must never take down the others — especially not the poker. */
@@ -159,15 +170,39 @@ class Keeper {
     const safeHead = head - conf;
     if (safeHead <= this.cursor) return;
 
-    const to = Math.min(safeHead, this.cursor + this.cfg.scanChunk);
     const tokens = [...new Set([...this.watchlist.values()].map((w) => w.o.sourceToken))];
 
-    const logs = await this.src.getLogs({
-      address: tokens,
-      topics: [TRANSFER_TOPIC],
-      fromBlock: this.cursor + 1,
-      toBlock: to,
-    });
+    /*
+     * Adaptive range, because provider limits are not knowable in advance.
+     *
+     * A high-volume token makes the response size — not the block count — the
+     * binding constraint: 500 blocks of USDC is roughly twenty thousand
+     * Transfer logs, and public endpoints answer that with an opaque routing
+     * error rather than a documented limit. Halving on failure finds whatever
+     * this provider will actually serve, instead of hardcoding a guess that is
+     * wrong on the next endpoint.
+     */
+    let span = Math.min(this.cfg.scanChunk, safeHead - this.cursor);
+    let logs = null;
+    let to = this.cursor;
+
+    while (span >= 1) {
+      to = Math.min(safeHead, this.cursor + span);
+      try {
+        logs = await this.src.getLogs({
+          address: tokens,
+          topics: [TRANSFER_TOPIC],
+          fromBlock: this.cursor + 1,
+          toBlock: to,
+        });
+        break;
+      } catch (err) {
+        span = Math.floor(span / 2);
+        if (span < 1) throw err;
+        this.log.warn(`[scan] range refused, retrying with ${span} blocks`);
+      }
+    }
+    if (!logs) return;
 
     for (const log of logs) {
       const parsed = erc20.parseLog(log);

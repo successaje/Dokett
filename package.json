@@ -26,7 +26,8 @@
     "prove:batch": "node --env-file-if-exists=.env demo/prove-batch.js",
     "preflight": "node --env-file-if-exists=.env script/preflight.js",
     "seed": "node --env-file-if-exists=.env script/seed.js",
-    "prove:payment": "node --env-file-if-exists=.env script/prove-payment.js"
+    "prove:payment": "node --env-file-if-exists=.env script/prove-payment.js",
+    "live": "node --env-file-if-exists=.env lens/src/index.js & npm --prefix app run dev"
   },
   "keywords": [],
   "author": "",

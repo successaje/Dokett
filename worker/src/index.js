@@ -34,8 +34,10 @@ async function main() {
   process.on('SIGINT', () => shutdown('SIGINT'));
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 
-  // Timers are unref'd so they never hold the loop open on their own; this does.
-  await new Promise(() => {});
+  // The interval timers hold the event loop open. An unresolved promise does
+  // NOT — it parks a continuation with nothing scheduled behind it, and Node
+  // exits cleanly when the loop drains.
+  log.info('running; ctrl-c to stop');
 }
 
 main().catch((err) => {

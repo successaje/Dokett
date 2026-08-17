@@ -66,8 +66,12 @@ const config = {
   /** Delinquency/default sweep cadence. */
   sweepIntervalMs: Number(process.env.SWEEP_INTERVAL_MS || 60_000),
 
-  /** Blocks per source-chain log query. Free RPCs choke on wide ranges. */
-  scanChunk: Number(process.env.SCAN_CHUNK || 500),
+  /**
+   * Starting source-chain scan width, halved on refusal until the provider
+   * accepts it. 64 suits a high-volume token like USDC; the adaptive retry
+   * handles endpoints stricter or looser than that.
+   */
+  scanChunk: Number(process.env.SCAN_CHUNK || 64),
 
   /** Start scanning from here if the keeper has no prior cursor. */
   startBlock: process.env.SOURCE_START_BLOCK ? Number(process.env.SOURCE_START_BLOCK) : null,
