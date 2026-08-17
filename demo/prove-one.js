@@ -67,9 +67,21 @@ const step = (n, msg) => console.log(`\n[${n}] ${msg}`);
 const ok = (msg) => console.log(`    ✓ ${msg}`);
 const info = (k, v) => console.log(`      ${k.padEnd(18)} ${v}`);
 
-/** A single-log USDC transfer keeps the first real proof unambiguous. */
-async function findCandidate(src, head) {
-  for (let n = head; n > head - 30; n--) {
+/**
+ * A single-log USDC transfer keeps the first real proof unambiguous.
+ *
+ * `from` must already satisfy BOTH gates or the run wastes a proof-builder
+ * request on a transaction the contract will refuse:
+ *
+ *   · attestation — the block must be at or below the attested head, which
+ *     trails Ethereum by roughly 36 blocks in practice
+ *   · confirmation depth — minConfirmations BELOW that attested head
+ *
+ * Searching from the live head instead, as this first did, reliably picks a
+ * transaction ~20 minutes too young and fails at step 2 every time.
+ */
+async function findCandidate(src, from) {
+  for (let n = from; n > from - 30; n--) {
     const logs = await src.getLogs({ address: USDC, topics: [TRANSFER_TOPIC], fromBlock: n, toBlock: n });
     for (const log of logs) {
       const rx = await src.getTransactionReceipt(log.transactionHash);
@@ -110,7 +122,17 @@ async function main() {
   // ── 2. pick a transaction ─────────────────────────────────────────────────
   step(2, 'selecting a mainnet transaction');
   const head = await src.getBlockNumber();
-  const txHash = process.argv[2] || (await findCandidate(src, head));
+  const minConf = Number(await probe.minConfirmations());
+
+  // Search below the attested head, not the live head: the contract measures
+  // confirmation depth against what Creditcoin has attested, which trails
+  // Ethereum. A few blocks of slack absorbs attestation advancing mid-run.
+  const searchFrom = Math.min(head, Number(attestedHeight) - minConf - 4);
+  info('ethereum head', head);
+  info('attested head', `${attestedHeight}  (lag ${head - Number(attestedHeight)} blocks)`);
+  info('searching from', searchFrom);
+
+  const txHash = process.argv[2] || (await findCandidate(src, searchFrom));
   const rx = await src.getTransactionReceipt(txHash);
   if (!rx) throw new Error(`no receipt for ${txHash}`);
   info('tx', txHash);
@@ -119,13 +141,16 @@ async function main() {
   info('logs', rx.logs.length);
   info('age (blocks)', head - rx.blockNumber);
 
-  const minConf = Number(await probe.minConfirmations());
-  if (head - rx.blockNumber < minConf) {
-    // The contract would reject it; waiting here beats burning a builder request.
-    const wait = minConf - (head - rx.blockNumber);
-    throw new Error(`only ${head - rx.blockNumber} confirmations, need ${minConf} — wait ~${wait * 12}s`);
+  const depth = Number(attestedHeight) - rx.blockNumber;
+  if (depth < minConf) {
+    // The contract measures depth against the ATTESTED head, so waiting on the
+    // live head would still be rejected. Waiting here beats burning a request.
+    const wait = (minConf - depth) * 12;
+    throw new Error(
+      `only ${depth} confirmations below the attested head, need ${minConf} — wait ~${Math.ceil(wait / 60)} min`,
+    );
   }
-  ok(`${head - rx.blockNumber} confirmations ≥ ${minConf}`);
+  ok(`${depth} confirmations below the attested head ≥ ${minConf}`);
 
   // ── 3. encode locally and decode on-chain, before spending a proof ────────
   step(3, 'encode locally, decode on-chain (no proof consumed)');
