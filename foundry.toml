@@ -36,3 +36,9 @@ fail_on_revert = false
 [rpc_endpoints]
 cc3_testnet = "${CC3_RPC}"
 ethereum = "${ETH_MAINNET_RPC}"
+
+# Source verification. Blockscout on CC3 testnet needs no API key, so there is
+# no excuse for shipping unverified bytecode — a registry whose whole claim is
+# that nothing can be asserted must let anyone read what they are trusting.
+[etherscan]
+cc3_testnet = { key = "", url = "https://creditcoin-testnet.blockscout.com/api", chain = 102031 }
