@@ -97,6 +97,14 @@ The `BlockProver` precompile **does not validate whether the proven transaction 
 
 End to end: [`docs/USE-CASES.md`](docs/USE-CASES.md) · Design spec: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Threat model: [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
 
+## Research
+
+Findings from operating the protocol against live chains, not marketing copy —
+every number below links to a real transaction.
+
+- [**#001 — What does it actually cost to verify a foreign chain?**](docs/research/001-attestcoin-cost-model.md) Five real Ethereum transactions, 20 minutes to 2 years old, measured rather than quoted. Where our number disagreed with the published cost model, and why.
+- [**#002 — We watched an obligation default. Nobody reported it.**](docs/research/002-autonomous-default.md) A live trace of an unattended keeper degrading an obligation to default in 2.3 minutes, with linked transactions for every step.
+
 ---
 
 ## Quickstart
