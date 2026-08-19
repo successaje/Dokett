@@ -276,7 +276,16 @@ export default function Obligation({ id }: { id: string }) {
                   </span>
                 }
               />
-              <Row k="Collateral" v={<Addr value={o.collateralRef} lead={10} tail={6} />} />
+              <Row
+                k="Collateral"
+                v={
+                  /^0x0+$/i.test(o.collateralRef) ? (
+                    <span className="note">— none</span>
+                  ) : (
+                    <Addr value={o.collateralRef} lead={10} tail={6} />
+                  )
+                }
+              />
             </DL>
           </div>
         </Section>

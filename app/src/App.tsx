@@ -13,11 +13,20 @@ import Posts from './routes/Posts';
 import Onboarding from './components/Onboarding';
 import { useSession } from './lib/auth';
 
-/** Hash routing: no dependency, and every view stays a shareable deep link. */
+/**
+ * Hash routing: no dependency, and every view stays a shareable deep link.
+ *
+ * Resets scroll on every navigation. Without this, navigating to a new view
+ * while scrolled down leaves the next page scrolled down too — and because the
+ * masthead is sticky, that can land the new page's own title behind it.
+ */
 function useHashRoute(): string {
   const [hash, setHash] = useState(() => window.location.hash.slice(1) || '/');
   useEffect(() => {
-    const onChange = () => setHash(window.location.hash.slice(1) || '/');
+    const onChange = () => {
+      setHash(window.location.hash.slice(1) || '/');
+      window.scrollTo(0, 0);
+    };
     window.addEventListener('hashchange', onChange);
     return () => window.removeEventListener('hashchange', onChange);
   }, []);
