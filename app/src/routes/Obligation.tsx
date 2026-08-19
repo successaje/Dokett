@@ -85,11 +85,29 @@ function buildDocket(o: ObligationDetail): DocketEntry[] {
   }
 
   if (o.status === 'Default') {
+    // The bond outcome must be read from actual state, not asserted. An
+    // obligation can default with zero bonds posted — nothing to slash, the
+    // creditor was simply unprotected — and claiming a slash that did not
+    // happen is exactly the kind of overclaim this registry exists to refuse.
+    const live = o.bonds.filter((b) => !b.released);
+    const totalSlashed = live.reduce((sum, b) => sum + big(b.slashed), 0n);
+
     entries.push({
       title: 'Cure expired — default finalised',
       height: o.cureEndHeight,
       emphasis: true,
-      body: <>First-loss capital was slashed to the creditor in the same transaction.</>,
+      body:
+        totalSlashed > 0n ? (
+          <>
+            First-loss capital was slashed to the creditor in the same transaction:{' '}
+            {units(totalSlashed.toString())} across {live.length} bond{live.length === 1 ? '' : 's'}.
+          </>
+        ) : (
+          <>
+            No first-loss capital was posted against this obligation, so nothing was slashed. The
+            creditor carried the loss directly.
+          </>
+        ),
     });
   }
 

@@ -27,7 +27,8 @@
     "preflight": "node --env-file-if-exists=.env script/preflight.js",
     "seed": "node --env-file-if-exists=.env script/seed.js",
     "prove:payment": "node --env-file-if-exists=.env script/prove-payment.js",
-    "live": "node --env-file-if-exists=.env lens/src/index.js & npm --prefix app run dev"
+    "live": "node --env-file-if-exists=.env lens/src/index.js & npm --prefix app run dev",
+    "seed:quick-default": "node --env-file-if-exists=.env script/seed-quick-default.js"
   },
   "keywords": [],
   "author": "",
