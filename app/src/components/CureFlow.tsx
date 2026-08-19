@@ -29,6 +29,12 @@ type Stage = 'idle' | 'fetching' | 'submitting' | 'done' | 'error';
 
 const TX_RE = /^0x[0-9a-fA-F]{64}$/;
 
+// Same override pattern as the Lens client (lib/lens.ts): '/api/cure' only
+// resolves via the local dev proxy. A static deployment with no relay set
+// still works correctly — the fetch 404s and the catch block below reports
+// that honestly, rather than claiming a submission that didn't happen.
+const RELAY_URL = import.meta.env.VITE_RELAY_URL ?? '/api/cure';
+
 export default function CureFlow({ obligation }: { obligation: Obligation }) {
   const [txHash, setTxHash] = useState('');
   const [stage, setStage] = useState<Stage>('idle');
@@ -50,7 +56,7 @@ export default function CureFlow({ obligation }: { obligation: Obligation }) {
        * deliberately cannot accept proof bytes from here — that would let anyone
        * hand it arbitrary payloads to burn its balance on.
        */
-      const res = await fetch('/api/cure', {
+      const res = await fetch(RELAY_URL, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ obligationId: obligation.id, txHash: txHash.trim() }),

@@ -1,0 +1,32 @@
+# Covenant Lens — the read-only projection API.
+#
+# This is what the Console's /api proxy and any judge's `curl` hit directly.
+# Needs to answer requests, so it gets Fly's HTTP service block; the keeper app
+# (fly.keeper.toml) deliberately does not.
+app = "covenant-lens"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[processes]
+  app = "node lens/src/index.js"
+
+[http_service]
+  internal_port = 8787
+  processes = ["app"]
+  force_https = true
+  auto_stop_machines = false   # a stopped Lens is a dead Console for every judge
+  auto_start_machines = true
+  min_machines_running = 1     # never scale to zero — see the note above
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

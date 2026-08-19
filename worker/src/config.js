@@ -20,8 +20,36 @@ function required(name) {
 const config = {
   // ── chains ──────────────────────────────────────────────────────────────
   creditcoinRpc: process.env.CC3_RPC || 'https://rpc.cc3-testnet.creditcoin.network',
-  sourceRpc: required('ETH_MAINNET_RPC'),
+
+  /**
+   * Source-chain RPC endpoints, comma-separated, tried in order with failover.
+   *
+   * A keeper is a long-running process hammering one endpoint every ~30s for
+   * hours; a free-tier RPC WILL eventually answer "upgrade to a paid plan"
+   * under that load, and there is no way to know in advance which one or when.
+   * A single endpoint is therefore a single point of failure for the entire
+   * `scan` job — poke and sweep are unaffected, since they only touch
+   * Creditcoin, but no source-chain reads means no new payments ever get
+   * auto-proven. Same pattern as PROOF_BUILDERS below: don't trust one
+   * provider to be up forever, because none of them commit to that for free.
+   */
+  sourceRpcs: required('ETH_MAINNET_RPC')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+
   chainKey: Number(required('CHAIN_KEY')),
+
+  /**
+   * The source chain's OWN chainId (not the Creditcoin chainKey — see
+   * ARCHITECTURE.md §5.1, they are never the same number). Pins FallbackRpc's
+   * providers to a static network instead of letting each one poll to detect
+   * it, which is both the fix for background rate-limit load and a second
+   * chainkey-style sanity check: if ETH_MAINNET_RPC ever silently pointed at
+   * the wrong chain, providers constructed with a static network reject
+   * requests outright rather than quietly reading the wrong chain's data.
+   */
+  expectedSourceChainId: Number(process.env.EXPECTED_CHAIN_ID || 1),
 
   // ── contracts ───────────────────────────────────────────────────────────
   register: required('REGISTER_ADDRESS'),

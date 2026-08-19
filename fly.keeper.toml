@@ -1,0 +1,27 @@
+# Covenant keeper — poke / prove / sweep, on independent timers.
+#
+# No [http_service]: the keeper serves nothing and accepts no inbound traffic,
+# so there is nothing to health-check over HTTP. Fly still restarts the machine
+# on crash regardless — `restart.policy = "always"` is what actually matters
+# here, not a health probe.
+#
+# THE PROPERTY THIS EXISTS TO PROTECT: AscVerify.penaltiesEnabled requires an
+# unbroken observation record covering `recoveryGrace` (3600s) with no gap
+# longer than `maxSampleGap` (900s). A keeper that restarts slowly, or sits
+# dead for fifteen minutes before anyone notices, resets that clock — so
+# "restarts eventually" is not good enough; it has to restart fast.
+app = "covenant-keeper"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[processes]
+  app = "node worker/src/index.js"
+
+[[restart]]
+  policy = "always"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

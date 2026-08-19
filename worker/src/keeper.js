@@ -3,6 +3,7 @@
 const { ethers } = require('ethers');
 const { REGISTER, VERIFIER, PAYMENT_ADAPTER, SILENCE_ADAPTER, ERC20 } = require('./abi');
 const { ProofSource, toContractProof } = require('./proof');
+const { FallbackRpc } = require('./rpc');
 
 const STATUS = ['None', 'Active', 'Current', 'Delinquent', 'Default', 'Settled', 'ChargedOff'];
 const LIVE = new Set([1, 2, 3]); // Active, Current, Delinquent
@@ -33,7 +34,9 @@ class Keeper {
     this.log = log;
 
     this.cc = new ethers.JsonRpcProvider(config.creditcoinRpc);
-    this.src = new ethers.JsonRpcProvider(config.sourceRpc);
+    // Failover across source-chain RPCs — see rpc.js for why this isn't
+    // ethers' own FallbackProvider (quorum, not failover — wrong tool here).
+    this.src = new FallbackRpc(config.sourceRpcs, log, config.expectedSourceChainId);
 
     this.signer = config.privateKey ? new ethers.Wallet(config.privateKey, this.cc) : null;
     const runner = this.signer || this.cc;
