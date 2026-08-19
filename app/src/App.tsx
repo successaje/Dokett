@@ -8,6 +8,8 @@ import Encumbrance from './routes/Encumbrance';
 import Obligation from './routes/Obligation';
 import Underwriter from './routes/Underwriter';
 import Profile from './routes/Profile';
+import Developers from './routes/Developers';
+import Posts from './routes/Posts';
 import Onboarding from './components/Onboarding';
 import { useSession } from './lib/auth';
 
@@ -120,11 +122,24 @@ function ThemeToggle() {
   );
 }
 
-const NAV = [
+/*
+ * Two clusters, not one flat list. The record itself — Registry / Solvency /
+ * Encumbrance / Underwriters — is precise bureau vocabulary and stays put.
+ * Developers, Posts, and About are real destinations that were previously
+ * unreachable from inside the app (About existed only as a wordmark click),
+ * so they're added rather than swapped in over the first cluster.
+ */
+const NAV_RECORD = [
   ['/registry', 'Registry'],
   ['/solvency', 'Solvency'],
   ['/encumbrance', 'Encumbrance'],
   ['/underwriter', 'Underwriters'],
+] as const;
+
+const NAV_MORE = [
+  ['/developers', 'Developers'],
+  ['/posts', 'Posts'],
+  ['/', 'About'],
 ] as const;
 
 function View({ route }: { route: string }) {
@@ -147,6 +162,10 @@ function View({ route }: { route: string }) {
       return <Underwriter />;
     case '/registry':
       return <Registry />;
+    case '/developers':
+      return <Developers />;
+    case '/posts':
+      return <Posts />;
     default:
       return (
         <div className="page">
@@ -207,7 +226,13 @@ export default function App() {
             <span className="wordmark-sub">Register of Obligations</span>
           </a>
           <nav className="nav">
-            {NAV.map(([href, label]) => (
+            {NAV_RECORD.map(([href, label]) => (
+              <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
+                {label}
+              </a>
+            ))}
+            <span className="nav-divider" aria-hidden="true" />
+            {NAV_MORE.map(([href, label]) => (
               <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
                 {label}
               </a>

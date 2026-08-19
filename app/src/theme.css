@@ -326,6 +326,15 @@ hr {
   font-weight: 600;
 }
 
+/* Separates the record (Registry/Solvency/Encumbrance/Underwriters) from the
+   secondary destinations (Developers/Posts/About) without a second nav bar. */
+.nav-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--rule);
+  margin: 0 -2px;
+}
+
 /*
  * Narrow screens: the wordmark and the theme control hold the first line, and
  * the index drops to its own full-width line that scrolls rather than
