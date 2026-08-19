@@ -162,7 +162,14 @@ body {
 }
 
 /* Every on-chain number is tabular. Columns must align, and an 8 must never be
-   confusable with a 3 in an amount someone is about to lend against. */
+   confusable with a 3 in an amount someone is about to lend against.
+
+   overflow-wrap here too: this class also carries full, untruncated hashes
+   (Profile's subject line, for one) that are wider than a phone screen. Without
+   it a single unbroken 66-character hex string pushes past the viewport and
+   drags .shell's width with it — every ancestor up to <html> ends up scrolling
+   horizontally to show one line of text, which reads as "the whole page is
+   broken" rather than "one address is long". */
 .mono,
 td.num,
 th.num,
@@ -170,6 +177,7 @@ th.num,
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1, "zero" 1;
+  overflow-wrap: anywhere;
 }
 
 a {
