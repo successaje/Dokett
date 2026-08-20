@@ -312,6 +312,8 @@ export default function Landing() {
 
             <div className="lp-col">
               <h4>Protocol</h4>
+              <a href="#/developers">Developers</a>
+              <a href="#/posts">Posts</a>
               <a href={`${REPO}/blob/main/docs/ARCHITECTURE.md`} target="_blank" rel="noreferrer">
                 Architecture
               </a>
