@@ -1,5 +1,5 @@
 import { lens, useLens } from '../lib/lens';
-import { big, units, truncate } from '../lib/format';
+import { big, height, units, truncate } from '../lib/format';
 import {
   Addr,
   Empty,
@@ -66,6 +66,13 @@ export default function Registry() {
     .reduce((a, o) => a + big(o.outstanding), 0n);
 
   const coverage = all.reduce((a, o) => a + big(o.coverage), 0n);
+
+  // A column that repeats the same value on every row carries no information —
+  // at today's scale there is one registrar, and giving it equal visual rank
+  // to Status and Outstanding (which do vary) draws the eye to the wrong place.
+  const firstRegistrar = all[0]?.registrar;
+  const uniformRegistrar =
+    all.length > 1 && firstRegistrar !== undefined && all.every((o) => o.registrar === firstRegistrar);
 
   return (
     <>
@@ -138,7 +145,7 @@ export default function Registry() {
                       <td>
                         <StatusPill status={o.status} />
                       </td>
-                      <td>
+                      <td style={uniformRegistrar ? { color: 'var(--ink-4)' } : undefined}>
                         <span className="row" style={{ gap: 7 }}>
                           <Addr value={o.registrar} />
                           {!o.bonded && <UnbondedFlag />}
@@ -162,7 +169,7 @@ export default function Registry() {
                       </td>
                       <td className="num">{units(o.coverage)}</td>
                       <td className="num" style={{ color: 'var(--ink-3)' }}>
-                        {o.windowEndHeight}
+                        {height(o.windowEndHeight)}
                       </td>
                     </tr>
                   ))}

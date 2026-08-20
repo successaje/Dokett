@@ -1,5 +1,5 @@
 import { lens, useLens } from '../lib/lens';
-import { big, blocksToDuration, bps, units } from '../lib/format';
+import { big, blocksToDuration, bps, height, units } from '../lib/format';
 import {
   Addr,
   DL,
@@ -220,14 +220,14 @@ export default function Obligation({ id }: { id: string }) {
 
           <div style={{ marginTop: 20, maxWidth: 560 }}>
             <DL>
-              <Row k="Window closes" v={o.windowEndHeight} />
-              <Row k="Cure expires" v={o.cureEndHeight} />
+              <Row k="Window closes" v={height(o.windowEndHeight)} />
+              <Row k="Cure expires" v={height(o.cureEndHeight)} />
               <Row
                 k="Cure window"
                 v={`${cureBlocks.toString()} blocks · ~${blocksToDuration(cureBlocks)} est.`}
                 title="Estimated from a 12s source-chain block time. The contract enforces blocks, not time."
               />
-              <Row k="Last proven payment" v={lastProven === 0n ? '— none' : o.lastProvenHeight} />
+              <Row k="Last proven payment" v={lastProven === 0n ? '— none' : height(o.lastProvenHeight)} />
             </DL>
           </div>
         </Section>
@@ -243,7 +243,7 @@ export default function Obligation({ id }: { id: string }) {
               If a qualifying payment was made on the source chain at a height inside the missed
               window, proving it now restores <strong>Current</strong> — however late the proof
               arrives — until the attested head passes{' '}
-              <span className="mono">{o.cureEndHeight}</span>. Submission is permissionless and
+              <span className="mono">{height(o.cureEndHeight)}</span>. Submission is permissionless and
               costs a fraction of a cent.
             </p>
 

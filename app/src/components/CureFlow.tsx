@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { height } from '../lib/format';
 import type { Obligation } from '../lib/types';
 
 /**
@@ -100,7 +101,7 @@ export default function CureFlow({ obligation }: { obligation: Obligation }) {
       <div className="cure-head">
         <span className="eyebrow">Cure this obligation</span>
         <span className="cure-deadline">
-          cure closes at height <span className="tnum">{obligation.cureEndHeight}</span>
+          cure closes at height <span className="tnum">{height(obligation.cureEndHeight)}</span>
         </span>
       </div>
 

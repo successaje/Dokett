@@ -56,6 +56,15 @@ export function blocksToDuration(blocks: bigint): string {
   return `${(secs / 86_400).toFixed(1)}d`;
 }
 
+/** Thousands-grouped block height — a plain integer, not a fixed-point amount. */
+export function height(raw: string | number | bigint): string {
+  const s = typeof raw === 'string' ? raw : raw.toString();
+  if (!/^-?\d+$/.test(s)) return s;
+  const neg = s.startsWith('-');
+  const digits = neg ? s.slice(1) : s;
+  return (neg ? '-' : '') + digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 export function big(raw: string): bigint {
   try {
     return BigInt(raw);

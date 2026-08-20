@@ -79,7 +79,7 @@
     --ink: #ece9e2;
     --ink-2: #b3afa6;
     --ink-3: #8a867d;
-    --ink-4: #625f58;
+    --ink-4: #79766e;
 
     --rule: #2a2c33;
     --rule-strong: #3d3f48;
@@ -109,7 +109,7 @@
   --ink: #ece9e2;
   --ink-2: #b3afa6;
   --ink-3: #8a867d;
-  --ink-4: #625f58;
+  --ink-4: #79766e;
 
   --rule: #2a2c33;
   --rule-strong: #3d3f48;
@@ -542,6 +542,14 @@ hr {
   font-size: 11.5px;
   color: var(--ink-3);
   margin-top: 3px;
+}
+
+/* A zero here is a real finding (no bond posted, no coverage) rather than a
+   blank, but full weight makes it read as unfinished. Dim it so the eye lands
+   on the figures beside it that actually vary. */
+.figure-value[data-zero="true"] {
+  color: var(--ink-4);
+  font-weight: 400;
 }
 
 @media (max-width: 720px) {

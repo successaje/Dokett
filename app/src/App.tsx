@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { lens, useLens } from './lib/lens';
+import { height } from './lib/format';
 import { Mark } from './components/primitives';
 import Landing from './routes/Landing';
 import Registry from './routes/Registry';
@@ -57,7 +58,7 @@ function LivenessStrip() {
         <span className="liveness-item">
           <span className="liveness-label">Projection</span>
           <span className="liveness-value">
-            {unreachable ? 'unreachable' : res.state === 'ok' ? `block ${res.data.asOfBlock}` : '—'}
+            {unreachable ? 'unreachable' : res.state === 'ok' ? `block ${height(res.data.asOfBlock)}` : '—'}
           </span>
         </span>
 

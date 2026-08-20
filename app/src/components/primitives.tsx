@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Status } from '../lib/types';
-import { STATUS_MEANING, truncate } from '../lib/format';
+import { STATUS_MEANING, height, truncate } from '../lib/format';
 
 /* ──────────────────────────────── mark ──────────────────────────────── */
 
@@ -91,10 +91,18 @@ export function Figure({
   sub?: ReactNode;
   title?: string;
 }) {
+  // A literal zero is real evidence here (no bond posted, no coverage), not a
+  // loading state — but full weight makes it read as "broken" rather than
+  // "true". Dimming it keeps the number legible while a reader's eye lands on
+  // the figures that actually vary first.
+  const isZero = value === 0 || value === '0';
+
   return (
     <div className="figure" title={title}>
       <div className="figure-label">{label}</div>
-      <div className="figure-value">{value}</div>
+      <div className="figure-value" data-zero={isZero ? 'true' : undefined}>
+        {value}
+      </div>
       {sub ? <div className="figure-sub">{sub}</div> : null}
     </div>
   );
@@ -246,10 +254,10 @@ export function HeightRuler({ windowEnd, cureEnd, head, headIsLowerBound }: Rule
   const hd = head === undefined ? null : pct(head);
 
   const label =
-    `Window closes at height ${windowEnd}, cure expires at ${cureEnd}. ` +
+    `Window closes at height ${height(windowEnd)}, cure expires at ${height(cureEnd)}. ` +
     (head === undefined
       ? 'The attested source-chain head is not reported by this projection.'
-      : `${headIsLowerBound ? 'The head is at least' : 'The attested head is'} ${head}.`);
+      : `${headIsLowerBound ? 'The head is at least' : 'The attested head is'} ${height(head)}.`);
 
   return (
     <div>
@@ -274,7 +282,7 @@ export function HeightRuler({ windowEnd, cureEnd, head, headIsLowerBound }: Rule
           <div
             className="ruler-mark"
             data-kind="head"
-            data-label={`${headIsLowerBound ? 'head ≥' : 'head'} ${head!.toString()}`}
+            data-label={`${headIsLowerBound ? 'head ≥' : 'head'} ${height(head!)}`}
             data-flip={hd > 58 ? 'true' : 'false'}
             style={{ left: `${hd}%` }}
           />
@@ -284,11 +292,11 @@ export function HeightRuler({ windowEnd, cureEnd, head, headIsLowerBound }: Rule
       <div className="ruler-legend">
         <span className="ruler-key">
           <i style={{ background: 'var(--st-delinquent)' }} /> window closes{' '}
-          <span className="tnum">{windowEnd.toString()}</span>
+          <span className="tnum">{height(windowEnd)}</span>
         </span>
         <span className="ruler-key">
           <i style={{ background: 'var(--st-default)' }} /> cure expires{' '}
-          <span className="tnum">{cureEnd.toString()}</span>
+          <span className="tnum">{height(cureEnd)}</span>
         </span>
         {head === undefined ? (
           <span className="ruler-key" style={{ color: 'var(--ink-4)' }}>
@@ -298,7 +306,7 @@ export function HeightRuler({ windowEnd, cureEnd, head, headIsLowerBound }: Rule
           <span className="ruler-key">
             <i style={{ background: 'var(--ink)' }} />{' '}
             {headIsLowerBound ? 'head at least' : 'attested head'}{' '}
-            <span className="tnum">{head.toString()}</span>
+            <span className="tnum">{height(head)}</span>
           </span>
         )}
       </div>
@@ -332,7 +340,7 @@ export function Docket({ entries }: { entries: DocketEntry[] }) {
         <div className="docket-entry" key={i} data-emphasis={e.emphasis ? 'true' : 'false'}>
           <div className="docket-head">
             <span className="docket-title">{e.title}</span>
-            {e.height ? <span className="docket-height">height {e.height}</span> : null}
+            {e.height ? <span className="docket-height">height {height(e.height)}</span> : null}
           </div>
           {e.body ? <div className="docket-body">{e.body}</div> : null}
         </div>
