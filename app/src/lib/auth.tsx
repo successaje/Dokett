@@ -92,19 +92,41 @@ function LiveSession({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+/**
+ * Resolves the same effective theme ThemeToggle would show right now, read the
+ * same way it reads it: an explicit choice in localStorage, else the system
+ * preference. Privy's modal is themed once at mount rather than reactively, so
+ * this only has to match what the reader is looking at when they click "Sign
+ * in" — not track a later in-session toggle.
+ */
+function resolvedTheme(): 'light' | 'dark' {
+  try {
+    const stored = localStorage.getItem('covenant.theme');
+    if (stored === 'light' || stored === 'dark') return stored;
+  } catch {
+    // ignore — fall through to system preference
+  }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   if (!APP_ID) {
     // No vendor, no degradation of the public record.
     return <Ctx.Provider value={NoSession}>{children}</Ctx.Provider>;
   }
 
+  const theme = resolvedTheme();
+
   return (
     <PrivyProvider
       appId={APP_ID}
       config={{
         appearance: {
-          theme: 'light',
-          accentColor: '#16181c',
+          theme,
+          // The site's own ink token for each theme — a near-black accent on
+          // Privy's dark modal would be nearly invisible against its own
+          // near-black background.
+          accentColor: theme === 'dark' ? '#ece9e2' : '#16181c',
           logo: undefined,
           walletList: ['metamask', 'wallet_connect'],
         },

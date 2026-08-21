@@ -21,11 +21,18 @@ import { useSession } from './lib/auth';
  * while scrolled down leaves the next page scrolled down too — and because the
  * masthead is sticky, that can land the new page's own title behind it.
  */
+/** Strips any `?query` before it reaches route matching — a route is a path. */
+function hashPath(): string {
+  const raw = window.location.hash.slice(1) || '/';
+  const q = raw.indexOf('?');
+  return q === -1 ? raw : raw.slice(0, q);
+}
+
 function useHashRoute(): string {
-  const [hash, setHash] = useState(() => window.location.hash.slice(1) || '/');
+  const [hash, setHash] = useState(hashPath);
   useEffect(() => {
     const onChange = () => {
-      setHash(window.location.hash.slice(1) || '/');
+      setHash(hashPath());
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', onChange);

@@ -173,9 +173,18 @@ function Result({ entity }: { entity: string }) {
  * gutter and no combined figure anywhere. Reintroducing a total in the UI would
  * undo the exact property the protocol refuses to give up.
  */
+/** Reads `?q=` off the hash query string — used only to arrive pre-searched from a deep link. */
+function seededEntity(): string {
+  const q = window.location.hash.split('?')[1];
+  if (!q) return '';
+  return new URLSearchParams(q).get('q')?.trim() ?? '';
+}
+
 export default function Solvency() {
-  const [input, setInput] = useState('');
-  const [entity, setEntity] = useState<string | null>(null);
+  const seeded = seededEntity();
+  const seededValid = isAddress(seeded) || isBytes32(seeded);
+  const [input, setInput] = useState(seeded);
+  const [entity, setEntity] = useState<string | null>(seededValid ? seeded : null);
 
   const trimmed = input.trim();
   const valid = isAddress(trimmed) || isBytes32(trimmed);
