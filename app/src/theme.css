@@ -264,35 +264,8 @@ hr {
   display: flex;
   align-items: baseline;
   gap: 20px;
-  padding: 16px 0 10px;
+  padding: 18px 0 12px;
   flex-wrap: wrap;
-}
-
-/*
- * A second row under the identity line, rather than everything crowded onto
- * one baseline. Each group carries a small caption so the shape of the app —
- * a record, plus reference material around it — reads before a first-time
- * visitor clicks anything. Flat links throughout; no dropdowns, in keeping
- * with the rest of the console.
- */
-.masthead-nav-row {
-  display: flex;
-  gap: 36px;
-  padding: 2px 0 14px;
-  flex-wrap: wrap;
-}
-
-.nav-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.nav-group-label {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-4);
 }
 
 .wordmark {
@@ -328,6 +301,7 @@ hr {
 .nav {
   display: flex;
   gap: 22px;
+  margin-left: auto;
   align-items: baseline;
   flex-wrap: wrap;
 }
@@ -352,15 +326,24 @@ hr {
   font-weight: 600;
 }
 
+/* Separates the record (Registry/Solvency/Encumbrance/Underwriters) from the
+   secondary destinations (Developers/Posts/About) without a second nav bar. */
+.nav-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--rule);
+  margin: 0 -2px;
+}
+
 /*
- * Narrow screens: the identity row keeps the wordmark and controls; the nav
- * row below scrolls horizontally as one strip rather than wrapping the two
- * groups onto separate lines, which would cost more vertical space than a
- * console this dense can spare.
+ * Narrow screens: the wordmark and the theme control hold the first line, and
+ * the index drops to its own full-width line that scrolls rather than
+ * truncating. A navigation item you cannot reach is worse than one you have to
+ * swipe to.
  */
 @media (max-width: 720px) {
   .masthead-inner {
-    padding: 12px 0 6px;
+    padding: 14px 0 6px;
     gap: 10px;
   }
 
@@ -374,27 +357,22 @@ hr {
   }
 
   .masthead-inner > .btn {
+    order: 2;
     margin-left: auto;
   }
 
-  .masthead-nav-row {
-    flex-wrap: nowrap;
-    gap: 26px;
+  .nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    gap: 18px;
     overflow-x: auto;
     scrollbar-width: none;
-    padding: 2px 0 10px;
+    padding-bottom: 2px;
   }
 
-  .masthead-nav-row::-webkit-scrollbar {
+  .nav::-webkit-scrollbar {
     display: none;
-  }
-
-  .nav-group {
-    flex: none;
-  }
-
-  .nav a {
-    white-space: nowrap;
   }
 }
 

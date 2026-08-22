@@ -245,32 +245,21 @@ export default function App() {
             Covenant
             <span className="wordmark-sub">Register of Obligations</span>
           </a>
+          <nav className="nav">
+            {NAV_RECORD.map(([href, label]) => (
+              <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
+                {label}
+              </a>
+            ))}
+            <span className="nav-divider" aria-hidden="true" />
+            {NAV_MORE.map(([href, label]) => (
+              <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
+                {label}
+              </a>
+            ))}
+          </nav>
           <SessionControl />
           <ThemeToggle />
-        </div>
-
-        <div className="page masthead-nav-row">
-          <div className="nav-group">
-            <div className="nav-group-label">The record</div>
-            <nav className="nav">
-              {NAV_RECORD.map(([href, label]) => (
-                <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
-                  {label}
-                </a>
-              ))}
-            </nav>
-          </div>
-
-          <div className="nav-group">
-            <div className="nav-group-label">Reference</div>
-            <nav className="nav">
-              {NAV_MORE.map(([href, label]) => (
-                <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
-                  {label}
-                </a>
-              ))}
-            </nav>
-          </div>
         </div>
       </header>
 
