@@ -11,43 +11,113 @@ function Tx({ hash, label }: { hash: string; label?: string }) {
   );
 }
 
-function Post({
-  date,
-  title,
-  dek,
-  children,
-  full,
-}: {
+interface PostDef {
+  slug: string;
   date: string;
   title: string;
   dek: string;
-  children: ReactNode;
   full?: string;
-}) {
-  return (
-    <article className="section" style={{ paddingTop: 28, borderTop: '1px solid var(--rule)' }}>
-      <div className="eyebrow">{date}</div>
-      <h2 className="page-title" style={{ fontSize: 27, marginTop: 4 }}>
-        {title}
-      </h2>
-      <p className="page-lede" style={{ fontSize: 15, marginTop: 6 }}>
-        {dek}
-      </p>
-      <div className="stack" style={{ gap: 12, maxWidth: '68ch', marginTop: 16 }}>
-        {children}
-      </div>
-      {full ? (
-        <p style={{ marginTop: 16 }}>
-          <a href={full} target="_blank" rel="noreferrer">
-            Full report with methodology and every source transaction →
-          </a>
+  body: () => ReactNode;
+}
+
+const POSTS: PostDef[] = [
+  {
+    slug: 'autonomous-default',
+    date: '19 Aug 2026',
+    title: 'We watched an obligation default. Nobody reported it.',
+    dek: "Covenant's core mechanism is an inversion: proving absence, not presence. We registered a real obligation and watched an unattended keeper degrade it to default with no human in the loop, end to end.",
+    full: `${REPO}/blob/main/docs/research/002-autonomous-default.md`,
+    body: () => (
+      <>
+        <p>2.3 minutes, two autonomous sweeps, one keeper address, zero manual transactions:</p>
+        <div className="table-wrap">
+          <table className="data">
+            <tbody>
+              <tr>
+                <td>Registered</td>
+                <td>
+                  <Tx hash="0x7da80af3fcedc969167c1ad4cc818f513e30deef555581ad7a195f83e9eb9fc8" />
+                </td>
+              </tr>
+              <tr>
+                <td>→ Delinquent</td>
+                <td>
+                  <Tx hash="0x72127e0d2db87c381e266be69f6c9dac90585d04b471a0cd57c0425bf7202789" />
+                </td>
+              </tr>
+              <tr>
+                <td>→ Default</td>
+                <td>
+                  <Tx hash="0x7ce07a2ec62b1b41bce4565784c51a97d57b6a1b7b5933a84724960759a61f7d" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <code className="mono">Defaulted</code> reports <code className="mono">slashed: 0</code>{' '}
+          honestly — no underwriter had posted first-loss capital against this specific obligation, so
+          there was nothing to slash. We also caught, and fixed, a Console bug that had asserted a
+          slash on a different unbonded default that never checked actual bond state.
         </p>
-      ) : null}
-    </article>
+      </>
+    ),
+  },
+  {
+    slug: 'attestcoin-cost-model',
+    date: '19 Aug 2026',
+    title: 'What does it actually cost to verify a foreign chain?',
+    dek: "Creditcoin publishes a cost formula for ASC verification. We didn't take it on faith — we measured five real Ethereum transactions spanning twenty minutes to two years old.",
+    full: `${REPO}/blob/main/docs/research/001-attestcoin-cost-model.md`,
+    body: () => (
+      <>
+        <p>
+          <strong>26% more cost for 51,529× the age.</strong> Past roughly a year the continuity proof
+          saturates at 232 roots rather than growing without bound — proving a two-year-old fact costs
+          about one twentieth of a US cent. That flatness is the entire economic argument for a
+          permanent registry.
+        </p>
+        <p>
+          We also found where our own measured number disagreed with Creditcoin's published formula —
+          7.4× higher — and traced the entire gap to the guarded path a real integration needs
+          (decoder, replay guard, liveness check) rather than the bare precompile call the published
+          number describes. And a 1% gas anomaly on a legacy transaction turned up a real gap: our
+          test suite had never exercised a pre-EIP-1559 transaction until then.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: 'first-verified-transfer',
+    date: '19 Aug 2026',
+    title: 'A real Ethereum transfer, verified inside a Creditcoin contract',
+    dek: 'No bridge. No Ethereum-side contract. No centralized oracle. Attestcoin proof to Creditcoin verification, in one block.',
+    body: () => (
+      <>
+        <p>
+          375,746 gas · 0.000187873 CTC · about $0.0001 —{' '}
+          <Tx hash="0x85234a5dc158c402adfd384be8800969d570357611a1b59f3326098affc18fc4" label="the transaction" />.
+        </p>
+        <p>
+          This is the evidence layer Covenant is built on: a registry where an obligation moves only
+          when a foreign-chain event is proven, never because someone said so.
+        </p>
+      </>
+    ),
+  },
+];
+
+function ByLine({ date }: { date: string }) {
+  return (
+    <div className="post-byline">
+      <span>{date}</span>
+      <span className="post-byline-sep">·</span>
+      <span>Covenant</span>
+    </div>
   );
 }
 
-export default function Posts() {
+export function PostsIndex() {
   return (
     <>
       <div className="page page-head">
@@ -60,83 +130,81 @@ export default function Posts() {
       </div>
 
       <div className="page">
-        <Post
-          date="19 Aug 2026"
-          title="We watched an obligation default. Nobody reported it."
-          dek="Covenant's core mechanism is an inversion: proving absence, not presence. We registered a real obligation and watched an unattended keeper degrade it to default with no human in the loop, end to end."
-          full={`${REPO}/blob/main/docs/research/002-autonomous-default.md`}
-        >
-          <p>
-            2.3 minutes, two autonomous sweeps, one keeper address, zero manual transactions:
-          </p>
-          <div className="table-wrap">
-            <table className="data">
-              <tbody>
-                <tr>
-                  <td>Registered</td>
-                  <td>
-                    <Tx hash="0x7da80af3fcedc969167c1ad4cc818f513e30deef555581ad7a195f83e9eb9fc8" />
-                  </td>
-                </tr>
-                <tr>
-                  <td>→ Delinquent</td>
-                  <td>
-                    <Tx hash="0x72127e0d2db87c381e266be69f6c9dac90585d04b471a0cd57c0425bf7202789" />
-                  </td>
-                </tr>
-                <tr>
-                  <td>→ Default</td>
-                  <td>
-                    <Tx hash="0x7ce07a2ec62b1b41bce4565784c51a97d57b6a1b7b5933a84724960759a61f7d" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p>
-            <code className="mono">Defaulted</code> reports <code className="mono">slashed: 0</code> honestly — no
-            underwriter had posted first-loss capital against this specific obligation, so there
-            was nothing to slash. We also caught, and fixed, a Console bug that had asserted a
-            slash on a different unbonded default that never checked actual bond state.
-          </p>
-        </Post>
+        <div className="post-list">
+          {POSTS.map((p) => (
+            <a key={p.slug} className="post-card" href={`#/posts/${p.slug}`}>
+              <ByLine date={p.date} />
+              <h2 className="post-card-title">{p.title}</h2>
+              <p className="post-card-dek">{p.dek}</p>
+              <span className="post-card-read">Read →</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
 
-        <Post
-          date="19 Aug 2026"
-          title="What does it actually cost to verify a foreign chain?"
-          dek="Creditcoin publishes a cost formula for ASC verification. We didn't take it on faith — we measured five real Ethereum transactions spanning twenty minutes to two years old."
-          full={`${REPO}/blob/main/docs/research/001-attestcoin-cost-model.md`}
-        >
-          <p>
-            <strong>26% more cost for 51,529× the age.</strong> Past roughly a year the continuity
-            proof saturates at 232 roots rather than growing without bound — proving a two-year-old
-            fact costs about one twentieth of a US cent. That flatness is the entire economic
-            argument for a permanent registry.
-          </p>
-          <p>
-            We also found where our own measured number disagreed with Creditcoin's published
-            formula — 7.4× higher — and traced the entire gap to the guarded path a real
-            integration needs (decoder, replay guard, liveness check) rather than the bare
-            precompile call the published number describes. And a 1% gas anomaly on a legacy
-            transaction turned up a real gap: our test suite had never exercised a pre-EIP-1559
-            transaction until then.
-          </p>
-        </Post>
+export function PostDetail({ slug }: { slug: string }) {
+  const post = POSTS.find((p) => p.slug === slug);
 
-        <Post
-          date="19 Aug 2026"
-          title="A real Ethereum transfer, verified inside a Creditcoin contract"
-          dek="No bridge. No Ethereum-side contract. No centralized oracle. Attestcoin proof to Creditcoin verification, in one block."
-        >
-          <p>
-            375,746 gas · 0.000187873 CTC · about $0.0001 —{' '}
-            <Tx hash="0x85234a5dc158c402adfd384be8800969d570357611a1b59f3326098affc18fc4" label="the transaction" />.
+  if (!post) {
+    return (
+      <div className="page page-head">
+        <div className="state">
+          <div className="state-title">No such post</div>
+          <a href="#/posts">Back to posts</a>
+        </div>
+      </div>
+    );
+  }
+
+  const i = POSTS.indexOf(post);
+  const prev = POSTS[i - 1];
+  const next = POSTS[i + 1];
+
+  return (
+    <>
+      <div className="page page-head">
+        <a href="#/posts" className="post-back">
+          ← All posts
+        </a>
+        <ByLine date={post.date} />
+        <h1 className="page-title" style={{ marginTop: 6 }}>
+          {post.title}
+        </h1>
+        <p className="page-lede">{post.dek}</p>
+      </div>
+
+      <div className="page">
+        <article className="post-article">{post.body()}</article>
+
+        {post.full ? (
+          <p style={{ marginTop: 22 }}>
+            <a href={post.full} target="_blank" rel="noreferrer">
+              Full report with methodology and every source transaction →
+            </a>
           </p>
-          <p>
-            This is the evidence layer Covenant is built on: a registry where an obligation moves
-            only when a foreign-chain event is proven, never because someone said so.
-          </p>
-        </Post>
+        ) : null}
+
+        <div className="post-nav">
+          {prev ? (
+            <a href={`#/posts/${prev.slug}`} className="post-nav-link" data-dir="prev">
+              <span className="post-nav-label">← Previous</span>
+              <span className="post-nav-title">{prev.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <a href={`#/posts/${next.slug}`} className="post-nav-link" data-dir="next">
+              <span className="post-nav-label">Next →</span>
+              <span className="post-nav-title">{next.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+        </div>
       </div>
     </>
   );

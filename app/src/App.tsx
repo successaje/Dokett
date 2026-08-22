@@ -10,7 +10,7 @@ import Obligation from './routes/Obligation';
 import Underwriter from './routes/Underwriter';
 import Profile from './routes/Profile';
 import Developers from './routes/Developers';
-import Posts from './routes/Posts';
+import { PostsIndex, PostDetail } from './routes/Posts';
 import Onboarding from './components/Onboarding';
 import { useSession } from './lib/auth';
 
@@ -170,6 +170,9 @@ function View({ route }: { route: string }) {
   const profile = route.match(/^\/profile\/(0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64})$/);
   if (profile?.[1]) return <Profile subject={profile[1]} />;
 
+  const post = route.match(/^\/posts\/([a-z0-9-]+)$/);
+  if (post?.[1]) return <PostDetail slug={post[1]} />;
+
   switch (route) {
     case '/solvency':
       return <Solvency />;
@@ -182,7 +185,7 @@ function View({ route }: { route: string }) {
     case '/developers':
       return <Developers />;
     case '/posts':
-      return <Posts />;
+      return <PostsIndex />;
     default:
       return (
         <div className="page">
@@ -242,21 +245,32 @@ export default function App() {
             Covenant
             <span className="wordmark-sub">Register of Obligations</span>
           </a>
-          <nav className="nav">
-            {NAV_RECORD.map(([href, label]) => (
-              <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
-                {label}
-              </a>
-            ))}
-            <span className="nav-divider" aria-hidden="true" />
-            {NAV_MORE.map(([href, label]) => (
-              <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
-                {label}
-              </a>
-            ))}
-          </nav>
           <SessionControl />
           <ThemeToggle />
+        </div>
+
+        <div className="page masthead-nav-row">
+          <div className="nav-group">
+            <div className="nav-group-label">The record</div>
+            <nav className="nav">
+              {NAV_RECORD.map(([href, label]) => (
+                <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
+                  {label}
+                </a>
+              ))}
+            </nav>
+          </div>
+
+          <div className="nav-group">
+            <div className="nav-group-label">Reference</div>
+            <nav className="nav">
+              {NAV_MORE.map(([href, label]) => (
+                <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
+                  {label}
+                </a>
+              ))}
+            </nav>
+          </div>
         </div>
       </header>
 

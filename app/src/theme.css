@@ -264,8 +264,35 @@ hr {
   display: flex;
   align-items: baseline;
   gap: 20px;
-  padding: 18px 0 12px;
+  padding: 16px 0 10px;
   flex-wrap: wrap;
+}
+
+/*
+ * A second row under the identity line, rather than everything crowded onto
+ * one baseline. Each group carries a small caption so the shape of the app —
+ * a record, plus reference material around it — reads before a first-time
+ * visitor clicks anything. Flat links throughout; no dropdowns, in keeping
+ * with the rest of the console.
+ */
+.masthead-nav-row {
+  display: flex;
+  gap: 36px;
+  padding: 2px 0 14px;
+  flex-wrap: wrap;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nav-group-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
 }
 
 .wordmark {
@@ -301,7 +328,6 @@ hr {
 .nav {
   display: flex;
   gap: 22px;
-  margin-left: auto;
   align-items: baseline;
   flex-wrap: wrap;
 }
@@ -326,24 +352,15 @@ hr {
   font-weight: 600;
 }
 
-/* Separates the record (Registry/Solvency/Encumbrance/Underwriters) from the
-   secondary destinations (Developers/Posts/About) without a second nav bar. */
-.nav-divider {
-  width: 1px;
-  align-self: stretch;
-  background: var(--rule);
-  margin: 0 -2px;
-}
-
 /*
- * Narrow screens: the wordmark and the theme control hold the first line, and
- * the index drops to its own full-width line that scrolls rather than
- * truncating. A navigation item you cannot reach is worse than one you have to
- * swipe to.
+ * Narrow screens: the identity row keeps the wordmark and controls; the nav
+ * row below scrolls horizontally as one strip rather than wrapping the two
+ * groups onto separate lines, which would cost more vertical space than a
+ * console this dense can spare.
  */
 @media (max-width: 720px) {
   .masthead-inner {
-    padding: 14px 0 6px;
+    padding: 12px 0 6px;
     gap: 10px;
   }
 
@@ -357,22 +374,27 @@ hr {
   }
 
   .masthead-inner > .btn {
-    order: 2;
     margin-left: auto;
   }
 
-  .nav {
-    order: 3;
-    width: 100%;
-    margin-left: 0;
-    gap: 18px;
+  .masthead-nav-row {
+    flex-wrap: nowrap;
+    gap: 26px;
     overflow-x: auto;
     scrollbar-width: none;
-    padding-bottom: 2px;
+    padding: 2px 0 10px;
   }
 
-  .nav::-webkit-scrollbar {
+  .masthead-nav-row::-webkit-scrollbar {
     display: none;
+  }
+
+  .nav-group {
+    flex: none;
+  }
+
+  .nav a {
+    white-space: nowrap;
   }
 }
 
@@ -499,6 +521,314 @@ hr {
   color: var(--ink-3);
   max-width: 74ch;
   line-height: 1.6;
+}
+
+/* ──────────────────────── docs layout (Developers) ──────────────────── */
+
+/*
+ * The two-pane convention every real protocol's docs use (Stripe, Uniswap,
+ * Aave) — a sticky contents rail plus a single reading column — rather than
+ * one long stack of sections with nothing to navigate by. The rail is a
+ * secondary reading aid, so it drops below the content on narrow screens
+ * instead of competing for the first fold.
+ */
+.docs-layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 48px;
+  padding-top: 8px;
+  padding-bottom: 40px;
+  align-items: start;
+}
+
+.docs-toc {
+  position: sticky;
+  top: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.docs-toc-label {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 8px;
+}
+
+.docs-toc-link {
+  font-size: 13px;
+  color: var(--ink-3);
+  text-decoration: none;
+  padding: 6px 0;
+  border-left: 2px solid transparent;
+  padding-left: 12px;
+  margin-left: -13px;
+  line-height: 1.4;
+}
+
+.docs-toc-link:hover {
+  color: var(--ink);
+  border-left-color: var(--rule-strong);
+}
+
+.docs-toc-divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 10px 0;
+}
+
+.docs-content {
+  min-width: 0;
+  max-width: 74ch;
+}
+
+.doc-section {
+  padding: 30px 0;
+  border-top: 1px solid var(--rule);
+  /* Offsets the anchor scroll target past the sticky masthead + liveness strip. */
+  scroll-margin-top: 90px;
+}
+
+.doc-section:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.doc-section-title {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  letter-spacing: -0.005em;
+}
+
+.doc-section-aside {
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.doc-item {
+  display: block;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+}
+
+.doc-item:first-of-type {
+  border-top: none;
+}
+
+.doc-item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.doc-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.doc-method {
+  color: var(--ink-4);
+  font-weight: 500;
+}
+
+.doc-item-arrow {
+  color: var(--ink-4);
+  font-size: 13px;
+  flex: none;
+}
+
+.doc-item-link:hover .doc-item-title {
+  text-decoration: underline;
+}
+
+.doc-item-desc {
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.55;
+  margin: 6px 0 10px;
+  max-width: 62ch;
+}
+
+.doc-example {
+  margin: 0;
+  font-size: 12px;
+  overflow-x: auto;
+}
+
+@media (max-width: 860px) {
+  .docs-layout {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .docs-toc {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 8px;
+  }
+
+  .docs-toc-label {
+    display: none;
+  }
+
+  .docs-toc-divider {
+    display: none;
+  }
+
+  .docs-toc-link {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+  }
+}
+
+/* ─────────────────────────── posts (index + article) ────────────────── */
+
+.post-byline {
+  font-size: 11.5px;
+  color: var(--ink-4);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.post-byline-sep {
+  color: var(--rule-strong);
+}
+
+.post-list {
+  max-width: 76ch;
+}
+
+.post-card {
+  display: block;
+  padding: 26px 0;
+  border-top: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-list > .post-card:first-child {
+  border-top: none;
+  padding-top: 4px;
+}
+
+.post-card-title {
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  margin: 8px 0 6px;
+}
+
+.post-card:hover .post-card-title {
+  text-decoration: underline;
+}
+
+.post-card-dek {
+  font-size: 14px;
+  color: var(--ink-3);
+  line-height: 1.6;
+  max-width: 62ch;
+  margin: 0 0 10px;
+}
+
+.post-card-read {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.post-back {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+.post-back:hover {
+  color: var(--ink);
+}
+
+.post-article {
+  max-width: 68ch;
+  font-size: 15px;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.post-article p {
+  margin: 0;
+}
+
+.post-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ink);
+  max-width: 76ch;
+}
+
+.post-nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-nav-link[data-dir="next"] {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.post-nav-label {
+  font-size: 11px;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.post-nav-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.post-nav-link:hover .post-nav-title {
+  text-decoration: underline;
+  color: var(--ink);
+}
+
+@media (max-width: 600px) {
+  .post-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .post-nav-link[data-dir="next"] {
+    text-align: left;
+    align-items: flex-start;
+  }
 }
 
 /* ──────────────────────────── figures ───────────────────────────────── */

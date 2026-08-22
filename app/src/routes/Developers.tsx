@@ -1,6 +1,13 @@
-import { Section } from '../components/primitives';
+import type { ReactNode } from 'react';
 
 const REPO = 'https://github.com/successaje/covenant';
+
+const TOC = [
+  ['read-api', 'Read API'],
+  ['design-docs', 'Design & threat model'],
+  ['run-it', 'Run it yourself'],
+  ['contracts', 'Contracts'],
+] as const;
 
 function Endpoint({
   method,
@@ -14,19 +21,15 @@ function Endpoint({
   example: string;
 }) {
   return (
-    <div className="docket-entry">
-      <div className="docket-head">
-        <span className="docket-title mono">
-          <span style={{ color: 'var(--ink-3)' }}>{method}</span> {path}
+    <div className="doc-item">
+      <div className="doc-item-head">
+        <span className="doc-item-title mono">
+          <span className="doc-method">{method}</span> {path}
         </span>
       </div>
-      <div className="docket-body">
-        <p style={{ margin: '0 0 8px' }}>{desc}</p>
-        <div className="table-wrap">
-          <pre className="mono" style={{ margin: 0, fontSize: 12, overflowX: 'auto' }}>
-            {example}
-          </pre>
-        </div>
+      <p className="doc-item-desc">{desc}</p>
+      <div className="table-wrap">
+        <pre className="mono doc-example">{example}</pre>
       </div>
     </div>
   );
@@ -34,16 +37,25 @@ function Endpoint({
 
 function DocLink({ href, title, desc }: { href: string; title: string; desc: string }) {
   return (
-    <a className="mono" href={href} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-      <div className="docket-entry" style={{ cursor: 'pointer' }}>
-        <div className="docket-head">
-          <span className="docket-title">{title}</span>
-        </div>
-        <div className="docket-body">
-          <p style={{ margin: 0, fontFamily: 'var(--sans)' }}>{desc}</p>
-        </div>
+    <a className="doc-item doc-item-link" href={href} target="_blank" rel="noreferrer">
+      <div className="doc-item-head">
+        <span className="doc-item-title">{title}</span>
+        <span className="doc-item-arrow" aria-hidden="true">
+          ↗
+        </span>
       </div>
+      <p className="doc-item-desc">{desc}</p>
     </a>
+  );
+}
+
+function DocSection({ id, title, aside, children }: { id: string; title: string; aside?: ReactNode; children: ReactNode }) {
+  return (
+    <section id={id} className="doc-section">
+      <h2 className="doc-section-title">{title}</h2>
+      {aside ? <p className="doc-section-aside">{aside}</p> : null}
+      {children}
+    </section>
   );
 }
 
@@ -55,22 +67,42 @@ export default function Developers() {
         <h1 className="page-title">Developers</h1>
         <p className="page-lede">
           Covenant has no private API. Everything the Console renders comes from the same free,
-          public read layer documented below — a venue, an underwriter, or a curious stranger can
+          public read layer documented here — a venue, an underwriter, or a curious stranger can
           query the exact same facts.
         </p>
       </div>
 
-      <div className="page">
-        <Section
-          title="Read API"
-          aside={
-            <>
-              Served by the Lens — a pure projection over on-chain events. It holds no privileged
-              state and asserts nothing that isn't derivable from the chain.
-            </>
-          }
-        >
-          <div className="docket">
+      <div className="page docs-layout">
+        <nav className="docs-toc" aria-label="On this page">
+          <div className="docs-toc-label">On this page</div>
+          {TOC.map(([id, label]) => (
+            <a
+              key={id}
+              href={`#/developers`}
+              className="docs-toc-link"
+              onClick={(e) => {
+                // A real hash-fragment link would collide with the hash router,
+                // which treats the whole hash as one route. Scroll manually
+                // instead, leaving #/developers as the URL.
+                e.preventDefault();
+                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+            >
+              {label}
+            </a>
+          ))}
+          <div className="docs-toc-divider" />
+          <a href={REPO} target="_blank" rel="noreferrer" className="docs-toc-link">
+            Source on GitHub ↗
+          </a>
+        </nav>
+
+        <div className="docs-content">
+          <DocSection
+            id="read-api"
+            title="Read API"
+            aside="Served by the Lens — a pure projection over on-chain events. It holds no privileged state and asserts nothing that isn't derivable from the chain."
+          >
             <Endpoint
               method="GET"
               path="/solvency/:entity"
@@ -95,14 +127,13 @@ export default function Developers() {
               desc="Everything proven about a commitment (obligor or address), split explicitly from anything merely attested by an off-chain directory. Never rendered as one list."
               example={'curl https://covenant-lens.fly.dev/profile/0xbb27...050d1'}
             />
-          </div>
-        </Section>
+          </DocSection>
 
-        <Section
-          title="Design and threat model"
-          aside={<>The actual specification, not a summary of it — corrected in the open when we got it wrong.</>}
-        >
-          <div className="docket">
+          <DocSection
+            id="design-docs"
+            title="Design & threat model"
+            aside="The actual specification, not a summary of it — corrected in the open when we got it wrong."
+          >
             <DocLink
               href={`${REPO}/blob/main/docs/ARCHITECTURE.md`}
               title="Architecture"
@@ -123,35 +154,34 @@ export default function Developers() {
               title="Use cases"
               desc="A full end-to-end walkthrough, the audience this actually serves, and an explicit section on what isn't load-bearing yet."
             />
-          </div>
-        </Section>
+          </DocSection>
 
-        <Section title="Run it yourself">
-          <div className="table-wrap">
-            <pre className="mono" style={{ fontSize: 12.5, lineHeight: 1.7, overflowX: 'auto' }}>
+          <DocSection id="run-it" title="Run it yourself">
+            <div className="table-wrap">
+              <pre className="mono doc-example" style={{ fontSize: 12.5, lineHeight: 1.7 }}>
 {`git clone ${REPO} && cd covenant
 npm install
 npm test            # 66 contract tests + 7 lens projection tests
 npm run demo        # seeded Lens + Console on :5173 — no chain required`}
-            </pre>
-          </div>
-          <p className="note" style={{ marginTop: 10 }}>
-            <code className="mono">npm run demo</code> serves a fixture projection covering every
-            state in the lifecycle, including a defaulted obligation with a slashed bond. Against
-            a real deployment, see the quickstart in the repo README for <code className="mono">npm run prove:one</code>,{' '}
-            <code className="mono">npm run lens</code>, and <code className="mono">npm run keeper</code>.
-          </p>
-        </Section>
+              </pre>
+            </div>
+            <p className="doc-section-aside" style={{ marginTop: 12 }}>
+              <code className="mono">npm run demo</code> serves a fixture projection covering every
+              state in the lifecycle, including a defaulted obligation with a slashed bond. Against
+              a real deployment, see the quickstart in the repo README for{' '}
+              <code className="mono">npm run prove:one</code>, <code className="mono">npm run lens</code>, and{' '}
+              <code className="mono">npm run keeper</code>.
+            </p>
+          </DocSection>
 
-        <Section title="Contracts">
-          <div className="docket">
+          <DocSection id="contracts" title="Contracts">
             <DocLink
               href={`${REPO}/blob/main/src/lib/AscVerify.sol`}
               title="AscVerify.sol — MIT, standalone"
               desc="The single door to the outside world in this codebase: receipt-status assertion, replay guards, confirmation depth, liveness gate, chainkey resolution. Built to be reused by any project verifying ASC evidence, not just this one."
             />
-          </div>
-        </Section>
+          </DocSection>
+        </div>
       </div>
     </>
   );
