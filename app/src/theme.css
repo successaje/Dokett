@@ -263,7 +263,7 @@ hr {
 .masthead-inner {
   display: flex;
   align-items: baseline;
-  gap: 20px;
+  gap: 32px;
   padding: 18px 0 12px;
   flex-wrap: wrap;
 }
@@ -300,7 +300,7 @@ hr {
 /* Navigation set as an index, not a button bar. */
 .nav {
   display: flex;
-  gap: 22px;
+  gap: 28px;
   margin-left: auto;
   align-items: baseline;
   flex-wrap: wrap;
@@ -332,7 +332,7 @@ hr {
   width: 1px;
   align-self: stretch;
   background: var(--rule);
-  margin: 0 -2px;
+  margin: 0 2px;
 }
 
 /*
