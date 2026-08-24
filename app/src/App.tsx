@@ -10,6 +10,7 @@ import Obligation from './routes/Obligation';
 import Underwriter from './routes/Underwriter';
 import Profile from './routes/Profile';
 import Developers from './routes/Developers';
+import Doc from './routes/Doc';
 import { PostsIndex, PostDetail } from './routes/Posts';
 import Onboarding from './components/Onboarding';
 import { useSession } from './lib/auth';
@@ -173,6 +174,9 @@ function View({ route }: { route: string }) {
   const post = route.match(/^\/posts\/([a-z0-9-]+)$/);
   if (post?.[1]) return <PostDetail slug={post[1]} />;
 
+  const doc = route.match(/^\/developers\/([a-z0-9-]+)$/);
+  if (doc?.[1]) return <Doc slug={doc[1]} />;
+
   switch (route) {
     case '/solvency':
       return <Solvency />;
@@ -234,7 +238,9 @@ export default function App() {
     ? '/registry'
     : route.startsWith('/underwriter')
       ? '/underwriter'
-      : route;
+      : route.startsWith('/developers')
+        ? '/developers'
+        : route;
 
   return (
     <div className="shell">

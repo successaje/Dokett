@@ -35,13 +35,28 @@ function Endpoint({
   );
 }
 
-function DocLink({ href, title, desc }: { href: string; title: string; desc: string }) {
+function DocLink({
+  href,
+  title,
+  desc,
+  external,
+}: {
+  href: string;
+  title: string;
+  desc: string;
+  external?: boolean;
+}) {
   return (
-    <a className="doc-item doc-item-link" href={href} target="_blank" rel="noreferrer">
+    <a
+      className="doc-item doc-item-link"
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noreferrer' : undefined}
+    >
       <div className="doc-item-head">
         <span className="doc-item-title">{title}</span>
         <span className="doc-item-arrow" aria-hidden="true">
-          ↗
+          {external ? '↗' : '→'}
         </span>
       </div>
       <p className="doc-item-desc">{desc}</p>
@@ -135,22 +150,22 @@ export default function Developers() {
             aside="The actual specification, not a summary of it — corrected in the open when we got it wrong."
           >
             <DocLink
-              href={`${REPO}/blob/main/docs/ARCHITECTURE.md`}
+              href="#/developers/architecture"
               title="Architecture"
               desc="System diagram, data model, contract responsibilities, ASC reference, build order. Carries its own corrections log (C1–C4) for where the first draft was wrong."
             />
             <DocLink
-              href={`${REPO}/blob/main/docs/THREAT-MODEL.md`}
+              href="#/developers/threat-model"
               title="Threat model"
               desc="T-01 through T-15, and the protocol invariants (INV-1–INV-10) the test suite exists to defend."
             />
             <DocLink
-              href={`${REPO}/blob/main/docs/ASC-INTEGRATION.md`}
+              href="#/developers/asc-integration"
               title="ASC integration"
               desc="Exactly how Covenant uses Attestcoin Smart Contracts — measured gas costs, batching, the liveness gate, and the guarded path around BlockProver."
             />
             <DocLink
-              href={`${REPO}/blob/main/docs/USE-CASES.md`}
+              href="#/developers/use-cases"
               title="Use cases"
               desc="A full end-to-end walkthrough, the audience this actually serves, and an explicit section on what isn't load-bearing yet."
             />
@@ -179,6 +194,7 @@ npm run demo        # seeded Lens + Console on :5173 — no chain required`}
               href={`${REPO}/blob/main/src/lib/AscVerify.sol`}
               title="AscVerify.sol — MIT, standalone"
               desc="The single door to the outside world in this codebase: receipt-status assertion, replay guards, confirmation depth, liveness gate, chainkey resolution. Built to be reused by any project verifying ASC evidence, not just this one."
+              external
             />
           </DocSection>
         </div>
