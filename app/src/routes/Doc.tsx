@@ -1,17 +1,8 @@
 import { marked } from 'marked';
-import { useMemo } from 'react';
-import { Loading } from '../components/primitives';
+import { useEffect, useState } from 'react';
+import { Failed, Loading } from '../components/primitives';
 
 const REPO = 'https://github.com/successaje/covenant';
-
-// Vite's `?raw` reads the file at build/dev time — these are the real spec
-// documents, not a summary of them. Rendered in-app so depth doesn't require
-// leaving the site; the GitHub link on each page is for history and diffs,
-// not because the content itself lives elsewhere.
-const SOURCES = import.meta.glob('../../../docs/*.md', { query: '?raw', import: 'default', eager: true }) as Record<
-  string,
-  string
->;
 
 interface DocDef {
   slug: string;
@@ -52,19 +43,51 @@ export const DOCS: DocDef[] = [
   },
 ];
 
-function findSource(file: string): string | undefined {
-  const entry = Object.entries(SOURCES).find(([path]) => path.endsWith(`/${file}`));
-  return entry?.[1];
+/**
+ * The real spec documents, rendered in-app rather than summarised.
+ *
+ * Fetched at runtime from `/docs/*.md` — a copy kept in `app/public/docs/` —
+ * rather than a Vite build-time import reaching outside `app/`. Deploys run
+ * `vercel --prod` from inside `app/`, so a sibling `../docs/` is never part
+ * of the uploaded build; an `import.meta.glob` pointed there resolved to
+ * nothing on Vercel and the page sat in Loading forever, with no error, since
+ * nothing actually failed. `public/` assets are always in the deployed
+ * bundle regardless of which directory Vercel treats as the project root.
+ */
+function useDocSource(file: string) {
+  const [state, setState] = useState<
+    { status: 'loading' } | { status: 'ok'; html: string } | { status: 'error'; message: string }
+  >({ status: 'loading' });
+
+  useEffect(() => {
+    let cancelled = false;
+    setState({ status: 'loading' });
+
+    fetch(`${import.meta.env.BASE_URL}docs/${file}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        return res.text();
+      })
+      .then((raw) => {
+        if (cancelled) return;
+        setState({ status: 'ok', html: marked.parse(raw, { async: false }) as string });
+      })
+      .catch((err: Error) => {
+        if (cancelled) return;
+        setState({ status: 'error', message: err.message });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [file]);
+
+  return state;
 }
 
 export default function Doc({ slug }: { slug: string }) {
   const def = DOCS.find((d) => d.slug === slug);
-  const raw = def ? findSource(def.file) : undefined;
-
-  const html = useMemo(() => {
-    if (!raw) return '';
-    return marked.parse(raw, { async: false }) as string;
-  }, [raw]);
+  const state = useDocSource(def?.file ?? '');
 
   if (!def) {
     return (
@@ -99,11 +122,11 @@ export default function Doc({ slug }: { slug: string }) {
       </div>
 
       <div className="page">
-        {raw ? (
-          <div className="doc-md" dangerouslySetInnerHTML={{ __html: html }} />
-        ) : (
-          <Loading rows={8} />
+        {state.status === 'loading' && <Loading rows={8} />}
+        {state.status === 'error' && (
+          <Failed what={`${def.title.toLowerCase()}`} detail={state.message} />
         )}
+        {state.status === 'ok' && <div className="doc-md" dangerouslySetInnerHTML={{ __html: state.html }} />}
       </div>
     </>
   );
