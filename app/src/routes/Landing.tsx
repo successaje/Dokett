@@ -56,6 +56,32 @@ const STEPS: [string, string, string][] = [
   ],
 ];
 
+/**
+ * Why this chain, argued rather than assumed.
+ *
+ * The weakest version of this project would treat ASC as a hackathon
+ * requirement it had to satisfy. The honest version is that three conditions
+ * had to hold simultaneously for an obligation layer to be buildable at all,
+ * and removing any one of them breaks it.
+ */
+const WHY_HERE: [string, string, string][] = [
+  [
+    '01',
+    'A chain whose subject is already credit',
+    'Creditcoin has spent years building on-chain credit infrastructure rather than retrofitting lending onto a general-purpose chain. A registry belongs on a chain that wants to be the record, not on a venue that competes with the parties recording on it. Neutrality is a product requirement here, not a preference.',
+  ],
+  [
+    '02',
+    'Attestcoin — the missing evidence primitive',
+    'A Creditcoin contract can cryptographically verify that a specific Ethereum event occurred: no bridge, no messaging layer, no oracle operator. A repayment on one chain triggering logic on another is exactly the primitive an obligation layer needs, and it did not exist before.',
+  ],
+  [
+    '03',
+    'History cheap enough to keep asking about',
+    'A registry exists to answer questions about old obligations. We measured rather than assumed: proving a two-year-old Ethereum fact costs 26% more than a twenty-minute-old one — not per year, in total, across 51,529× the age. Near-flat-cost history is what makes a permanent registry economic instead of merely appealing.',
+  ],
+];
+
 const LIMITS: [string, string][] = [
   [
     'The attestor set is permissioned',
@@ -100,8 +126,25 @@ export default function Landing() {
       </section>
 
       {/* ── the gap ────────────────────────────────────────────────────── */}
-      <section className="page">
+      <section className="page lp-section">
         <Reveal>
+          <h2 className="lp-h2">A lender is about to extend $1,000,000</h2>
+          <p className="lp-body">
+            Before approving it they ask the oldest question in finance —{' '}
+            <strong>“what do you already owe?”</strong> In traditional finance an entire apparatus
+            exists to answer it: bureaus, lien registries, filing systems, auditors, courts. The
+            answer is imperfect, but it exists.
+          </p>
+          <p className="lp-body">
+            Move that borrower on-chain and they might hold a loan on Ethereum, collateral locked on
+            a second chain, a tokenized asset on a third, and a credit facility with a protocol that
+            has never spoken to any of the others. Each system sees its own slice of reality
+            perfectly. <strong>None of them can see the others.</strong> The oldest question in
+            finance gets asked, and there is nowhere to send it.
+          </p>
+        </Reveal>
+
+        <Reveal delay={80}>
           <div className="figures lp-figures">
             <div className="figure">
               <div className="figure-label">On-chain private credit</div>
@@ -121,12 +164,13 @@ export default function Landing() {
           </div>
         </Reveal>
 
-        <Reveal delay={80}>
+        <Reveal delay={140}>
           <p className="lp-body">
-            A borrower — retail or institutional — can hold obligations at five protocols across
-            four chains, and none of them can see the others. Every credit blowup of the last cycle
-            was the same failure: not fraud we could not punish, but leverage we could not{' '}
-            <em>see</em>.
+            The instinct is to treat this as an early-market gap that scale will close. It is the
+            opposite. Every new chain, every new venue and every newly tokenized asset adds another
+            silo of obligations nobody else can observe — <strong>fragmentation compounds with
+            adoption</strong>. Every credit blowup of the last cycle was the same failure: not fraud
+            we could not punish, but leverage we could not <em>see</em>.
           </p>
         </Reveal>
       </section>
@@ -148,6 +192,43 @@ export default function Landing() {
             </Reveal>
           ))}
         </div>
+      </section>
+
+      {/* ── why here ──────────────────────────────────────────────────── */}
+      <section className="page lp-section">
+        <Reveal>
+          <h2 className="lp-h2">Why this could not have been built anywhere else</h2>
+          <p className="lp-body">
+            Two things changed recently enough that this was not buildable before. Loans began
+            settling in stablecoins, so a repayment stopped being something a borrower{' '}
+            <em>reports</em> and became something that provably <em>happened</em> at a specific
+            block height. And a contract gained the ability to check that for itself.
+          </p>
+          <p className="lp-body">
+            Three conditions had to hold at once. Remove any one and this does not work.
+          </p>
+        </Reveal>
+
+        <div className="lp-steps">
+          {WHY_HERE.map(([n, title, body], i) => (
+            <Reveal key={n} delay={i * 90}>
+              <div className="lp-step">
+                <div className="rail-idx">{n}</div>
+                <h3 className="lp-step-title">{title}</h3>
+                <p className="lp-step-body">{body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={280}>
+          <div className="lp-pull">
+            <p className="lp-pull-b">
+              Creditcoin knows how to record credit. Attestcoin lets it see across chains. Covenant
+              turns what it can see into a shared, verifiable record of obligations.
+            </p>
+          </div>
+        </Reveal>
       </section>
 
       {/* ── the inversion ─────────────────────────────────────────────── */}
@@ -244,6 +325,65 @@ export default function Landing() {
             employer, the co-op, the merchant acquirer. What it costs to underwrite someone becomes
             their cost of credit — a live market number instead of a model’s guess.
           </p>
+        </Reveal>
+      </section>
+
+      {/* ── the ecosystem play ────────────────────────────────────────── */}
+      <section className="page lp-section">
+        <Reveal>
+          <h2 className="lp-h2">This console is not the product</h2>
+          <p className="lp-body">
+            It is how a person reads the register. The product is the record itself, and the fact
+            that anything can query it.
+          </p>
+          <p className="lp-body">
+            No lending protocol should have to build its own cross-chain payment verification,
+            obligation state machine, default detection, encumbrance registry and evidence history.
+            Those are not competitive advantages. They are plumbing that every credit venue rebuilds
+            badly and in isolation — the same way no website implements its own DNS.{' '}
+            <strong>It should be able to ask.</strong>
+          </p>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <div className="lp-list">
+            <div className="lp-list-row">
+              <div className="lp-list-k">A lender, before underwriting</div>
+              <div className="lp-list-v">
+                Query the subject’s proven record and what is already outstanding against them —
+                then decide. The question that has no answer anywhere else in crypto today.
+              </div>
+            </div>
+            <div className="lp-list-row">
+              <div className="lp-list-k">An RWA platform, before accepting collateral</div>
+              <div className="lp-list-v">
+                Ask whether the asset being pledged is already encumbered. If it is, price the risk
+                or decline it — rather than discovering the prior claim during a liquidation.
+              </div>
+            </div>
+            <div className="lp-list-row">
+              <div className="lp-list-k">Any protocol, on a repayment</div>
+              <div className="lp-list-v">
+                A payment settles on Ethereum, Attestcoin proves the event to Creditcoin, and the
+                obligation advances — with no reporter anywhere in the path.
+              </div>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={160}>
+          <p className="lp-body">
+            Every one of those queries is <strong>live, free and unauthenticated</strong> today, and
+            it is the same read layer this console runs on. There is no private tier: the Lens is a
+            pure projection over chain events, so anyone can recompute every figure it reports
+            directly from the chain. A registry that asks you to trust its own reporting has already
+            failed at the one job it exists to do.
+          </p>
+          <div className="lp-cta">
+            <a className="lp-btn" href="#/developers">
+              Read the API
+            </a>
+          </div>
         </Reveal>
       </section>
 

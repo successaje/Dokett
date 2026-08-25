@@ -6,15 +6,45 @@ A registry where a promise to pay is a first-class on-chain object, and its stat
 
 Built on **Attestcoin Smart Contracts (ASCs)** · Creditcoin CC3
 
+> Creditcoin knows how to record credit. Attestcoin lets it see across chains.
+> **Covenant turns what it can see into a shared, verifiable record of obligations.**
+
 ---
 
-## The problem
+## Start with a question every lender asks
 
-There is ~$14B of active tokenized private credit on-chain and ~$20B of tokenized real-world assets, and underneath all of it there is **no credit bureau, no lien registry, and no bankruptcy court**.
+A business wants to borrow $1,000,000. Before approving it, the lender asks the oldest question in finance:
 
-A borrower — retail or institutional — can hold obligations at five protocols across four chains, and none of them can see the others. Every credit blowup of the last cycle was the same failure: not fraud we couldn't punish, but leverage we couldn't *see*.
+> **"What do you already owe?"**
 
-Previous attempts failed for reasons that are now well understood:
+In traditional finance an entire apparatus exists to answer that — credit bureaus, lien registries, filing systems, auditors, courts. The answer is imperfect, but it exists.
+
+Now move that borrower on-chain. They might hold:
+
+- a loan on Ethereum
+- collateral locked on a second chain
+- a tokenized RWA position on a third
+- a credit facility with a protocol that has never spoken to any of the others
+- repayments settling in stablecoins across all of them
+
+Every one of those systems can see its own slice of reality perfectly. **None of them can see the others.** The next lender asks the oldest question in finance and there is nowhere to send it.
+
+That is the problem. Not fraud nobody could punish — leverage nobody could *see*.
+
+## Why this gets worse, not better
+
+The instinct is to treat this as an early-market gap that scale will close. It's the opposite: **every new chain, every new venue, and every newly tokenized asset adds another silo of obligations that no other participant can observe.** Fragmentation compounds with adoption.
+
+As real-world assets move on-chain — and the direction of travel there is not in question — the ecosystem inherits questions that tokenization alone does not answer:
+
+- Who has a claim on this asset?
+- What obligations are still outstanding against it?
+- Has the borrower actually paid, or did someone just say so?
+- What happens, mechanically, when they don't?
+
+Issuing an asset on-chain is solved. **Knowing what is owed against it is not.**
+
+## Why the previous attempts didn't fix it
 
 | | Why it died |
 |---|---|
@@ -23,13 +53,37 @@ Previous attempts failed for reasons that are now well understood:
 | Goldfinch | **Not an underwriting failure — an observability failure.** Borrowers reported performance in PDFs. |
 | Maple v1 | Pool delegates with no cross-venue visibility → correlated blowups. |
 
-Every one of these was attacked with better *models*. None was attacked with better *evidence*.
+Every one of these was attacked with a better *model*. None was attacked with better *evidence*.
+
+That distinction is the whole thesis. A score is an opinion about a borrower. A self-report is a claim by a borrower. Neither is a fact, and you cannot build settlement infrastructure on either one.
 
 ## What changed
 
-Repayments moved on-chain — stablecoin settlement means a repayment is now an **event**, not a report. And ASC readability shipped to Creditcoin mainnet in June 2026: a contract here can cryptographically verify an Ethereum event in one block for about **$0.000024**.
+Two things, and both are recent enough that this was not buildable before.
 
-For the first time, the performance of a loan is something a contract can *check* rather than something a human tells you.
+**Repayment became an event.** When loans settle in stablecoins, a repayment stops being something a borrower *reports* at the end of a quarter and becomes something that provably *happened* at a specific block height. Goldfinch's fatal flaw — performance arriving as a PDF — is not a flaw anyone has to accept anymore.
+
+**And a contract gained the ability to check it.** ASC readability means a Creditcoin contract can verify that Ethereum event itself, in one block, for a fraction of a cent, with no trusted intermediary anywhere in the path.
+
+For the first time, the performance of a loan is something a contract can **check** rather than something a human tells you. Covenant is what you build once that's true.
+
+## Why Creditcoin, specifically
+
+This project is not on Creditcoin because a hackathon required it. Three things had to be true at once for an obligation layer to be buildable, and they are true here and nowhere else:
+
+**1. A chain that already treats credit as its subject.** Creditcoin has spent years building on-chain credit infrastructure rather than retrofitting lending onto a general-purpose chain. A registry belongs on a chain that wants to be the *record*, not a venue that competes with the parties recording on it. Neutrality is a product requirement here, not a preference.
+
+**2. Attestcoin — the missing evidence primitive.** ASC readability means a Creditcoin contract can cryptographically verify that a specific Ethereum event occurred, with no bridge, no messaging layer, and no oracle operator. Creditcoin's own framing of this is a repayment on Ethereum triggering logic on Creditcoin. That is precisely the primitive an obligation layer needs, and it did not exist before.
+
+**3. Verification cheap enough to do continuously, over deep history.** A registry's entire job is answering questions about *old* obligations. We measured this rather than assuming it: proving a two-year-old Ethereum fact costs **26% more** than a twenty-minute-old one — not 26% per year, 26% total across 51,529× the age. History is nearly flat-cost to verify here. That is what makes a *permanent* registry economically possible instead of theoretically nice.
+
+Take any one of the three away and this doesn't work.
+
+## What Covenant is
+
+Not another lending protocol. Not another credit score. Not another oracle.
+
+**A shared record of obligations** — where a promise to pay is a first-class on-chain object, and the record changes only when there is admissible evidence that it should.
 
 ---
 
@@ -59,6 +113,45 @@ Nobody has to volunteer bad news, and nobody can suppress it.
 ### The market on top
 
 **Bonded underwriters** stake first-loss capital against a **named** borrower — not a pool, not a score. They earn a premium when the borrower pays and are **slashed by proof** when they don't. This puts the credit decision where the information actually is: the loan officer, the employer, the co-op, the merchant acquirer. A borrower's cost of credit becomes a live market price instead of a model's opinion.
+
+---
+
+## This is infrastructure, not an application
+
+The Console is how a *human* reads the register. It is not the product. The product is the record itself, and the fact that anything can query it.
+
+No lending protocol should have to build its own cross-chain payment verification, obligation state machine, default detection, encumbrance registry, and evidence history. Those are not competitive advantages — they are plumbing that every credit venue rebuilds badly and in isolation. The same way no website implements its own DNS.
+
+**It should be able to ask.**
+
+```
+A lender, before underwriting              An RWA platform, before accepting collateral
+─────────────────────────────              ────────────────────────────────────────────
+  new loan request                            tokenized asset presented
+        │                                              │
+        ▼                                              ▼
+  GET /profile/:subject   ── what is proven?      GET /encumbrance/:asset
+  GET /solvency/:entity   ── what's outstanding?         │
+        │                                              ▼
+        ▼                                     already pledged? → price it, or decline
+  underwriting decision
+```
+
+```
+Any protocol, on a repayment
+────────────────────────────
+  payment settles on Ethereum
+        │
+        ▼
+  Attestcoin proves the event to Creditcoin
+        │
+        ▼
+  Covenant verifies it and advances the obligation → CURRENT
+```
+
+Every endpoint above is **live, free, unauthenticated, and already serving the Console** — see [Developers](https://covenant-console.vercel.app/#/developers). There is no private API and no privileged tier: the Lens is a pure projection over chain events, so anyone can recompute every figure it reports from the chain itself. That property is deliberate. A registry that asks you to trust its own reporting has already failed at the one job it exists to do.
+
+The eventual users are not people browsing a site. They are lenders, RWA issuers, fintechs, asset managers, underwriters, and other credit protocols — each asking a question they currently have no way to ask.
 
 ---
 
@@ -162,12 +255,17 @@ Deliberately not buried:
 
 ## Roadmap
 
-| | |
-|---|---|
-| 0–3 mo | Mainnet v0; import historical loan records as commitment-form obligations → coverage on day one |
-| 3–6 mo | Free encumbrance API; 3 venues querying; `AscVerify` adopted as an ecosystem standard |
-| 6–12 mo | Underwriting bonds with real capital; first proven mainnet default |
-| 12–24 mo | ERC standard for Obligations; Registrar Council; attested Register mirrors on Ethereum/Base |
+Each phase is a capability that the next one depends on, not a feature list.
+
+| | | |
+|---|---|---|
+| **1 · Evidence** | *Can we prove what happened?* | Ethereum → Creditcoin via Attestcoin. **Done** — measured, [documented](docs/research/001-attestcoin-cost-model.md), reproducible against real mainnet transactions. |
+| **2 · Obligations** | *Can we represent a promise to pay?* | The status machine, the inversion, the liveness gate. **Done** — a live autonomous default with [linked transactions](docs/research/002-autonomous-default.md). |
+| **3 · Visibility** | *Can anything query those obligations?* | Registry, Solvency, Encumbrance, and the free read API. **Live today**; next is the first external caller — one real venue querying before it lends. |
+| **4 · Capital** | *Can markets price and finance them?* | Bonded underwriting with real first-loss capital, and a first proven mainnet default with a real slash. |
+| **5 · Shared layer** | *Can any credit protocol build on this state?* | An ERC standard for Obligations, a Registrar Council, attested Register mirrors on other chains, and a second evidence backend behind the same `AscVerify` interface. |
+
+The near-term measure of success is not TVL. It is **one protocol we do not control making a query to this registry before extending credit** — because that is the moment it stops being an application and starts being infrastructure.
 
 ## Licence
 
