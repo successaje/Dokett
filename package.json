@@ -28,6 +28,7 @@
     "seed": "node --env-file-if-exists=.env script/seed.js",
     "prove:payment": "node --env-file-if-exists=.env script/prove-payment.js",
     "live": "node --env-file-if-exists=.env lens/src/index.js & npm --prefix app run dev",
+    "seed:curable": "node --env-file-if-exists=.env script/seed-curable.js",
     "seed:quick-default": "node --env-file-if-exists=.env script/seed-quick-default.js",
     "seed:bond": "node --env-file-if-exists=.env script/seed-bond.js"
   },

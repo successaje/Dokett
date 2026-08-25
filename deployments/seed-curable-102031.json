@@ -1,0 +1,8 @@
+{
+  "obligationId": "10",
+  "anchorTx": "0x4949688a3bcadfcccf0a87b0a8d3f0aff7ff1f432fc6968140f1bf1097f75945",
+  "anchorBlock": 25833110,
+  "windowEnd": "25833220",
+  "cureEnd": "26049220",
+  "registerTx": "0x852e073db8c5521e02c2ecdaa5cd6251eed5e532f76d3e5d662ccc23d5cabd1b"
+}

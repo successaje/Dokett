@@ -1,9 +1,9 @@
 {
-  "mockUsdc": "0xa414e73BA933bEEd29D765D69aDF3737a8504A6B",
-  "obligationId": "6",
+  "mockUsdc": "0xEFE4479B9056B6520831A4d5A7987A07e8dF3402",
+  "obligationId": "7",
   "collateralRef": "0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f",
   "collateralRefPreimage": "warehouse-receipt:BUSAN-WR-88214",
-  "bondId": "1",
+  "bondId": "2",
   "underwriter": "0x60eF148485C2a5119fa52CA13c52E9fd98F28e87",
-  "anchorTx": "0xcb352c3edabad1bb74a1bdd933a9fa0cb9ea9d6f3cb5f533443063ef27c17d61"
+  "anchorTx": "0x6521024a730488ca5c6171bab862ec83924895aa0b426bbe4e69e08e44b1e5fc"
 }

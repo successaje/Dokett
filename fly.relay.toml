@@ -1,0 +1,65 @@
+# Covenant cure relay — one write endpoint, one funded key.
+#
+# Unlike the keeper, this DOES serve HTTP, so it gets an [http_service] and the
+# health-check-driven auto-start that comes with it.
+#
+# It holds a funded key behind a public POST route, which makes it the only
+# spendable surface in the system reachable from the internet. Three things
+# bound the damage:
+#
+#   1. It can only ever call `provePayment` on the configured adapter. It is not
+#      a general transaction service.
+#   2. It cannot forge. Every proof it submits is independently verified by the
+#      BlockProver precompile against the obligation's own binding, so a fully
+#      compromised relay can only refuse to help — never fabricate a payment,
+#      cure the wrong obligation, or move any other status.
+#   3. It is funded with a small, separate testnet key. Draining it stops the
+#      relay; it does not touch the deployer or the keeper.
+#
+# auto_stop_machines is deliberately OFF. A borrower hitting the cure path is
+# already having a bad day; a cold start on top of it is the wrong trade.
+#
+# SINGLE MACHINE, ON PURPOSE. Fly will happily run two for HA, but the relay's
+# in-flight de-duplication is per-process: two machines can both accept the same
+# cure and both pay gas for it. The second submission is rejected on-chain by the
+# replay guard, so nothing is corrupted — but it burns real balance for nothing.
+# Deduplicating across instances needs shared state this service does not have
+# and does not need, so it runs as one. Keep `fly scale count 1`.
+app = "covenant-relay"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[processes]
+  app = "node relay/src/index.js"
+
+[env]
+  RELAY_PORT = "8788"
+
+[http_service]
+  internal_port = 8788
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.http_options.response.headers]
+    # The Console is served from another origin; the relay is a public
+    # convenience, so it is readable from anywhere.
+    Access-Control-Allow-Origin = "*"
+
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "10s"
+  method = "GET"
+  path = "/health"
+
+[[restart]]
+  policy = "always"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
