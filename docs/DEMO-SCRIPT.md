@@ -30,6 +30,8 @@ curl -s https://covenant-lens.fly.dev/obligation/2 | grep periodsSatisfied   # �
 curl -s https://covenant-lens.fly.dev/obligation/5 | grep '"status"'         # → Default
 curl -s https://covenant-lens.fly.dev/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87 | grep bondsWritten  # → 2
 curl -s https://covenant-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f | grep -c '"id"'  # → 2
+curl -s https://covenant-relay.fly.dev/health                                # → ok:true, balance > 1 CTC
+curl -s https://covenant-lens.fly.dev/obligation/10 | grep '"status"'        # → Delinquent (only if filming Cut B)
 ```
 
 **And do one throwaway `prove:one` run before recording.** It is the only live
@@ -174,6 +176,45 @@ not making it is the credibility moment.*
 
 ---
 
+## Scene 4b — The borrower can save themselves · optional, +25s
+
+**Include this if you can afford the time. It is the most sympathetic moment in
+the product and the only one with a human in it.**
+
+**Screen.** `#/obligation/10` — standing **Delinquent**, cure window open.
+
+> One more thing about that default, because the asymmetry matters. A borrower
+> can be marked delinquent when they *did* pay — if nobody submitted the proof.
+>
+> So the record is reversible. Here's an obligation in exactly that state.
+
+**Paste the anchor hash into the cure form and submit:**
+
+```
+0x4949688a3bcadfcccf0a87b0a8d3f0aff7ff1f432fc6968140f1bf1097f75945
+```
+
+**It goes to Current, 1 of 3 proven.**
+
+> Cured. And notice what I didn't need: an account, a wallet, or a single token
+> of gas. The relay paid for it.
+>
+> That matters, because the person most likely to be wrongly marked delinquent is
+> the least likely to be holding CTC. "Anyone can cure" is only true if it's true
+> for them.
+
+> ⚠️ **This is a one-shot scene — curing it consumes it.** Re-seed before each
+> take with `npm run seed:curable`, wait ~60s for the keeper to mark it
+> Delinquent, and use the new obligation id and anchor hash it prints. Check
+> `deployments/seed-curable-102031.json` for the current pair.
+>
+> Worth saying on camera if you have the seconds: the relay **cannot forge**.
+> Every proof it submits is independently verified by the precompile against the
+> obligation's own binding, so a compromised relay can only refuse to help —
+> never fabricate a payment or cure the wrong obligation.
+
+---
+
 ## Scene 5 — The query that doesn't exist · 1:58–2:28
 
 **Screen.** `#/encumbrance`. Paste the collateral reference and submit:
@@ -249,6 +290,10 @@ github.com/successaje/covenant
 
 ## Timing check
 
+Two cuts. Pick one before you record — don't try to decide while filming.
+
+**Cut A — the tight 3:00 (safest).**
+
 | Scene | Runs | Cumulative |
 |---|---|---|
 | 1 · The question | 0:22 | 0:22 |
@@ -259,9 +304,17 @@ github.com/successaje/covenant
 | 6 · Not an application | 0:20 | 2:48 |
 | 7 · Close | 0:12 | 3:00 |
 
+**Cut B — with the cure, if the ceiling is 3:30.** Insert Scene 4b (+0:25) and
+trim the underwriter beat from Scene 5 (−0:06) and the curl from Scene 6 (−0:08).
+Lands at **3:11**.
+
+I'd film **Cut B** if the submission allows it. Scene 4b is the only moment with a
+person in it, and "you didn't need an account, a wallet, or any gas" is the line
+most likely to be remembered by a non-technical judge.
+
 **If you run long, cut in this order:** the underwriter beat in Scene 5, then the
-curl in Scene 6, then tighten Scene 1. **Never cut Scene 4** — and never cut the
-caveat inside it.
+curl in Scene 6, then Scene 4b, then tighten Scene 1. **Never cut Scene 4** — and
+never cut the caveat inside it.
 
 ---
 
