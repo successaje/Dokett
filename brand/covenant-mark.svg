@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 32 32"
+     fill="none" stroke="#ece9e2" stroke-width="2.4" stroke-linecap="round">
+  <!-- Covenant mark: an open C held by a vertical rule.
+       The promise stays open; the rule is what holds it.
+       Stroke-only by design — never fill, never add a glow. -->
+  <path d="M21.8 9.8a9.2 9.2 0 1 0 0 12.4"/>
+  <path d="M26.2 4.8v22.4"/>
+</svg>
