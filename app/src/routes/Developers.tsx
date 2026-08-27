@@ -198,7 +198,7 @@ export default function Developers() {
                   the claim weight.
                 </>
               }
-              ui="no form yet — creating an obligation requires posting a CTC registrar bond, so a browser flow needs a faucet to be usable by someone arriving without CTC. Callable now via the ABI, and used by every seed script in the repo."
+              ui="form in progress. The blocker was that registration posts a CTC registrar bond, which a visitor arriving with an empty wallet cannot pay — the faucet below now solves that. Callable today via the ABI, and used by every seed script in the repo."
             />
             <WriteCall
               contract="PaymentAdapter"
@@ -221,7 +221,20 @@ export default function Developers() {
                   proof if it defaults; released with premium if it settles.
                 </>
               }
-              ui="no form yet — underwriting stakes the underwriter's own capital, so unlike a cure it cannot be gas-sponsored without taking custody. Demonstrated on-chain: see the first slash in Posts."
+              ui="form in progress. Underwriting stakes the underwriter's own capital, so unlike a cure it cannot be gas-sponsored without taking custody — the faucet hands you testnet capital to stake instead. Demonstrated on-chain: see the first slash in Posts."
+            />
+            <WriteCall
+              contract="POST"
+              sig="https://covenant-relay.fly.dev/faucet"
+              desc={
+                <>
+                  Testnet capital, so the write paths are reachable by someone arriving with an
+                  empty wallet: <code className="mono">{'{ "address": "0x…" }'}</code> returns CTC
+                  for gas and bonds, plus mUSDC to underwrite with. Runs on its own key, separate
+                  from the cure relay's — draining the faucet must never stop a borrower curing.
+                </>
+              }
+              ui="used by the flows above. Six-hour cooldown per address; testnet play money only."
             />
             <WriteCall
               contract="SilenceAdapter"
