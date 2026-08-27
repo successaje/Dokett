@@ -13,7 +13,7 @@ import Developers from './routes/Developers';
 import Doc from './routes/Doc';
 import { PostsIndex, PostDetail } from './routes/Posts';
 import Onboarding from './components/Onboarding';
-import { useSession } from './lib/auth';
+import SessionMenu from './components/SessionMenu';
 
 /**
  * Hash routing: no dependency, and every view stays a shareable deep link.
@@ -85,29 +85,6 @@ function LivenessStrip() {
         </span>
       </div>
     </div>
-  );
-}
-
-/**
- * Sign-in control.
- *
- * Renders nothing when Privy is unconfigured, so a clone of this repo shows a
- * complete public register rather than a broken auth affordance. Signing in
- * never gates a read and never gates a cure — it only lets someone find the
- * obligations that concern them.
- */
-function SessionControl() {
-  const s = useSession();
-  if (!s.configured || !s.ready) return null;
-
-  return s.signedIn ? (
-    <button className="btn" onClick={s.signOut} title={s.label ?? undefined}>
-      {s.label ? `${s.label} · sign out` : 'Sign out'}
-    </button>
-  ) : (
-    <button className="btn" onClick={s.signIn} title="Find the obligations that concern you. Not required to read the register or to cure.">
-      Sign in
-    </button>
   );
 }
 
@@ -264,7 +241,7 @@ export default function App() {
               </a>
             ))}
           </nav>
-          <SessionControl />
+          <SessionMenu />
           <ThemeToggle />
         </div>
       </header>

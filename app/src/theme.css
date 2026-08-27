@@ -79,7 +79,7 @@
     --ink: #ece9e2;
     --ink-2: #b3afa6;
     --ink-3: #8a867d;
-    --ink-4: #79766e;
+    --ink-4: #848178;
 
     --rule: #2a2c33;
     --rule-strong: #3d3f48;
@@ -109,7 +109,7 @@
   --ink: #ece9e2;
   --ink-2: #b3afa6;
   --ink-3: #8a867d;
-  --ink-4: #79766e;
+  --ink-4: #848178;
 
   --rule: #2a2c33;
   --rule-strong: #3d3f48;
@@ -1214,6 +1214,18 @@ table.data td.num {
   gap: 0;
   border-bottom: 1.5px solid var(--ink);
   max-width: 640px;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+/*
+ * The input suppresses its own outline (below), so the RULE has to carry the
+ * focus state — otherwise a keyboard user tabbing into search gets no signal
+ * at all. Thickening the underline is the honest equivalent in a design system
+ * built on rules rather than boxes.
+ */
+.search:focus-within {
+  border-bottom-color: var(--ink);
+  box-shadow: 0 1.5px 0 0 var(--ink);
 }
 
 .search input {
@@ -1855,6 +1867,116 @@ table.data td.num {
   .lp-path {
     padding: 20px 0 18px;
   }
+}
+
+/* ── session menu ─────────────────────────────────────────────────────
+ *
+ * The one popover in the app. Disconnecting is destructive and used to be a
+ * single misclick from the thing people actually click for, so the connected
+ * state is a menu rather than a toggle.
+ */
+.sess {
+  position: relative;
+}
+
+.sess-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.sess-caret {
+  font-size: 9px;
+  color: var(--ink-4);
+  line-height: 1;
+}
+
+.sess-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  min-width: 272px;
+  max-width: min(340px, calc(100vw - 32px));
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+.sess-head {
+  padding: 13px 15px 12px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sess-head-k {
+  font-size: 9.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  font-weight: 500;
+}
+
+.sess-head-v {
+  font-size: 13.5px;
+  color: var(--ink);
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.sess-addr {
+  font-size: 10.5px;
+  color: var(--ink-4);
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.sess-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 15px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sess-item:hover,
+.sess-item:focus-visible {
+  background: var(--paper-2);
+}
+
+.sess-item-sub {
+  font-size: 10.5px;
+  color: var(--ink-4);
+  overflow-wrap: anywhere;
+}
+
+.sess-note {
+  padding: 11px 15px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--ink-4);
+  border-bottom: 1px solid var(--rule);
+}
+
+.sess-item-danger {
+  border-bottom: 0;
+  color: var(--st-default);
+}
+
+.sess-item-danger:hover,
+.sess-item-danger:focus-visible {
+  background: var(--st-default-bg);
 }
 
 /* ── underwriting file ────────────────────────────────────────────────
