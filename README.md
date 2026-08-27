@@ -196,6 +196,7 @@ Findings from operating the protocol against live chains, not marketing copy —
 every number below links to a real transaction.
 
 - [**#001 — What does it actually cost to verify a foreign chain?**](docs/research/001-attestcoin-cost-model.md) Five real Ethereum transactions, 20 minutes to 2 years old, measured rather than quoted. Where our number disagreed with the published cost model, and why.
+- [**#003 — We had never actually slashed anyone.**](docs/research/003-first-slash.md) The mechanism the whole market thesis rests on had never fired on-chain. Making it fire, and the loss rate that is now non-zero because of it.
 - [**#002 — We watched an obligation default. Nobody reported it.**](docs/research/002-autonomous-default.md) A live trace of an unattended keeper degrading an obligation to default in 2.3 minutes, with linked transactions for every step.
 
 ---

@@ -1,0 +1,11 @@
+{
+  "obligationId": "11",
+  "bondId": "3",
+  "collateral": "0xEFE4479B9056B6520831A4d5A7987A07e8dF3402",
+  "bondAmount": "250000000",
+  "principal": "1000000000",
+  "windowEnd": "25842270",
+  "cureEnd": "25842330",
+  "registerTx": "0x5801c2fdfb9d8f04c1b016c32934ade1e5f4eabdfd06591884c3a04750cef473",
+  "postTx": "0x345d4034eb1a32aa5d35266b45d1c9f2e3a29e0271f7d6bd9c2c8222382966d4"
+}

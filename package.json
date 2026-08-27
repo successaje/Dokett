@@ -30,7 +30,8 @@
     "live": "node --env-file-if-exists=.env lens/src/index.js & npm --prefix app run dev",
     "seed:curable": "node --env-file-if-exists=.env script/seed-curable.js",
     "seed:quick-default": "node --env-file-if-exists=.env script/seed-quick-default.js",
-    "seed:bond": "node --env-file-if-exists=.env script/seed-bond.js"
+    "seed:bond": "node --env-file-if-exists=.env script/seed-bond.js",
+    "seed:slash": "node --env-file-if-exists=.env script/seed-slash.js"
   },
   "keywords": [],
   "author": "",

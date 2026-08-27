@@ -57,6 +57,48 @@ const STEPS: [string, string, string][] = [
 ];
 
 /**
+ * The four things people actually come here to do.
+ *
+ * A registry is a record, and this console renders that record well — but a
+ * reader landing cold could only ever *look* at things, and the page's own call
+ * to action invited them to browse. "What can I do here" had no answer.
+ *
+ * These are stated as roles and intents rather than as feature names, because
+ * nobody arrives wanting to visit "Encumbrance"; they arrive wanting to know
+ * whether an asset is already pledged. Each one lands on live state.
+ */
+const PATHS: [string, string, string, string, string][] = [
+  [
+    'Borrower',
+    'Cure a delinquency',
+    'Marked delinquent because no proof arrived — not because anyone decided you did not pay. Proving the payment restores the record, however late. No account, no wallet, and no gas: a relay pays for it.',
+    '#/registry',
+    'Find the obligation',
+  ],
+  [
+    'Underwriter',
+    'Take first-loss exposure',
+    'Stake capital against one named borrower rather than a pool. Earn the spread when they pay; be slashed by proof when they do not. Track records here are derived from history, never asserted.',
+    '#/underwriter',
+    'See the book',
+  ],
+  [
+    'Lender · originator',
+    'Check what they already owe',
+    'The oldest question in finance, asked across venues that have never spoken to each other. Bonded and unbonded claims are reported separately and never summed.',
+    '#/solvency',
+    'Run a solvency check',
+  ],
+  [
+    'Asset issuer · developer',
+    'Ask if collateral is pledged',
+    'Query whether an asset already carries a claim before you lend against it — from the browser, or from your own backend against the same free public endpoint.',
+    '#/encumbrance',
+    'Check an asset',
+  ],
+];
+
+/**
  * Why this chain, argued rather than assumed.
  *
  * The weakest version of this project would treat ASC as a hackathon
@@ -122,6 +164,30 @@ export default function Landing() {
           <a className="lp-btn" href={REPO} target="_blank" rel="noreferrer">
             Read the source
           </a>
+        </div>
+      </section>
+
+      {/* ── what are you here to do ───────────────────────────────────── */}
+      <section className="page lp-section">
+        <Reveal>
+          <h2 className="lp-h2">What brings you here</h2>
+          <p className="lp-body">
+            Covenant is a record, but it is not only something to read. Four things people
+            actually come here to do — each one lands on live testnet state, not a mockup.
+          </p>
+        </Reveal>
+
+        <div className="lp-paths">
+          {PATHS.map(([role, title, body, href, cta], i) => (
+            <Reveal key={title} delay={i * 70}>
+              <a className="lp-path" href={href}>
+                <div className="lp-path-role">{role}</div>
+                <h3 className="lp-path-title">{title}</h3>
+                <p className="lp-path-body">{body}</p>
+                <span className="lp-path-cta">{cta} →</span>
+              </a>
+            </Reveal>
+          ))}
         </div>
       </section>
 

@@ -22,6 +22,64 @@ interface PostDef {
 
 const POSTS: PostDef[] = [
   {
+    slug: 'first-slash',
+    date: '27 Aug 2026',
+    title: 'We had never actually slashed anyone',
+    dek: "Covenant's market thesis rests on first-loss capital being slashed automatically when a borrower defaults. That mechanism had never fired on-chain — it lived in the unit suite and nowhere else. So we made it fire.",
+    full: `${REPO}/blob/main/docs/research/003-first-slash.md`,
+    body: () => (
+      <>
+        <p>
+          Both defaulted obligations in the register carried no bonds, so both honestly reported{' '}
+          <code className="mono">slashed: 0</code>. The two live bonds sat on obligations that would
+          not default for weeks. A protocol whose central economic claim is untested in production
+          has not really demonstrated its central economic claim.
+        </p>
+        <p>
+          So we registered an obligation, posted 250 mUSDC of first-loss capital against it while it
+          was still Active, and then did nothing. The keeper marked it delinquent, and when the
+          attested head passed the cure height it finalised the default — and slashed the bond to
+          the creditor <strong>in the same transaction</strong>.
+        </p>
+        <div className="table-wrap">
+          <table className="data">
+            <tbody>
+              <tr>
+                <td>Registered</td>
+                <td>
+                  <Tx hash="0x5801c2fdfb9d8f04c1b016c32934ade1e5f4eabdfd06591884c3a04750cef473" />
+                </td>
+              </tr>
+              <tr>
+                <td>Bond posted</td>
+                <td>
+                  <Tx hash="0x345d4034eb1a32aa5d35266b45d1c9f2e3a29e0271f7d6bd9c2c8222382966d4" />
+                </td>
+              </tr>
+              <tr>
+                <td>→ Default + slash</td>
+                <td>
+                  <Tx hash="0x952c03ffa363ce8f0fe4eab397636f5aebc1b139380cfabd756ead678e2d480d" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The underwriter's loss rate went from 0.00% to <strong>7.69%</strong> — and that number is
+          not a score anyone assigned. It is slashed ÷ posted, recomputed from bond events by anyone
+          with an RPC endpoint, and it cannot be edited, including by us.
+        </p>
+        <p>
+          The bond was deliberately smaller than the debt: 250 against 1,000 principal. The creditor
+          received the entire first-loss position and is still 750 short. That is what first-loss
+          capital is — it absorbs the first tranche of a loss, not the loss. Sizing the bond to
+          cover the whole debt would have implied a guarantee this protocol does not offer.
+        </p>
+      </>
+    ),
+  },
+  {
     slug: 'autonomous-default',
     date: '19 Aug 2026',
     title: 'We watched an obligation default. Nobody reported it.',

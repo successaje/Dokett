@@ -1768,6 +1768,95 @@ table.data td.num {
   margin: 0;
 }
 
+/* ── intent paths ─────────────────────────────────────────────────────
+ *
+ * The four things someone actually comes here to do. Ruled cells rather than
+ * floating cards, per the house rule — but these are the one place in the
+ * console that must read as clickable, so the whole cell takes a hover state
+ * instead of relying on the link text alone.
+ *
+ * `.reveal` wraps each cell, so the grid item is the wrapper, not the anchor:
+ * the anchor stretches to fill it, otherwise cells in a row lose equal height.
+ */
+.lp-paths {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--ink);
+  margin-top: 26px;
+}
+
+.lp-paths > .reveal {
+  display: flex;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.lp-path {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 22px 26px 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 140ms ease;
+}
+
+.lp-path:hover {
+  background: var(--paper-2);
+}
+
+.lp-path-role {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  font-weight: 500;
+}
+
+.lp-path-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 8px 0 9px;
+  line-height: 1.25;
+}
+
+.lp-path:hover .lp-path-title {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lp-path-body {
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--ink-2);
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.lp-path-cta {
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.lp-path:hover .lp-path-cta {
+  color: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .lp-paths > .reveal {
+    border-right: 0;
+  }
+
+  .lp-path {
+    padding: 20px 0 18px;
+  }
+}
+
 .lp-close {
   padding-top: 78px;
 }
