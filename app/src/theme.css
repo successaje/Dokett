@@ -374,6 +374,24 @@ hr {
   .nav::-webkit-scrollbar {
     display: none;
   }
+
+  /*
+   * Touch targets. On a pointer device a 24px-tall nav link is fine; on a
+   * phone it is a miss waiting to happen — Apple and Material both ask for
+   * ~44px. The type size stays put and only the hit area grows, so the
+   * masthead reads identically and simply becomes easier to hit.
+   */
+  /* Grow the target UPWARD, not around the text: the active-page indicator is
+     a border-bottom, so padding it symmetrically would detach the underline
+     from the word it underlines. */
+  .nav a {
+    padding-top: 15px;
+    padding-bottom: 4px;
+  }
+
+  .masthead-inner .btn {
+    min-height: 40px;
+  }
 }
 
 /* ───────────────────── liveness strip (invariant I7) ────────────────── */
@@ -1520,7 +1538,11 @@ table.data td.num {
   text-transform: uppercase;
   font-weight: 600;
   color: var(--ink-3);
-  padding: 0;
+  /* Negative margin keeps the optical position while the hit area grows: the
+     label is 11px type, which is a 17px-tall target — under even WCAG 2.5.8's
+     24px floor, let alone the 44px Apple and Material both recommend. */
+  padding: 10px 8px;
+  margin: -10px -8px;
 }
 
 .onboard-close:hover {
