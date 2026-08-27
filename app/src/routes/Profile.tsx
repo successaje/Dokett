@@ -64,8 +64,20 @@ function AttestationRow({ a }: { a: Attestation }) {
 export default function Profile({ subject }: { subject: string }) {
   const res = useLens((s) => lens.profile(subject, s), [subject]);
 
-  if (res.state === 'loading') return <Loading />;
-  if (res.state === 'error') return <Failed what="this profile" detail={res.error.message} onRetry={res.reload} />;
+  if (res.state === 'loading')
+    return (
+      <div className="page page-head">
+        <Loading rows={6} />
+      </div>
+    );
+
+  if (res.state === 'error')
+    return (
+      <div className="page page-head">
+        <Failed what="this profile" detail={res.error.message} onRetry={res.reload} />
+      </div>
+    );
+
   if (res.state !== 'ok') return null;
 
   const { identity, proven, attested, unbondedClaims, notIndexed } = res.data;
@@ -76,7 +88,7 @@ export default function Profile({ subject }: { subject: string }) {
 
   return (
     <>
-      <div className="page-head">
+      <div className="page page-head">
         <div className="eyebrow">
           {identity ? `${identity.kind} · ${identity.jurisdiction}` : 'undisclosed subject'}
         </div>
@@ -108,8 +120,12 @@ export default function Profile({ subject }: { subject: string }) {
         </div>
       </div>
 
-      {/* ── PROVEN ─────────────────────────────────────────────────────── */}
-      <Figures>
+      {/* Everything below shares the page grid — without this wrapper the
+          figures and sections render full-bleed, ignoring the max-width and
+          side padding every other route gets from `.page`. */}
+      <div className="page">
+        {/* ── PROVEN ───────────────────────────────────────────────────── */}
+        <Figures>
         <Figure
           label="Obligations"
           value={proven.obligationsRegistered}
@@ -221,7 +237,8 @@ export default function Profile({ subject }: { subject: string }) {
             a record.
           </p>
         </Section>
-      ) : null}
+        ) : null}
+      </div>
     </>
   );
 }
