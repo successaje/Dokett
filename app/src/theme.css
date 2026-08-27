@@ -2419,3 +2419,74 @@ table.data tbody tr,
     overflow-x: auto;
   }
 }
+
+
+/* ── underwrite ───────────────────────────────────────────────────────
+ *
+ * Modelled on `.cure` but deliberately NOT reusing it: that panel is themed
+ * in the delinquent amber because it appears on an obligation in trouble.
+ * Underwriting is an ordinary market action on a healthy obligation, and
+ * borrowing the distress colour would say something the state does not.
+ */
+.uw {
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-2);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  margin: 0 0 22px;
+}
+
+.uw-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.uw-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.uw-field > span {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.uw-field input {
+  width: 130px;
+  padding: 8px 10px;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  min-height: 38px;
+}
+
+.uw-field input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.uw-form .btn {
+  min-height: 38px;
+}
+
+.uw-form .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .uw-field,
+  .uw-field input,
+  .uw-form .btn {
+    width: 100%;
+  }
+}

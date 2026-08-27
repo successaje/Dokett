@@ -1,5 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { PrivyProvider, usePrivy, useWallets } from '@privy-io/react-auth';
+import { createWalletClient, custom, type WalletClient } from 'viem';
+import { CC3 } from './chain';
 
 /**
  * Borrower sign-in.
@@ -47,6 +49,19 @@ interface Session {
   label: string | null;
   signIn: () => void;
   signOut: () => void;
+  /**
+   * A signer for CC3, or null when there is nothing to sign with.
+   *
+   * Exposed through this context rather than by calling `useWallets` at the
+   * point of use, because that hook throws outside a PrivyProvider — and this
+   * app deliberately runs without one. Routing it through here keeps the
+   * "works with no auth vendor" guarantee in exactly one place.
+   *
+   * Switches the wallet to CC3 before returning. A signer pointed at the wrong
+   * network does not fail loudly; it succeeds against a chain where Covenant
+   * does not exist.
+   */
+  getWalletClient: () => Promise<WalletClient | null>;
 }
 
 const NoSession: Session = {
@@ -57,6 +72,7 @@ const NoSession: Session = {
   label: null,
   signIn: () => {},
   signOut: () => {},
+  getWalletClient: async () => null,
 };
 
 const Ctx = createContext<Session>(NoSession);
@@ -78,6 +94,23 @@ function LiveSession({ children }: { children: ReactNode }) {
       user?.phone?.number ??
       (addresses[0] ? `${addresses[0].slice(0, 6)}…${addresses[0].slice(-4)}` : null);
 
+    const getWalletClient = async (): Promise<WalletClient | null> => {
+      const w = wallets[0];
+      if (!w) return null;
+
+      // Order matters: switch first, then take the provider. Asking for the
+      // provider before the switch can hand back one still bound to the old
+      // chain id.
+      await w.switchChain(CC3.id);
+      const provider = await w.getEthereumProvider();
+
+      return createWalletClient({
+        account: w.address as `0x${string}`,
+        chain: CC3,
+        transport: custom(provider),
+      });
+    };
+
     return {
       configured: true,
       ready,
@@ -86,6 +119,7 @@ function LiveSession({ children }: { children: ReactNode }) {
       label,
       signIn: login,
       signOut: logout,
+      getWalletClient,
     };
   }, [ready, authenticated, user, wallets, login, logout]);
 
@@ -134,6 +168,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // browser wallet, and telling someone to install one to avoid a default
         // is not a cure path.
         loginMethods: ['email', 'sms', 'wallet'],
+        /*
+         * Without these, Privy provisions embedded wallets on Ethereum mainnet
+         * and every write in this app would target the wrong network — the
+         * underwrite call would simply be sent somewhere Covenant is not
+         * deployed. Covenant settles on CC3, so CC3 is the only chain here.
+         */
+        supportedChains: [CC3],
+        defaultChain: CC3,
         // v3 nests creation policy per chain family. Ethereum only: Covenant
         // reads Ethereum and settles on Creditcoin, both EVM.
         embeddedWallets: {

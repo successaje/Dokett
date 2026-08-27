@@ -19,6 +19,7 @@ import {
 } from '../components/primitives';
 import type { ObligationDetail } from '../lib/types';
 import CureFlow from '../components/CureFlow';
+import UnderwriteFlow from '../components/UnderwriteFlow';
 import UnderwritingFile from '../components/UnderwritingFile';
 
 /**
@@ -307,6 +308,10 @@ export default function Obligation({ id }: { id: string }) {
         )}
 
         <Section title="Underwriting" aside={<>Named first-loss capital, slashed by proof.</>}>
+          {/* Renders only while the obligation is bondable; the component
+              returns null otherwise, matching Bond.post's own precondition. */}
+          <UnderwriteFlow obligation={o} />
+
           {o.bonds.length === 0 ? (
             <Empty title="No bonds posted">
               This obligation carries no first-loss protection — a creditor here is fully exposed.
