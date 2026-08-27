@@ -77,8 +77,8 @@ const PATHS: [string, string, string, string, string][] = [
   ],
   [
     'Underwriter',
-    'Take first-loss exposure',
-    'Stake capital against one named borrower rather than a pool. Earn the spread when they pay; be slashed by proof when they do not. Track records here are derived from history, never asserted.',
+    'Price a named borrower',
+    'Read the underwriting file on any live obligation — what is owed, what has been proven, who is already exposed. Post capital and you are first in line for loss, slashed by proof rather than by committee.',
     '#/underwriter',
     'See the book',
   ],

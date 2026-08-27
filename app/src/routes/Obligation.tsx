@@ -19,6 +19,7 @@ import {
 } from '../components/primitives';
 import type { ObligationDetail } from '../lib/types';
 import CureFlow from '../components/CureFlow';
+import UnderwritingFile from '../components/UnderwritingFile';
 
 /**
  * The obligation dossier.
@@ -289,6 +290,21 @@ export default function Obligation({ id }: { id: string }) {
             </DL>
           </div>
         </Section>
+
+        {/* The risk file, shown only where a position can still be taken. */}
+        {(o.status === 'Active' || o.status === 'Current') && (
+          <Section
+            title="Underwriting file"
+            aside={
+              <>
+                What an underwriter needs before pricing this borrower. Every figure is derived
+                from the register, not asserted.
+              </>
+            }
+          >
+            <UnderwritingFile o={o} />
+          </Section>
+        )}
 
         <Section title="Underwriting" aside={<>Named first-loss capital, slashed by proof.</>}>
           {o.bonds.length === 0 ? (

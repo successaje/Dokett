@@ -1857,6 +1857,90 @@ table.data td.num {
   }
 }
 
+/* ── underwriting file ────────────────────────────────────────────────
+ *
+ * A credit memo, not a product card. Ruled cells and tabular figures, so it
+ * reads as the document an underwriter would actually be handed.
+ */
+.uwfile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+
+.uwfile-cell {
+  padding: 16px 22px 18px 0;
+  border-right: 1px solid var(--rule);
+}
+
+.uwfile-cell:last-child {
+  border-right: 0;
+}
+
+@media (min-width: 721px) {
+  .uwfile-cell + .uwfile-cell {
+    padding-left: 22px;
+  }
+}
+
+@media (max-width: 720px) {
+  .uwfile-cell {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    padding-right: 0;
+  }
+}
+
+.uwfile-k {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  font-weight: 500;
+}
+
+.uwfile-v {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 23px;
+  margin-top: 7px;
+  color: var(--ink);
+}
+
+/* Uncovered exposure is the one number here that is a warning, so it is the
+   one number allowed colour — consistent with the rule that chroma only ever
+   means the protocol is saying something. */
+.uwfile-cell[data-emphasis="true"] .uwfile-v {
+  color: var(--st-delinquent);
+}
+
+.uwfile-s {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  margin-top: 5px;
+  line-height: 1.45;
+}
+
+.uwfile-note {
+  max-width: 72ch;
+  margin-top: 18px;
+  font-size: 13.5px;
+  line-height: 1.66;
+  color: var(--ink-2);
+}
+
+.uwfile-note p {
+  margin: 0 0 11px;
+}
+
+.uwfile-caveat {
+  color: var(--ink-3);
+  font-size: 12.5px;
+  padding-top: 11px;
+  border-top: 1px solid var(--rule);
+}
+
 .lp-close {
   padding-top: 78px;
 }
