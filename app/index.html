@@ -9,10 +9,26 @@
     <meta name="theme-color" content="#faf9f6" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#131418" media="(prefers-color-scheme: dark)" />
 
+    <!--
+      Link previews. This app is hash-routed, and a URL fragment never reaches a
+      server — so to Discord, X or Slack every link here looks like this one.
+      These tags are the site-wide fallback; each shareable page additionally has
+      a real static path under public/ carrying its own title, description and
+      card. Regenerate both with `node scripts/og.mjs`.
+    -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Covenant" />
     <meta property="og:title" content="Covenant — Register of Obligations" />
     <meta property="og:description" content="Crypto has a credit market and no credit bureau. Covenant is the record underneath: obligations whose state moves only on verified evidence." />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:url" content="https://covenant-console.vercel.app" />
+    <meta property="og:image" content="https://covenant-console.vercel.app/og/default.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Covenant — Register of Obligations" />
+    <meta name="twitter:description" content="Crypto has a credit market and no credit bureau. Covenant is the record underneath: obligations whose state moves only on verified evidence." />
+    <meta name="twitter:image" content="https://covenant-console.vercel.app/og/default.png" />
   </head>
   <body>
     <div id="root"></div>
