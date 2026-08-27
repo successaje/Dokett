@@ -4,6 +4,7 @@ const REPO = 'https://github.com/successaje/covenant';
 
 const TOC = [
   ['read-api', 'Read API'],
+  ['write-path', 'Write path'],
   ['design-docs', 'Design & threat model'],
   ['run-it', 'Run it yourself'],
   ['contracts', 'Contracts'],
@@ -61,6 +62,41 @@ function DocLink({
       </div>
       <p className="doc-item-desc">{desc}</p>
     </a>
+  );
+}
+
+/**
+ * A deployed, callable state-changing function.
+ *
+ * `ui` records whether the Console currently puts a form in front of it. That
+ * distinction is worth being explicit about rather than quietly omitting: the
+ * protocol's write surface is complete and live, and the Console simply has not
+ * grown a form for every part of it yet. Listing only what has a button would
+ * misrepresent the protocol as read-only.
+ */
+function WriteCall({
+  contract,
+  sig,
+  desc,
+  ui,
+}: {
+  contract: string;
+  sig: string;
+  desc: ReactNode;
+  ui: string;
+}) {
+  return (
+    <div className="doc-item">
+      <div className="doc-item-head">
+        <span className="doc-item-title mono">
+          <span className="doc-method">{contract}</span> {sig}
+        </span>
+      </div>
+      <p className="doc-item-desc">{desc}</p>
+      <p className="doc-item-desc" style={{ color: 'var(--ink-4)', marginTop: 6 }}>
+        Console: {ui}
+      </p>
+    </div>
   );
 }
 
@@ -141,6 +177,63 @@ export default function Developers() {
               path="/profile/:subject"
               desc="Everything proven about a commitment (obligor or address), split explicitly from anything merely attested by an off-chain directory. Never rendered as one list."
               example={'curl https://covenant-lens.fly.dev/profile/0xbb27...050d1'}
+            />
+          </DocSection>
+
+          <DocSection
+            id="write-path"
+            title="Write path"
+            aside="Covenant is a protocol, not a viewer over one. Every state-changing call below is deployed and callable on CC3 today — including obligation creation. Where the Console has no form for one yet, that is a gap in this interface, not in the protocol, and it is named rather than hidden."
+          >
+            <WriteCall
+              contract="Register"
+              sig="register(ObligationInit, uint64 expectedChainId) payable"
+              desc={
+                <>
+                  The creation primitive. One struct carries the whole instrument: obligor and
+                  creditor commitments, principal, payment asset, source chain, payer and payee
+                  binding, schedule (start height, period length, period count, period amount),
+                  cure window, seniority and collateral reference — with the registrar bond and
+                  keeper fund sent as value. Registration is permissionless; the bond is what gives
+                  the claim weight.
+                </>
+              }
+              ui="no form yet — creating an obligation requires posting a CTC registrar bond, so a browser flow needs a faucet to be usable by someone arriving without CTC. Callable now via the ABI, and used by every seed script in the repo."
+            />
+            <WriteCall
+              contract="PaymentAdapter"
+              sig="provePayment(uint256 id, AscVerify.Proof p)"
+              desc={
+                <>
+                  Submit an ASC proof of a qualifying source-chain transfer. Admissibility keys off
+                  the height the proof binds to, never on who sent it — so anyone may submit for
+                  anyone.
+                </>
+              }
+              ui="yes — the cure form on any delinquent obligation, with a relay paying the gas."
+            />
+            <WriteCall
+              contract="Bond"
+              sig="post(uint256 obligationId, address collateral, uint128 amount, uint16 spreadBps)"
+              desc={
+                <>
+                  Stake first-loss capital against one named obligation. Slashed to the creditor by
+                  proof if it defaults; released with premium if it settles.
+                </>
+              }
+              ui="no form yet — underwriting stakes the underwriter's own capital, so unlike a cure it cannot be gas-sponsored without taking custody. Demonstrated on-chain: see the first slash in Posts."
+            />
+            <WriteCall
+              contract="SilenceAdapter"
+              sig="markDelinquent(uint256) · finalizeDefault(uint256)"
+              desc={
+                <>
+                  Drive degradation when no admissible proof arrived before the attested deadline.
+                  Permissionless and bounty-paying, so a keeper is an optimisation rather than a
+                  trusted party.
+                </>
+              }
+              ui="no form — and deliberately so. These are called continuously by an unattended keeper; a button would imply a human decides when someone defaults."
             />
           </DocSection>
 
