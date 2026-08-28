@@ -90,7 +90,11 @@ Covenant."
 > The caveat is not a disclaimer to rush past. It is the most credible thing in
 > the video. Rehearse it until it is exact.
 
-## C · The slash — Underwriting section, then `#/underwriter/0x60eF…8e87` · 0:23
+## C · The slash — `#/obligation/11`, then `#/underwriter/0x60eF…8e87` · 0:23
+
+> ⚠️ **Navigate to obligation 11.** Scene B leaves you on 5, which carries no
+> bonds and displays "No bonds posted" — the exact opposite of what this VO
+> says. 11 is the obligation that was actually slashed.
 
 > When it defaults, first-loss capital is slashed to the creditor **in the same
 > transaction**. //
