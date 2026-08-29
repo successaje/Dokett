@@ -204,7 +204,7 @@ every number below links to a real transaction.
 ## Quickstart
 
 ```bash
-git clone https://github.com/successaje/covenant && cd dokett
+git clone https://github.com/successaje/Dokett && cd dokett
 npm install
 npm test            # 66 contract tests + 7 lens projection tests
 npm run demo        # seeded Lens + Console on :5173 — no chain required

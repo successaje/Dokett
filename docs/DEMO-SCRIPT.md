@@ -281,7 +281,7 @@ curl -s https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31
 
 ```
 covenant-console.vercel.app
-github.com/successaje/covenant
+github.com/successaje/Dokett
 ```
 
 > Dokett. The obligation layer for the open economy.

@@ -185,7 +185,7 @@ think it's broken.
 
 ---
 
-*I'm building [Dokett](https://github.com/successaje/covenant), a cross-chain
+*I'm building [Dokett](https://github.com/successaje/Dokett), a cross-chain
 registry for credit obligations, for Creditcoin's BUIDL CTC 2026 Fall hackathon.
 This one came out of a rename I was only doing because someone else had the same
 idea about a name.*

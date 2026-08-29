@@ -79,7 +79,7 @@ const SHIPPED: string[] = [
   'Testnet, synthetic data only',
 ];
 
-const REPO = 'https://github.com/successaje/covenant';
+const REPO = 'https://github.com/successaje/Dokett';
 
 export default function Landing() {
   return (

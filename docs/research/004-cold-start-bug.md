@@ -203,4 +203,4 @@ because you think it's broken. Because you don't.
 *Dokett is a registry where an obligation's status advances only on cryptographic
 proof of a foreign-chain event, or a comparison against an attested foreign-chain
 height — never on anyone's word. Built on Creditcoin Attestcoin Smart Contracts.
-[Source](https://github.com/successaje/covenant).*
+[Source](https://github.com/successaje/Dokett).*

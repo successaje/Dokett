@@ -8,7 +8,7 @@ bottom before pasting** — a few drift.
 
 ## ⛔ BLOCKER — the repository is still private
 
-Checked `2026-08-26`: `api.github.com/repos/successaje/covenant` returns
+Checked `2026-08-26`: `api.github.com/repos/successaje/Dokett` returns
 **Not Found** to an unauthenticated request. Everything below that points at
 GitHub currently 404s for a judge:
 
@@ -33,7 +33,7 @@ then re-run the deck check:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" \
-  https://raw.githubusercontent.com/successaje/covenant/main/docs/DOKETT-DECK.pdf   # want 200
+  https://raw.githubusercontent.com/successaje/Dokett/main/docs/DOKETT-DECK.pdf   # want 200
 ```
 
 ---
@@ -220,8 +220,8 @@ this chain at all.
 ```
 Live Console      https://covenant-console.vercel.app
 Read API          https://dokett-lens.fly.dev
-Source            https://github.com/successaje/covenant
-Deck (PDF)        https://raw.githubusercontent.com/successaje/covenant/main/docs/DOKETT-DECK.pdf
+Source            https://github.com/successaje/Dokett
+Deck (PDF)        https://raw.githubusercontent.com/successaje/Dokett/main/docs/DOKETT-DECK.pdf
 Developer docs    https://covenant-console.vercel.app/#/developers
 Research          https://covenant-console.vercel.app/#/posts
 Demo video        [fill in]

@@ -2,7 +2,7 @@ import { marked } from 'marked';
 import { useEffect, useState } from 'react';
 import { Failed, Loading } from '../components/primitives';
 
-const REPO = 'https://github.com/successaje/covenant';
+const REPO = 'https://github.com/successaje/Dokett';
 
 interface DocDef {
   slug: string;

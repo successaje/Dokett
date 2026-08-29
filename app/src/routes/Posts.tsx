@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-const REPO = 'https://github.com/successaje/covenant';
+const REPO = 'https://github.com/successaje/Dokett';
 const EXPLORER = 'https://creditcoin-testnet.blockscout.com/tx/';
 
 function Tx({ hash, label }: { hash: string; label?: string }) {

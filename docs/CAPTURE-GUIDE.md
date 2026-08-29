@@ -177,7 +177,7 @@ Scroll slowly through the endpoint list — `/solvency`, `/encumbrance`,
 
 ```
 covenant-console.vercel.app
-github.com/successaje/covenant
+github.com/successaje/Dokett
 ```
 
 Hold three seconds. Do not fade to black on a scrolling page.
