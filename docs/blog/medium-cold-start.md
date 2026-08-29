@@ -1,27 +1,26 @@
 # My indexer ran fine for eleven days. It couldn't have survived a restart.
 
 *Subtitle for Medium: A constant that was correct when I wrote it, and wrong
-eight days later, without anyone touching the code.*
+eight days later, without anybody touching the code.*
 
 ---
 
 I found this while doing the most boring work there is.
 
-I'd been building a credit registry for a hackathon, and I had to rename the
-whole project — another team had picked the same name, which is a bad thing to
-discover late. So: find and replace, regenerate some images, spin up new servers
-under the new names, deploy, verify, cut over. An afternoon of nothing
-interesting.
+I've been building a credit registry for BUIDL CTC 2026 Fall, Creditcoin's
+hackathon, and I had to rename the whole project. Another team had submitted
+under the same name, which is not a great thing to notice with a week to go. So I
+spent an afternoon on find and replace, regenerating images, creating new servers
+under the new names, deploying, cutting over. Nothing interesting.
 
-The first service came up on the first try. The second one — an indexer that
-walks the chain and serves a read API — went into a crash loop.
+The first service came up on the first try. The second one, an indexer that walks
+the chain and serves a read API, went into a crash loop.
 
-> **[IMAGE 1 — optional]** Screenshot of the deploy logs showing
-> `machine has reached its max restart count of 10`. The repeating lines are the
-> point. Skip this if you didn't capture it; the error block below carries the
-> scene on its own.
+> **[IMAGE 1, optional]** Screenshot of the deploy logs showing
+> `machine has reached its max restart count of 10`. Only include it if you
+> captured it. The error block below does the same job.
 
-The error underneath was clear enough:
+The error was clear enough:
 
 ```
 eth_getLogs
@@ -33,62 +32,60 @@ eth_getLogs
 Forty-nine thousand nine hundred and ninety-nine blocks in one request. Obviously
 that timed out.
 
-So I went looking for what I'd broken during the rename. The answer was nothing.
-I hadn't touched the indexer at all. I checked twice, because that's the kind of
-claim you want to be sure about before you go looking somewhere harder.
+So I went looking for what I'd broken during the rename, and the answer was
+nothing. I hadn't touched the indexer. I checked twice, because that's the sort
+of thing you want to be sure about before you start looking somewhere harder.
 
-Then I checked the old server — still running under the old name, same image,
-same commit, same everything.
+Then I checked the old server. Still running under the old name, same image, same
+commit.
 
-Completely fine. Serving requests. Eleven days of uptime. No errors.
+Fine. Serving requests, eleven days of uptime, no errors.
 
 Same code. One instance healthy, one unable to boot.
 
-## Where the difference actually was
+## Where the difference was
 
-The indexer walks the chain in pages, which is the right idea. There was even a
-comment saying so:
+The indexer walks the chain in pages, which is the right idea, and there was even
+a comment saying so.
 
 ```
 /** Paged log query. One wide range is what the node refuses. */
 ```
 
-The page size came from a config value with a default:
+The page size came from a config value with a default.
 
 ```
 this.chunk = Number(addresses.chunk || 50_000);
 ```
 
-Fifty thousand blocks. When I wrote that line it was obviously fine. The
-contracts had gone live about an hour earlier, so there were maybe a few hundred
-blocks of history. The "page" was the entire chain and the query came back
-instantly.
+Fifty thousand blocks. When I wrote that line it was fine. The contracts had gone
+live about an hour earlier, so there were a few hundred blocks of history. The
+page was the entire chain and the query came back instantly.
 
-This chain produces a block roughly every fifteen seconds. Fifty thousand blocks
-is about **8.7 days**.
+This chain produces a block every fifteen seconds or so. Fifty thousand blocks is
+about 8.7 days.
 
-Here's the part I find genuinely interesting. The loop clips the first page to
-wherever the chain currently is:
+The loop clips the first page to wherever the chain currently is:
 
 ```
 const to = Math.min(from + this.chunk - 1, head);
 ```
 
-So the query never jumped to 50,000 blocks. It *grew*. Every day the service ran,
-a fresh boot would have asked for a slightly wider range than the day before. One
-day of history. Five days. Eight days. Until it hit the ceiling and stopped
-growing.
+So the query never jumped straight to 50,000 blocks. It grew. Every day the
+service ran, a fresh boot would have asked for a slightly wider range than the
+day before. One day of history, then five, then eight, until it hit the ceiling
+and stopped growing.
 
 Nobody restarted it, so nobody found out.
 
-The running process had a warm cursor and was only ever fetching a handful of new
-blocks at a time. It was healthy for precisely the same reason it was hiding the
-problem: it never had to do the thing that was broken.
+The running process had a warm cursor and was only fetching a handful of new
+blocks at a time. It was healthy for the same reason it was hiding the problem.
+It never had to do the thing that was broken.
 
-## I assumed there was a threshold. There isn't.
+## I assumed there was a threshold
 
-My instinct was to find where it tips over and set the constant safely below it.
-So I measured — real chain, real contract, same query the indexer makes:
+My first instinct was to find where it tips over and set the page size below it.
+So I measured. Real chain, real contract, the same query the indexer makes:
 
 ```
   range      result
@@ -100,9 +97,8 @@ So I measured — real chain, real contract, same query the indexer makes:
   50,000     TIMEOUT
 ```
 
-Twenty thousand failed. Thirty thousand passed.
-
-That's not a threshold, that's noise. So I ran it three more times:
+Twenty thousand failed and thirty thousand passed, which is not a threshold. So I
+ran it three more times.
 
 ```
   trial 1    10k: ok 3,354ms   20k: ok 8,160ms   30k: FAIL        40k: FAIL
@@ -110,30 +106,28 @@ That's not a threshold, that's noise. So I ran it three more times:
   trial 3    10k: ok 2,611ms   20k: FAIL         30k: ok 6,723ms  40k: ok 8,293ms
 ```
 
-Look at the 10,000 column. Two and a half seconds. Then a timeout. Then three
-seconds. Identical query. And in trial 3, forty thousand blocks came back in 8.3
-seconds — a range that had already failed twice.
+Look at the 10,000 column. Two and a half seconds, then a timeout, then three
+seconds. Same query every time. And in trial 3, forty thousand blocks came back
+in 8.3 seconds after failing twice.
 
-> **[IMAGE 2 — the one to actually make]** This data as a scatter plot. Range on
-> the x-axis, response time on the y-axis, one dot per trial, a red line at 10
-> seconds. The message is that the dots don't form a curve — they form a cloud
-> that drifts upward. If you make one image for this post, make it this one.
+> **[IMAGE 2, the one worth making]** This data as a scatter plot. Range on x,
+> response time on y, one dot per trial, a red line at 10 seconds. The point is
+> that the dots don't form a curve. They form a cloud that drifts upward.
 
-There is no clean cutoff. The node is racing a ten-second wall clock, and whether
-a given request beats it depends on how busy that node happens to be right then.
-As the range grows you aren't crossing a line, you're just losing the race more
-often.
+There's no cutoff to find. The node is racing a ten second wall clock and whether
+a request beats it depends on how busy that node is at the time. As the range
+grows you aren't crossing a line, you're just losing more often.
 
-Which killed my planned fix. If I'd set the page size to 10,000 and tested it
-once, I might have hit trial 3's 2,611 ms and shipped feeling pleased with
-myself. Trial 2 says that exact value times out. Any constant I choose is a bet
-on server load — and I'd be placing it once, at deploy time, on behalf of every
-future restart.
+Which killed the fix I had planned. If I'd set the page size to 10,000 and tested
+it once, I might have got trial 3's 2,611 ms and shipped feeling pleased with
+myself. Trial 2 says that same value times out. Any constant I pick is a bet on
+server load, placed once, at deploy time, on behalf of every restart that
+happens afterwards.
 
 ## What I did instead
 
-Another service in the same repo already handled this correctly, and had for
-weeks. When its scan gets refused, it halves the range and tries again until
+Another service in the same repo already handled this properly and had done for
+weeks. When its scan gets refused it halves the range and tries again until
 something works.
 
 I wrote that one too. I just never carried the idea across.
@@ -150,46 +144,45 @@ while (span >= 1) {
 }
 ```
 
-That's the whole fix. Start optimistic, back off on failure, and let the range be
-whatever the server will actually accept *at that moment* rather than whatever
-seemed sensible on the day the code was written. If it still fails on a single
-block, that gets thrown — at that point something is genuinely wrong and
-swallowing it would be worse than crashing.
+That's the whole fix. Start optimistic, back off on failure, let the range be
+whatever the server accepts at that moment rather than whatever looked sensible
+on the day the code was written. If it still fails on one block, throw, because
+by then something is actually wrong and swallowing it would be worse than
+crashing.
 
-The new indexer came up clean.
+New indexer came up clean.
 
-## The shape of it
+## The general version
 
-The takeaway isn't about block ranges.
+This isn't really about block ranges.
 
-It's that **a constant can have a shelf life, and nothing in your tooling tracks
-it.** `50_000` was correct when I wrote it. It became wrong with no code change,
-no deploy, no config edit — just time passing. There's no linter for that. Code
-review can't catch it, because at review time it genuinely is right.
+It's that a constant can have a shelf life and nothing in your tooling tracks it.
+`50_000` was correct when I wrote it. It became wrong with no code change, no
+deploy, no config edit. Just time passing. There's no linter for that, and code
+review can't catch it, because at review time it is right.
 
-And the second half is worse: **long uptime hides exactly this class of bug.** A
-service that's been up for weeks is not evidence that its startup path works. If
-anything it's the opposite — the longer it runs, the more time that path has had
-to rot untested, and the more confident everyone gets, because the dashboards are
-green and nothing is on fire.
+The second half is worse. Long uptime hides this exact class of bug. A service
+that's been up for weeks is not evidence that its startup path works. It's closer
+to the opposite: the longer it runs, the more time that path has to rot untested
+while everyone gets more confident, because the dashboards are green and nothing
+is on fire.
 
-I'd have found this eventually. My honest guess at when: the morning I sat down
-to record the demo, when I redeployed for some unrelated reason and the thing
-that had worked for eleven days suddenly didn't.
+I'd have found it eventually. Probably the morning I sat down to record the demo,
+when I redeployed for some unrelated reason and the thing that had worked for
+eleven days suddenly didn't.
 
-Worth checking for your own version of this:
+If you want to check for your own version, the pattern to look for is anything
+sized against how much data existed when you wrote it. Pagination that starts at
+a fixed point and ends at "now". Cleanup jobs. Backfills that assume they finish
+inside a deploy window. Timeouts tuned against a table with a thousand rows in
+it.
 
-- Anything paginating a range that starts at a fixed point and ends at "now"
-- Cleanup or retention jobs sized for the data volume at launch
-- Backfills and cache warms that assume they'll finish inside a deploy window
-- Timeouts tuned against a table that had a thousand rows in it
-- Any constant chosen when a system was young, in a system that isn't young now
-
-The cheapest test I know costs nothing. **Restart a healthy service on purpose.**
-Not because you think it's broken. Because you don't.
+Or skip all that and just restart something healthy on purpose. Not because you
+think it's broken.
 
 ---
 
 *I'm building [Dokett](https://github.com/successaje/covenant), a cross-chain
-registry for credit obligations. This one came out of a rename I was only doing
-because someone else had the same idea about a name.*
+registry for credit obligations, for Creditcoin's BUIDL CTC 2026 Fall hackathon.
+This one came out of a rename I was only doing because someone else had the same
+idea about a name.*
