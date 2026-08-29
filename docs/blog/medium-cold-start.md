@@ -110,9 +110,12 @@ Look at the 10,000 column. Two and a half seconds, then a timeout, then three
 seconds. Same query every time. And in trial 3, forty thousand blocks came back
 in 8.3 seconds after failing twice.
 
-> **[IMAGE 2, the one worth making]** This data as a scatter plot. Range on x,
-> response time on y, one dot per trial, a red line at 10 seconds. The point is
-> that the dots don't form a curve. They form a cloud that drifts upward.
+![Scatter plot of query range against response time. Successes are green
+circles, timeouts are red crosses sitting just above a dashed 10-second line.
+The points do not form a curve.](cold-start-scatter.png)
+
+*Every dot is a real call. The crosses aren't slow responses, they're where the
+client gave up.*
 
 There's no cutoff to find. The node is racing a ten second wall clock and whether
 a request beats it depends on how busy that node is at the time. As the range
