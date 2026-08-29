@@ -159,11 +159,11 @@ If a take still runs long, cut in this order:
 ## Before you record
 
 ```bash
-curl -s https://covenant-lens.fly.dev/health
-curl -s https://covenant-relay.fly.dev/health
-curl -s https://covenant-lens.fly.dev/obligation/2  | grep '"status"'   # want Current
-curl -s https://covenant-lens.fly.dev/obligation/5  | grep '"status"'   # want Default
-curl -s https://covenant-lens.fly.dev/obligation/11 | grep '"status"'   # want Default — the slash
+curl -s https://dokett-lens.fly.dev/health
+curl -s https://dokett-relay.fly.dev/health
+curl -s https://dokett-lens.fly.dev/obligation/2  | grep '"status"'   # want Current
+curl -s https://dokett-lens.fly.dev/obligation/5  | grep '"status"'   # want Default
+curl -s https://dokett-lens.fly.dev/obligation/11 | grep '"status"'   # want Default — the slash
 ```
 
 Console in **light theme**, onboarding dismissed, zoom 110%, clean browser

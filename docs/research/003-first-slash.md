@@ -109,8 +109,8 @@ but an attested foreign-chain height.**
 
 ```
 npm run seed:slash          # registers, posts a bond, then leaves it alone
-curl -s https://covenant-lens.fly.dev/obligation/11
-curl -s https://covenant-lens.fly.dev/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87
+curl -s https://dokett-lens.fly.dev/obligation/11
+curl -s https://dokett-lens.fly.dev/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87
 ```
 
 Roughly twenty minutes of real Ethereum block production, entirely unattended.

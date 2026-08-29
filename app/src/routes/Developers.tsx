@@ -158,25 +158,25 @@ export default function Developers() {
               method="GET"
               path="/solvency/:entity"
               desc="Bonded first-loss capital posted by an underwriter, net of what's already encumbered. Never sums unbonded claims."
-              example={'curl https://covenant-lens.fly.dev/solvency/0x9BAC...5a032'}
+              example={'curl https://dokett-lens.fly.dev/solvency/0x9BAC...5a032'}
             />
             <Endpoint
               method="GET"
               path="/encumbrance/:asset"
               desc="Every live claim currently secured against a given collateral reference."
-              example={'curl https://covenant-lens.fly.dev/encumbrance/0x...'}
+              example={'curl https://dokett-lens.fly.dev/encumbrance/0x...'}
             />
             <Endpoint
               method="GET"
               path="/obligation/:id"
               desc="Full record for one obligation: schedule, status, docket of verified transitions, and bond state."
-              example={'curl https://covenant-lens.fly.dev/obligation/5'}
+              example={'curl https://dokett-lens.fly.dev/obligation/5'}
             />
             <Endpoint
               method="GET"
               path="/profile/:subject"
               desc="Everything proven about a commitment (obligor or address), split explicitly from anything merely attested by an off-chain directory. Never rendered as one list."
-              example={'curl https://covenant-lens.fly.dev/profile/0xbb27...050d1'}
+              example={'curl https://dokett-lens.fly.dev/profile/0xbb27...050d1'}
             />
           </DocSection>
 
@@ -225,7 +225,7 @@ export default function Developers() {
             />
             <WriteCall
               contract="POST"
-              sig="https://covenant-relay.fly.dev/faucet"
+              sig="https://dokett-relay.fly.dev/faucet"
               desc={
                 <>
                   Testnet capital, so the write paths are reachable by someone arriving with an

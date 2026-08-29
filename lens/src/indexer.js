@@ -91,13 +91,45 @@ class Index {
     return { head, obligations: this.obligations.size, bonds: this.bonds.size };
   }
 
-  /** Paged log query. One wide range is what the node refuses. */
+  /**
+   * Paged log query, with the page size discovered rather than assumed.
+   *
+   * A fixed chunk is a time bomb on a young chain. This shipped with a 50,000
+   * block default, which was harmless on the day it deployed — there were only
+   * a few hundred blocks of history to walk — and became fatal once the gap
+   * between `deployBlock` and the head grew past what CC3 will answer inside
+   * its 10-second query budget. The failure only appears on a COLD start, so a
+   * long-running instance keeps working while any restart of the same code
+   * crash-loops. That is the worst shape a bug can have: invisible until the
+   * moment you need to redeploy.
+   *
+   * So the range halves on failure until the node accepts it, the same way the
+   * keeper's scan already handles this. Provider limits are not knowable in
+   * advance and change with log density; the only reliable way to find the
+   * ceiling is to walk into it and back off.
+   */
   async _logs(filter, head) {
     const out = [];
-    for (let from = this.fromBlock; from <= head; from += this.chunk) {
-      const to = Math.min(from + this.chunk - 1, head);
-      out.push(...(await this.bond.queryFilter(filter, from, to)));
+    let from = this.fromBlock;
+
+    while (from <= head) {
+      let span = Math.min(this.chunk, head - from + 1);
+      let page = null;
+
+      while (span >= 1) {
+        try {
+          page = await this.bond.queryFilter(filter, from, from + span - 1);
+          break;
+        } catch (err) {
+          if (span === 1) throw err; // a single block it cannot answer is real
+          span = Math.floor(span / 2);
+        }
+      }
+
+      out.push(...(page ?? []));
+      from += span;
     }
+
     return out;
   }
 

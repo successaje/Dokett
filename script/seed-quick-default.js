@@ -99,7 +99,7 @@ async function main() {
   console.log(`\nregistered #${id} — ${tx.hash}`);
   console.log(`the live keeper should mark it Delinquent on its next sweep (<=60s),`);
   console.log(`then Default once the attested head passes ${windowEnd + cureBlocks} (~20 min of real Ethereum blocks).`);
-  console.log(`\nwatch: curl -s https://covenant-lens.fly.dev/obligation/${id} | jq .status`);
+  console.log(`\nwatch: curl -s https://dokett-lens.fly.dev/obligation/${id} | jq .status`);
 }
 
 main().catch((err) => {

@@ -10,7 +10,7 @@
 # longer than `maxSampleGap` (900s). A keeper that restarts slowly, or sits
 # dead for fifteen minutes before anyone notices, resets that clock — so
 # "restarts eventually" is not good enough; it has to restart fast.
-app = "covenant-keeper"
+app = "dokett-keeper"
 primary_region = "iad"
 
 [build]

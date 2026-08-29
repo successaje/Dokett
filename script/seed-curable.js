@@ -226,7 +226,7 @@ async function main() {
   console.log(' auto-cure it: the anchor log is behind the keeper\'s forward-only scan');
   console.log(' cursor, so only an explicit cure can restore it.');
   console.log('');
-  console.log(` watch: curl -s https://covenant-lens.fly.dev/obligation/${id}`);
+  console.log(` watch: curl -s https://dokett-lens.fly.dev/obligation/${id}`);
   console.log(` cure:  https://covenant-console.vercel.app/#/obligation/${id}`);
   console.log('──────────────────────────────────────────────────────────\n');
   console.log('wrote deployments/seed-curable-102031.json');

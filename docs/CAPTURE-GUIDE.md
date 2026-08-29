@@ -35,11 +35,11 @@ on camera:
 ### Preflight — run this the morning you record
 
 ```bash
-curl -s https://covenant-lens.fly.dev/health
-curl -s https://covenant-relay.fly.dev/health
-curl -s https://covenant-lens.fly.dev/obligation/2  | grep '"status"'   # Current
-curl -s https://covenant-lens.fly.dev/obligation/5  | grep '"status"'   # Default
-curl -s https://covenant-lens.fly.dev/obligation/11 | grep '"status"'   # Default + slash
+curl -s https://dokett-lens.fly.dev/health
+curl -s https://dokett-relay.fly.dev/health
+curl -s https://dokett-lens.fly.dev/obligation/2  | grep '"status"'   # Current
+curl -s https://dokett-lens.fly.dev/obligation/5  | grep '"status"'   # Default
+curl -s https://dokett-lens.fly.dev/obligation/11 | grep '"status"'   # Default + slash
 ```
 
 Then do **one throwaway `prove:one` run** before recording. It is the only live

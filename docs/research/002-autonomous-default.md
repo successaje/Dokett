@@ -84,7 +84,7 @@ back" doesn't get to make that mistake quietly.
 ## Reproduce it yourself
 
 ```
-curl -s https://covenant-lens.fly.dev/obligation/5
+curl -s https://dokett-lens.fly.dev/obligation/5
 ```
 
 Or watch it live in the [Console](https://covenant-console.vercel.app/#/obligation/5) —

@@ -546,7 +546,7 @@ async function main() {
 
     s.addShape('roundRect', { x: MARGIN, y: 5.55, w: W - MARGIN * 2, h: 1.1, rectRadius: 0.06, fill: { color: '1E2027' }, line: { color: '2A2C33', width: 1 } });
     s.addText('covenant-console.vercel.app', { x: MARGIN + 0.3, y: 5.72, w: 5, h: 0.35, fontFace: MONO, fontSize: 13, color: PAPER, margin: 0 });
-    s.addText('covenant-lens.fly.dev', { x: MARGIN + 0.3, y: 6.05, w: 5, h: 0.35, fontFace: MONO, fontSize: 13, color: PAPER, margin: 0 });
+    s.addText('dokett-lens.fly.dev', { x: MARGIN + 0.3, y: 6.05, w: 5, h: 0.35, fontFace: MONO, fontSize: 13, color: PAPER, margin: 0 });
     s.addText('github.com/successaje/covenant', { x: 6.8, y: 5.72, w: 5.5, h: 0.35, fontFace: MONO, fontSize: 13, color: PAPER, margin: 0 });
     s.addText('MIT-licensed', { x: 6.8, y: 6.05, w: 5.5, h: 0.35, fontFace: MONO, fontSize: 13, color: INK4, margin: 0 });
     pageNum(s, 10, true);

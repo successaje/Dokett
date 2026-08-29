@@ -26,12 +26,12 @@ mid-recording.
 Verify these are still live the morning you record:
 
 ```bash
-curl -s https://covenant-lens.fly.dev/obligation/2 | grep periodsSatisfied   # → 1
-curl -s https://covenant-lens.fly.dev/obligation/5 | grep '"status"'         # → Default
-curl -s https://covenant-lens.fly.dev/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87 | grep bondsWritten  # → 2
-curl -s https://covenant-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f | grep -c '"id"'  # → 2
-curl -s https://covenant-relay.fly.dev/health                                # → ok:true, balance > 1 CTC
-curl -s https://covenant-lens.fly.dev/obligation/10 | grep '"status"'        # → Delinquent (only if filming Cut B)
+curl -s https://dokett-lens.fly.dev/obligation/2 | grep periodsSatisfied   # → 1
+curl -s https://dokett-lens.fly.dev/obligation/5 | grep '"status"'         # → Default
+curl -s https://dokett-lens.fly.dev/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87 | grep bondsWritten  # → 2
+curl -s https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f | grep -c '"id"'  # → 2
+curl -s https://dokett-relay.fly.dev/health                                # → ok:true, balance > 1 CTC
+curl -s https://dokett-lens.fly.dev/obligation/10 | grep '"status"'        # → Delinquent (only if filming Cut B)
 ```
 
 **And do one throwaway `prove:one` run before recording.** It is the only live
@@ -259,7 +259,7 @@ the product and the only one with a human in it.**
 **Show a curl in the terminal — real, live, no auth:**
 
 ```bash
-curl -s https://covenant-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f
+curl -s https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f
 ```
 
 > Free, public, unauthenticated, live right now. Same data the console runs on.

@@ -206,7 +206,7 @@ async function main() {
   console.log(' the default once the attested head passes the cure height — and slashes');
   console.log(' the bond to the creditor in the same transaction.');
   console.log('');
-  console.log(` watch: curl -s https://covenant-lens.fly.dev/obligation/${id}`);
+  console.log(` watch: curl -s https://dokett-lens.fly.dev/obligation/${id}`);
   console.log('──────────────────────────────────────────────────────────\n');
   console.log('wrote deployments/seed-slash-102031.json');
 }

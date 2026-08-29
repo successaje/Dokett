@@ -219,7 +219,7 @@ this chain at all.
 
 ```
 Live Console      https://covenant-console.vercel.app
-Read API          https://covenant-lens.fly.dev
+Read API          https://dokett-lens.fly.dev
 Source            https://github.com/successaje/covenant
 Deck (PDF)        https://raw.githubusercontent.com/successaje/covenant/main/docs/DOKETT-DECK.pdf
 Developer docs    https://covenant-console.vercel.app/#/developers
@@ -251,7 +251,7 @@ A real Ethereum transfer verified inside a Creditcoin contract:
   0x85234a5dc158c402adfd384be8800969d570357611a1b59f3326098affc18fc4
 
 Collateral pledged twice — the query that exists nowhere else:
-  curl https://covenant-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f
+  curl https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f
 ```
 
 ---
@@ -262,14 +262,14 @@ Some of these drift. Check the morning you submit.
 
 ```bash
 # every service healthy
-curl -s https://covenant-lens.fly.dev/health
-curl -s https://covenant-relay.fly.dev/health          # balance should be > 1 CTC
+curl -s https://dokett-lens.fly.dev/health
+curl -s https://dokett-relay.fly.dev/health          # balance should be > 1 CTC
 
 # a standing curable delinquency still exists (for the demo + judges to try)
-curl -s https://covenant-lens.fly.dev/obligations | grep -c Delinquent
+curl -s https://dokett-lens.fly.dev/obligations | grep -c Delinquent
 
 # the register still shows a spread of states
-curl -s https://covenant-lens.fly.dev/obligations \
+curl -s https://dokett-lens.fly.dev/obligations \
   | python3 -c "import json,sys,collections; print(collections.Counter(o['status'] for o in json.load(sys.stdin)['obligations']))"
 ```
 
