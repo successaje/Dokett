@@ -6,7 +6,7 @@
  *
  * ─── WHY THIS IS POSSIBLE AT ALL ───────────────────────────────────────────
  *
- * Covenant only ever reads. It never needs a payment to be *originated* — so a
+ * Dokett only ever reads. It never needs a payment to be *originated* — so a
  * scenario can be built from transfers that already happened, by registering an
  * obligation whose binding and window match one. That is what lets the whole
  * demo run on mainnet evidence without spending a cent of real money, and it is

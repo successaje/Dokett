@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * Covenant cure relay.
+ * Dokett cure relay.
  *
  *   RELAY_PRIVATE_KEY=0x… CHAIN_KEY=3 REGISTER_ADDRESS=0x… VERIFIER_ADDRESS=0x… \
  *   PAYMENT_ADAPTER_ADDRESS=0x… ETH_MAINNET_RPC=… node relay/src/index.js

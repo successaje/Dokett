@@ -1,4 +1,4 @@
-# Covenant — Threat Model
+# Dokett — Threat Model
 
 **Version** 0.1 · 29 Jul 2026 · pre-build
 **Scope** CC3 testnet hackathon build, written so it stays valid for mainnet
@@ -29,7 +29,7 @@
 | Obligors | Nothing | — |
 | Protocol admin | Adapter allowlist behind a 48h timelock | Anything unilateral or fast |
 
-**Stated trust assumption, verbatim for the README:** *Covenant inherits the trust model of the ASC attestor set. As of July 2026 that set is permissioned (`AuthorizedOnly`), with a mainnet minimum bond of 0 CTC and no publicly documented slashing regime. Covenant is therefore, today, a system with a curated federation at its evidence root — materially stronger than a multisig bridge, materially weaker than a ZK light client. We cap per-obligation exposure accordingly and treat attestor decentralisation as the protocol's most important external dependency.*
+**Stated trust assumption, verbatim for the README:** *Dokett inherits the trust model of the ASC attestor set. As of July 2026 that set is permissioned (`AuthorizedOnly`), with a mainnet minimum bond of 0 CTC and no publicly documented slashing regime. Dokett is therefore, today, a system with a curated federation at its evidence root — materially stronger than a multisig bridge, materially weaker than a ZK light client. We cap per-obligation exposure accordingly and treat attestor decentralisation as the protocol's most important external dependency.*
 
 Say this before a judge finds it. Volunteering your weakest assumption is the strongest credibility move available to you.
 
@@ -86,7 +86,7 @@ Say this before a judge finds it. Volunteering your weakest assumption is the st
 **Vector.** An obligor bonds themselves through a sock puppet to manufacture a creditworthy track record, or a registrar/creditor/underwriter tri-collusion fabricates a clean repayment history.
 **Severity.** Medium · **Likelihood.** Medium
 **Mitigation.** Fabricating history requires **real on-chain payments through real ERC-20 transfers**, so a wash history costs its face value in capital movement and gas — it is not free the way a self-reported score is. The Lens exposes counterparty-graph concentration (what share of an obligor's history involves a single registrar/underwriter cluster) so consumers can discount it. Independent-capital weighting in reputation.
-**Residual.** Cannot be eliminated without identity. Covenant's position is that it does not solve identity — it makes identity someone's *priced* problem.
+**Residual.** Cannot be eliminated without identity. Dokett's position is that it does not solve identity — it makes identity someone's *priced* problem.
 
 ### T-10 — Reentrancy / accounting bugs in slashing
 **Vector.** Malicious ERC-20 collateral reenters `slash()`; rounding drains the bond; pro-rata across multiple bonds double-pays.

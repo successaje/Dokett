@@ -171,9 +171,9 @@ Scroll slowly through the endpoint list — `/solvency`, `/encumbrance`,
 
 > *"Everything here is testnet."*
 
-> *"Covenant. The obligation layer for the open economy."*
+> *"Dokett. The obligation layer for the open economy."*
 
-**Final frame:** cut to a held card — Covenant wordmark, then:
+**Final frame:** cut to a held card — Dokett wordmark, then:
 
 ```
 covenant-console.vercel.app
@@ -190,7 +190,7 @@ Hold three seconds. Do not fade to black on a scrolling page.
 |---|---|
 | `prove:one` fails or hangs | Skip the terminal. Open `#/obligation/2` and say *"this obligation advanced to Current because a payment was proven at source-chain height 25,773,802."* The proof is already on-chain and needs nothing live. |
 | An obligation changed status | Use the live register. Every scene works with **any** obligation in the right state — the script names ids for convenience, not because they are special. Check with `curl .../obligations`. |
-| The Lens is unreachable | Stop. Do not film the degraded state. Check `flyctl status -a covenant-lens`. |
+| The Lens is unreachable | Stop. Do not film the degraded state. Check `flyctl status -a dokett-lens`. |
 | The gas figure differs from what you rehearsed | Read what is on screen. Both numbers are correct; they answer different questions. |
 
 ---

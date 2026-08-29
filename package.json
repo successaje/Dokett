@@ -1,5 +1,5 @@
 {
-  "name": "covenant",
+  "name": "dokett",
   "version": "1.0.0",
   "description": "The obligation layer for the open economy \u2014 a registry where a promise to pay is a first-class on-chain object, advanced only by cryptographic evidence.",
   "main": "index.js",

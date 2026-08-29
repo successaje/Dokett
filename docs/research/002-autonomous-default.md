@@ -1,4 +1,4 @@
-# Covenant Research #002
+# Dokett Research #002
 ### We watched an obligation default. Nobody reported it.
 
 **19 Aug 2026 · live CC3 testnet, real transactions linked below**
@@ -7,8 +7,8 @@
 
 ## The claim we needed to test
 
-Covenant's core mechanism is an inversion. Every ASC-based project we've seen
-proves that something *happened*. Covenant's `SilenceAdapter` is built to act
+Dokett's core mechanism is an inversion. Every ASC-based project we've seen
+proves that something *happened*. Dokett's `SilenceAdapter` is built to act
 on what *didn't* — an obligation degrades to delinquent, and then to default,
 purely because no admissible proof of payment arrived before a deadline. No
 reporter, no committee, no oracle operator, no human in the loop at any point.
@@ -18,7 +18,7 @@ it happen, end to end, on a deployment we don't touch by hand.
 
 ## The setup
 
-Covenant only ever *reads* foreign-chain evidence — it never needs to originate
+Dokett only ever *reads* foreign-chain evidence — it never needs to originate
 a payment to demonstrate a scenario. So we registered an obligation whose
 window was already closed at the moment of registration: a real economic
 promise, just with deliberately short terms (an ~8-minute window, ~7-minute
@@ -29,7 +29,7 @@ differs.
 
 Critically, this was only possible because our keeper — running unattended on
 Fly.io, watching the attested Ethereum head every ~2 minutes — had already
-built an unbroken hour of observation. Covenant's liveness invariant
+built an unbroken hour of observation. Dokett's liveness invariant
 (`penaltiesEnabled`) refuses to allow any penalty at all until that record is
 continuous; a keeper that stalls or restarts mid-record has to start the clock
 over. We didn't route around that requirement to make this demo convenient —
@@ -52,10 +52,10 @@ we waited for it, honestly, like any real deployment would have to.
 | → Delinquent | [`0x72127e0d…7202789`](https://creditcoin-testnet.blockscout.com/tx/0x72127e0d2db87c381e266be69f6c9dac90585d04b471a0cd57c0425bf7202789) |
 | → Default | [`0x7ce07a2e…9a61f7d`](https://creditcoin-testnet.blockscout.com/tx/0x7ce07a2ec62b1b41bce4565784c51a97d57b6a1b7b5933a84724960759a61f7d) |
 
-## What Covenant does *not* claim here, and why that matters
+## What Dokett does *not* claim here, and why that matters
 
 You cannot prove a negative with an inclusion proof. There is no cryptographic
-primitive for "no transaction matching X exists in blocks N…M," and Covenant
+primitive for "no transaction matching X exists in blocks N…M," and Dokett
 does not pretend otherwise. The `Delinquent` transition is not a proof that no
 payment happened — it's a verifiable, on-chain fact: *no admissible proof of
 payment was presented before the deadline passed.* That's a narrower claim, and
@@ -93,7 +93,7 @@ which step you're looking at.
 
 ---
 
-*Covenant is a registry where an obligation's status advances only on
+*Dokett is a registry where an obligation's status advances only on
 cryptographic proof of a foreign-chain event, or a comparison against an
 attested foreign-chain height — never on anyone's word. Built on Creditcoin
 Attestcoin Smart Contracts. [Source](https://github.com/successaje/covenant).*

@@ -239,7 +239,7 @@ export default function Obligation({ id }: { id: string }) {
             <p className="note" style={{ marginTop: 0 }}>
               A delinquency means no admissible proof of payment reached the registry before the
               window closed. It does <strong>not</strong> assert that no payment happened — that
-              cannot be proven with an inclusion proof, and Covenant does not claim to.
+              cannot be proven with an inclusion proof, and Dokett does not claim to.
             </p>
             <p className="note">
               If a qualifying payment was made on the source chain at a height inside the missed

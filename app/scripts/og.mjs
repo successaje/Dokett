@@ -52,7 +52,7 @@ const PAGES = [
     route: '/',
     eyebrow: 'Register of Obligations',
     title: 'Crypto has a credit market and no credit bureau.',
-    desc: 'Covenant is a registry where a promise to pay is a first-class on-chain object, and its status moves only on cryptographic proof — never on anyone’s word.',
+    desc: 'Dokett is a registry where a promise to pay is a first-class on-chain object, and its status moves only on cryptographic proof — never on anyone’s word.',
     stat: null,
   },
   {
@@ -66,15 +66,15 @@ const PAGES = [
   {
     path: 'posts/first-slash',
     route: '/posts/first-slash',
-    eyebrow: 'Covenant Research · 27 Aug 2026',
+    eyebrow: 'Dokett Research · 27 Aug 2026',
     title: 'We had never actually slashed anyone',
-    desc: 'Covenant’s market thesis rests on first-loss capital being slashed when a borrower defaults. That mechanism had never fired on-chain. So we made it fire.',
+    desc: 'Dokett’s market thesis rests on first-loss capital being slashed when a borrower defaults. That mechanism had never fired on-chain. So we made it fire.',
     stat: '0.00% → 7.69% loss rate',
   },
   {
     path: 'posts/autonomous-default',
     route: '/posts/autonomous-default',
-    eyebrow: 'Covenant Research · 19 Aug 2026',
+    eyebrow: 'Dokett Research · 19 Aug 2026',
     title: 'We watched an obligation default. Nobody reported it.',
     desc: 'We registered a real obligation and did nothing. An unattended keeper carried it to default with no human in the loop, end to end.',
     stat: '2m18s · zero humans',
@@ -82,7 +82,7 @@ const PAGES = [
   {
     path: 'posts/attestcoin-cost-model',
     route: '/posts/attestcoin-cost-model',
-    eyebrow: 'Covenant Research · 19 Aug 2026',
+    eyebrow: 'Dokett Research · 19 Aug 2026',
     title: 'What does it actually cost to verify a foreign chain?',
     desc: 'Creditcoin publishes a cost formula for ASC verification. We measured it instead — five real Ethereum transactions, twenty minutes to two years old.',
     stat: '26% more for 51,529× the age',
@@ -90,7 +90,7 @@ const PAGES = [
   {
     path: 'posts/first-verified-transfer',
     route: '/posts/first-verified-transfer',
-    eyebrow: 'Covenant Research · 19 Aug 2026',
+    eyebrow: 'Dokett Research · 19 Aug 2026',
     title: 'A real Ethereum transfer, verified inside a Creditcoin contract',
     desc: 'No bridge. No Ethereum-side contract. No centralized oracle. Attestcoin proof to Creditcoin verification, in one block.',
     stat: 'about $0.0001',
@@ -100,7 +100,7 @@ const PAGES = [
     route: '/developers',
     eyebrow: 'Developers',
     title: 'Build on the record',
-    desc: 'Covenant has no private API. The same free, public read layer the Console runs on — solvency, encumbrance, obligations, profiles.',
+    desc: 'Dokett has no private API. The same free, public read layer the Console runs on — solvency, encumbrance, obligations, profiles.',
     stat: null,
   },
 ];
@@ -145,7 +145,7 @@ function card({ eyebrow, title, stat }) {
     <path d="M21.8 9.8a9.2 9.2 0 1 0 0 12.4"/>
     <path d="M26.2 4.8v22.4"/>
   </g>
-  <text x="132" y="98" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-weight="600" fill="${CREAM}">Covenant</text>
+  <text x="132" y="98" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-weight="600" fill="${CREAM}">Dokett</text>
   <text x="86" y="150" font-family="Helvetica, Arial, sans-serif" font-size="17" letter-spacing="2.6" fill="${MUTED}">${esc(
     eyebrow.toUpperCase(),
   )}</text>
@@ -160,7 +160,7 @@ function card({ eyebrow, title, stat }) {
 }
 
 function shell({ route, title, desc, img, url }) {
-  const full = `${title} — Covenant`;
+  const full = `${title} — Dokett`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -171,7 +171,7 @@ function shell({ route, title, desc, img, url }) {
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
 <meta property="og:type" content="article" />
-<meta property="og:site_name" content="Covenant" />
+<meta property="og:site_name" content="Dokett" />
 <meta property="og:title" content="${esc(full)}" />
 <meta property="og:description" content="${esc(desc)}" />
 <meta property="og:url" content="${url}" />
@@ -190,7 +190,7 @@ function shell({ route, title, desc, img, url }) {
 </head>
 <body style="margin:0;background:${INK};color:${CREAM};font-family:Georgia,serif">
   <p style="padding:40px">
-    <a href="/#${route}" style="color:${CREAM}">Continue to Covenant &rarr;</a>
+    <a href="/#${route}" style="color:${CREAM}">Continue to Dokett &rarr;</a>
   </p>
 </body>
 </html>`;

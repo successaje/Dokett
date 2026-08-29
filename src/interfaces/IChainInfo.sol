@@ -10,7 +10,7 @@ pragma solidity ^0.8.23;
  *
  *      Note what this precompile does NOT expose: any source-chain timestamp.
  *      The only trustworthy time signal available to a contract is the attested
- *      block HEIGHT. Covenant's schedules are therefore denominated in source
+ *      block HEIGHT. Dokett's schedules are therefore denominated in source
  *      chain block height, never in wall-clock time. See {AscVerify}.
  */
 interface IChainInfo {
@@ -53,7 +53,7 @@ interface IChainInfo {
         bool isAttested;
     }
 
-    /// @notice Highest attested height for a chain — Covenant's clock.
+    /// @notice Highest attested height for a chain — Dokett's clock.
     function get_latest_attestation_height_and_hash(uint64 chainKey)
         external
         view

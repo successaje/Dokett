@@ -90,17 +90,17 @@ function LivenessStrip() {
 
 function ThemeToggle() {
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>(
-    () => (localStorage.getItem('covenant.theme') as 'light' | 'dark' | null) ?? 'system',
+    () => (localStorage.getItem('dokett.theme') as 'light' | 'dark' | null) ?? 'system',
   );
 
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'system') {
       root.removeAttribute('data-theme');
-      localStorage.removeItem('covenant.theme');
+      localStorage.removeItem('dokett.theme');
     } else {
       root.setAttribute('data-theme', theme);
-      localStorage.setItem('covenant.theme', theme);
+      localStorage.setItem('dokett.theme', theme);
     }
   }, [theme]);
 
@@ -195,7 +195,7 @@ export default function App() {
           <div className="page masthead-inner">
             <a className="wordmark" href="#/">
               <Mark />
-              Covenant
+              Dokett
               <span className="wordmark-sub">Register of Obligations</span>
             </a>
             <nav className="nav">
@@ -225,7 +225,7 @@ export default function App() {
         <div className="page masthead-inner">
           <a className="wordmark" href="#/">
             <Mark />
-            Covenant
+            Dokett
             <span className="wordmark-sub">Register of Obligations</span>
           </a>
           <nav className="nav">

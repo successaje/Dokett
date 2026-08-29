@@ -1,4 +1,4 @@
-# Covenant cure relay — one write endpoint, one funded key.
+# Dokett cure relay — one write endpoint, one funded key.
 #
 # Unlike the keeper, this DOES serve HTTP, so it gets an [http_service] and the
 # health-check-driven auto-start that comes with it.
@@ -25,7 +25,7 @@
 # replay guard, so nothing is corrupted — but it burns real balance for nothing.
 # Deduplicating across instances needs shared state this service does not have
 # and does not need, so it runs as one. Keep `fly scale count 1`.
-app = "covenant-relay"
+app = "dokett-relay"
 primary_region = "iad"
 
 [build]

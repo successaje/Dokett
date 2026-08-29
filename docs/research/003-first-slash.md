@@ -1,4 +1,4 @@
-# Covenant Research #003
+# Dokett Research #003
 ### The first time first-loss capital was actually slashed
 
 **27 Aug 2026 · live CC3 testnet, every transaction linked below**
@@ -7,7 +7,7 @@
 
 ## The gap we found in our own project
 
-Covenant's market thesis is that underwriting a named borrower is a real,
+Dokett's market thesis is that underwriting a named borrower is a real,
 priced, adversarially-tested opinion — because when that borrower defaults, the
 underwriter's capital is slashed automatically, by evidence, with no committee
 and no vote. It is the sentence that separates this from every on-chain credit
@@ -117,7 +117,7 @@ Roughly twenty minutes of real Ethereum block production, entirely unattended.
 
 ---
 
-*Covenant is a registry where an obligation's status advances only on
+*Dokett is a registry where an obligation's status advances only on
 cryptographic proof of a foreign-chain event, or a comparison against an
 attested foreign-chain height — never on anyone's word. Built on Creditcoin
 Attestcoin Smart Contracts. [Source](https://github.com/successaje/covenant).*

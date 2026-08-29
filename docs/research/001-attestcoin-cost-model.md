@@ -1,4 +1,4 @@
-# Covenant Research #001
+# Dokett Research #001
 ### What does it actually cost to verify a foreign chain?
 
 **19 Aug 2026 · every number below is a real transaction, linked, reproducible with `npm run prove:one <txHash>`**
@@ -11,7 +11,7 @@ Attestcoin Smart Contracts let a Creditcoin contract verify that a specific
 Ethereum event happened, with no bridge and no oracle operator. Creditcoin's
 own docs publish a cost formula for this: `CTC ≈ 2.3e-5 + 2.9e-7 × continuityHashes`.
 
-We build a registry ([Covenant](https://github.com/successaje/covenant)) whose
+We build a registry ([Dokett](https://github.com/successaje/covenant)) whose
 entire economics depend on that curve staying flat as facts age — a registry
 exists to answer questions about *old* obligations, so if verifying a two-year-old
 fact cost meaningfully more than a twenty-minute-old one, the whole model would
@@ -97,7 +97,7 @@ per query). Full table and methodology: [`docs/ASC-INTEGRATION.md`](../ASC-INTEG
 
 ---
 
-*Covenant is a registry where an obligation's status advances only on
+*Dokett is a registry where an obligation's status advances only on
 cryptographic proof of a foreign-chain event, or a comparison against an
 attested foreign-chain height — never on anyone's word. Built on Creditcoin
 Attestcoin Smart Contracts. [Source](https://github.com/successaje/covenant).*

@@ -1,4 +1,4 @@
-# Covenant — voiceover script
+# Dokett — voiceover script
 
 **Measured, not estimated.** Word-counted at 150 wpm with the beats included.
 Comfortably under the 3:00 ceiling with room for a natural read.
@@ -39,18 +39,18 @@ Two parts. **Part One is animated** (no UI — typography, motion, diagram).
 >
 > So the question gets asked — and there is **nowhere to send it**. //
 >
-> This is Covenant. A registry where a promise to pay is a first-class on-chain
+> This is Dokett. A registry where a promise to pay is a first-class on-chain
 > object, and its status changes only on cryptographic **proof**. Never because
 > someone said so. //
 >
 > Creditcoin knows how to record credit. Attestcoin lets it see across chains.
-> **Covenant turns what it can see into a shared, verifiable record of
+> **Dokett turns what it can see into a shared, verifiable record of
 > obligations.**
 
 **Animation note.** The strongest beat is the fourth: isolated boxes, each lit
 from inside, no line between any of them — then one line drawn underneath,
 connecting all of them, as the thesis lands. Hold the logo until "This is
-Covenant."
+Dokett."
 
 ---
 
@@ -125,7 +125,7 @@ Paste: `0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f`
 >
 > Everything here is testnet. //
 >
-> **Covenant. The obligation layer for the open economy.**
+> **Dokett. The obligation layer for the open economy.**
 
 ---
 

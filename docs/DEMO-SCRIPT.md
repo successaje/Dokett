@@ -1,4 +1,4 @@
-# Covenant — demo video script
+# Dokett — demo video script
 
 **Target 2:50, hard ceiling 3:00.** Every figure and transaction below is real and
 live as of writing; nothing in this script requires a staged or mocked moment.
@@ -52,7 +52,7 @@ on. Don't let a flaky third-party API stall the take.
 
 ## Scene 1 — The question · 0:00–0:22
 
-**Screen.** Nothing yet, or the Covenant cover page held still.
+**Screen.** Nothing yet, or the Dokett cover page held still.
 
 > A business wants to borrow a million dollars. Before approving it, the lender
 > asks the oldest question in finance: **what do you already owe?**
@@ -89,7 +89,7 @@ built anywhere else." Let the three numbered conditions land.
 **Land the thesis line cleanly. This is the sentence judges should remember:**
 
 > Creditcoin knows how to record credit. Attestcoin lets it see across chains.
-> **Covenant turns what it can see into a shared, verifiable record of obligations.**
+> **Dokett turns what it can see into a shared, verifiable record of obligations.**
 
 ---
 
@@ -284,7 +284,7 @@ covenant-console.vercel.app
 github.com/successaje/covenant
 ```
 
-> Covenant. The obligation layer for the open economy.
+> Dokett. The obligation layer for the open economy.
 
 ---
 

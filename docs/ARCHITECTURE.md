@@ -1,4 +1,4 @@
-# Covenant — Architecture Specification
+# Dokett — Architecture Specification
 
 **Version** 0.2 · supersedes 0.1 (pre-build design)
 **Target** BUIDL CTC 2026 Fall — RWA track — CC3 Testnet
@@ -14,7 +14,7 @@
 
 ## 0. One-paragraph summary
 
-Covenant is a registry of **obligations**. Each obligation is an on-chain object on Creditcoin whose state advances only when an Attestcoin Smart Contract (ASC) proof of the corresponding Ethereum event is verified by the `BlockProver` precompile — never on a party's word. When no admissible proof of payment is presented before a window closes, the obligation degrades to delinquent and then to default, and a named third party's staked first-loss capital is slashed to the creditor atomically. Two lenders who have never met can see each other's claims on the same borrower before they lend.
+Dokett is a registry of **obligations**. Each obligation is an on-chain object on Creditcoin whose state advances only when an Attestcoin Smart Contract (ASC) proof of the corresponding Ethereum event is verified by the `BlockProver` precompile — never on a party's word. When no admissible proof of payment is presented before a window closes, the obligation degrades to delinquent and then to default, and a named third party's staked first-loss capital is slashed to the creditor atomically. Two lenders who have never met can see each other's claims on the same borrower before they lend.
 
 ---
 
@@ -22,7 +22,7 @@ Covenant is a registry of **obligations**. Each obligation is an on-chain object
 
 | # | Invariant | Why |
 |---|---|---|
-| **I1** | **Consequence is local.** Covenant never moves or seizes value on a source chain. Source chains are evidence; Creditcoin is the ledger of record and the venue of consequence. | Not because writability is impossible — it exists (§10, C1) — but because the read path's trust model is strictly stronger, and a registry's job is to *record*, not to custody. |
+| **I1** | **Consequence is local.** Dokett never moves or seizes value on a source chain. Source chains are evidence; Creditcoin is the ledger of record and the venue of consequence. | Not because writability is impossible — it exists (§10, C1) — but because the read path's trust model is strictly stronger, and a registry's job is to *record*, not to custody. |
 | **I2** | **No privileged reporter.** No party can assert a state transition. Every advance is either an ASC-verified event, or a comparison against the **attested source-chain height**. | This is the thesis. A registry with a trusted reporter is a spreadsheet. |
 | **I3** | **Degradation is the default.** Obligations do not stay healthy by inertia; they decay unless proof arrives. | Nobody volunteers bad news. |
 | **I4** | **Every false negative is curable; no false positive is final.** A wrongly-marked delinquency is always reversible by presenting the proof that should have arrived. Only cure expiry makes default final. | Makes permissionless marking safe to hand to strangers. |
@@ -205,7 +205,7 @@ provePayment(id, proof):
 
 ### 4.4 `adapters/SilenceAdapter.sol` — the crux
 
-**What it does not claim.** You cannot prove a negative with an inclusion proof. There is no ASC primitive for "no transaction matching predicate P exists in blocks N…M," and Covenant does not claim one.
+**What it does not claim.** You cannot prove a negative with an inclusion proof. There is no ASC primitive for "no transaction matching predicate P exists in blocks N…M," and Dokett does not claim one.
 
 **What it proves.** An on-chain fact about Creditcoin state:
 
@@ -349,7 +349,7 @@ Never hardcode. `AscVerify.assertChainId(chainKey, expectedChainId)` resolves vi
 ## 9. Repository layout
 
 ```
-covenant/
+dokett/
 ├── src/
 │   ├── interfaces/{INativeQueryVerifier,IChainInfo}.sol   transcribed from shipped ABIs
 │   ├── lib/AscVerify.sol                                  ← publish standalone, MIT

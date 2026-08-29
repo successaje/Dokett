@@ -123,7 +123,7 @@ async function main() {
   const creditor = ethers.keccak256(ethers.toUtf8Bytes('부산캐피탈 · Busan Capital'));
 
   // A real, specific collateral reference — a bonded warehouse receipt, not a
-  // zero hash. Covenant never learns the underlying asset, only this
+  // zero hash. Dokett never learns the underlying asset, only this
   // commitment to it, same privacy posture as the obligor commitment.
   const collateralRef = ethers.keccak256(ethers.toUtf8Bytes('warehouse-receipt:BUSAN-WR-88214'));
 

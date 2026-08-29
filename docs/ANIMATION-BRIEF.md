@@ -1,8 +1,8 @@
-# Animation brief — Covenant, Part One (0:00–1:00)
+# Animation brief — Dokett, Part One (0:00–1:00)
 
 Paste this whole file into your animation tool. It is written to stand alone.
 
-**Attachments:** `covenant-mark.svg` (or the PNG avatar) and the Creditcoin logo.
+**Attachments:** `dokett-mark.svg` (or the PNG avatar) and the Creditcoin logo.
 
 ---
 
@@ -12,7 +12,7 @@ A 60-second animated opening to a hackathon demo video. It runs **before** any
 screen recording. There is a voiceover; the animation illustrates it and must
 not compete with it.
 
-**Covenant** is a credit registry built on Creditcoin. In one line: *a registry
+**Dokett** is a credit registry built on Creditcoin. In one line: *a registry
 where a promise to pay is a first-class on-chain object, and its status changes
 only on cryptographic proof — never because someone said so.*
 
@@ -22,7 +22,7 @@ The argument the animation has to carry:
 2. Traditional finance has institutions that answer it.
 3. On-chain, the borrower's debts sit in separate systems that cannot see one another.
 4. So the question has nowhere to go.
-5. Covenant is the shared record that answers it.
+5. Dokett is the shared record that answers it.
 
 ---
 
@@ -88,7 +88,7 @@ anything.
 
 ---
 
-## 4 · The Covenant mark
+## 4 · The Dokett mark
 
 The mark is an **open C held by a vertical rule** — the promise stays open; the
 rule is what holds it. Geometry (32×32 viewBox, stroke only, no fill,
@@ -103,7 +103,7 @@ M26.2 4.8v22.4                      ← the vertical rule
 descending through it. That draw is the single most brand-specific moment in the
 sequence. Give it a full second.
 
-Wordmark: **Covenant** in the serif, with `REGISTER OF OBLIGATIONS` beneath in
+Wordmark: **Dokett** in the serif, with `REGISTER OF OBLIGATIONS` beneath in
 letterspaced small caps, Muted.
 
 ---
@@ -207,12 +207,12 @@ in the sequence and it should feel like one.
 
 ### Shot 7 · 0:38–0:50
 
-> *"This is Covenant. A registry where a promise to pay is a first-class on-chain object, and its status changes only on cryptographic proof. Never because someone said so."* //
+> *"This is Dokett. A registry where a promise to pay is a first-class on-chain object, and its status changes only on cryptographic proof. Never because someone said so."* //
 
 Everything clears to black. One full beat of nothing.
 
 **The mark draws** — open C first, then the vertical rule descending through it.
-Wordmark resolves beside it: **Covenant**.
+Wordmark resolves beside it: **Dokett**.
 
 Then the mark moves up and out of the way, and a **record card** builds beneath
 it as ruled rows — a document, not a UI panel:
@@ -235,7 +235,7 @@ On *"Never because someone said so"*: everything holds still.
 
 ### Shot 8 · 0:50–1:00
 
-> *"Creditcoin knows how to record credit. Attestcoin lets it see across chains. Covenant turns what it can see into a shared, verifiable record of obligations."*
+> *"Creditcoin knows how to record credit. Attestcoin lets it see across chains. Dokett turns what it can see into a shared, verifiable record of obligations."*
 
 The three isolated boxes from shot 4 return, dimmed to Faint, in their original
 positions.
@@ -249,7 +249,7 @@ positions.
 - As the line passes under each box, that box **brightens from Faint back to
   Ink** — the record can now see it.
 - On **"a shared, verifiable record of obligations"** — the boxes and line
-  recede, and the Covenant wordmark resolves centred with
+  recede, and the Dokett wordmark resolves centred with
   `REGISTER OF OBLIGATIONS` beneath.
 
 Final frame holds two seconds on the wordmark, then cuts to the screen recording.
@@ -258,11 +258,11 @@ Final frame holds two seconds on the wordmark, then cuts to the screen recording
 
 ## 6 · Logo usage
 
-- **Covenant mark** — Ink `#ece9e2` on the dark ground. Never recoloured, never
+- **Dokett mark** — Ink `#ece9e2` on the dark ground. Never recoloured, never
   on a filled shape, never with a glow. It draws once, in shot 7.
 - **Creditcoin logo** — attached. Use its own official colours, but keep it
   **small and secondary**. It appears once, in shot 8, and is never larger than
-  the Covenant wordmark. This is a Covenant video that credits Creditcoin, not a
+  the Dokett wordmark. This is a Dokett video that credits Creditcoin, not a
   co-branded one.
 - Do not place the two logos side by side at equal size at any point.
 

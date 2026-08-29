@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * Covenant keeper entrypoint.
+ * Dokett keeper entrypoint.
  *
  *   ETH_MAINNET_RPC=... CHAIN_KEY=3 REGISTER_ADDRESS=0x... \
  *   VERIFIER_ADDRESS=0x... PAYMENT_ADAPTER_ADDRESS=0x... \

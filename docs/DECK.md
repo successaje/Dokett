@@ -1,4 +1,4 @@
-# Covenant — Deck Outline
+# Dokett — Deck Outline
 
 **Format** 12 slides + 3 appendix · PDF for submission, same deck drives the demo video
 **Audience** Credit Labs (investors) + Creditcoin engineers (technical judges)
@@ -8,7 +8,7 @@
 
 ## Slide 1 — Title
 
-> # COVENANT
+> # DOKETT
 > ### The obligation layer for the open economy
 > *BUIDL CTC 2026 Fall · RWA track · built on Attestcoin Smart Contracts*
 
@@ -66,7 +66,7 @@ Logo, name, one line, testnet link, GitHub. Nothing else.
 ## Slide 6 — The inversion ← **the slide that wins**
 
 > Every ASC demo proves that **something happened.**
-> Covenant proves that **nothing did.**
+> Dokett proves that **nothing did.**
 
 > `SilenceAdapter`: an obligation degrades unless proof of payment arrives.
 > No reporter. No committee. No oracle operator. **Default is the default.**
@@ -126,7 +126,7 @@ Live or recorded. Seven beats, no narration over the mechanics — let the state
 ## Slide 11 — What this does for the ecosystem
 
 > Every other submission **consumes** Creditcoin blockspace.
-> Covenant makes every future credit app in this ecosystem an **integrator**.
+> Dokett makes every future credit app in this ecosystem an **integrator**.
 > It reunites what Creditcoin is currently *selling* (ASC) with what it's currently *hiding* (Credal, the origination, the regulator relationship).
 
 *This is the CEIP slide. It is the sentence that gets you to Seoul.*

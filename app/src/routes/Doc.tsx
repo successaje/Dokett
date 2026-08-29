@@ -32,7 +32,7 @@ export const DOCS: DocDef[] = [
     file: 'ASC-INTEGRATION.md',
     eyebrow: 'Design & threat model',
     title: 'ASC integration',
-    dek: 'Exactly how Covenant uses Attestcoin Smart Contracts — measured gas costs, batching, the liveness gate, and the guarded path around BlockProver.',
+    dek: 'Exactly how Dokett uses Attestcoin Smart Contracts — measured gas costs, batching, the liveness gate, and the guarded path around BlockProver.',
   },
   {
     slug: 'use-cases',

@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * Covenant Lens entrypoint.
+ * Dokett Lens entrypoint.
  *
  *   CC3_RPC=... REGISTER_ADDRESS=0x... BOND_ADDRESS=0x... node lens/src/index.js
  *

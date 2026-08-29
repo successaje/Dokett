@@ -25,7 +25,7 @@ const POSTS: PostDef[] = [
     slug: 'first-slash',
     date: '27 Aug 2026',
     title: 'We had never actually slashed anyone',
-    dek: "Covenant's market thesis rests on first-loss capital being slashed automatically when a borrower defaults. That mechanism had never fired on-chain — it lived in the unit suite and nowhere else. So we made it fire.",
+    dek: "Dokett's market thesis rests on first-loss capital being slashed automatically when a borrower defaults. That mechanism had never fired on-chain — it lived in the unit suite and nowhere else. So we made it fire.",
     full: `${REPO}/blob/main/docs/research/003-first-slash.md`,
     body: () => (
       <>
@@ -83,7 +83,7 @@ const POSTS: PostDef[] = [
     slug: 'autonomous-default',
     date: '19 Aug 2026',
     title: 'We watched an obligation default. Nobody reported it.',
-    dek: "Covenant's core mechanism is an inversion: proving absence, not presence. We registered a real obligation and watched an unattended keeper degrade it to default with no human in the loop, end to end.",
+    dek: "Dokett's core mechanism is an inversion: proving absence, not presence. We registered a real obligation and watched an unattended keeper degrade it to default with no human in the loop, end to end.",
     full: `${REPO}/blob/main/docs/research/002-autonomous-default.md`,
     body: () => (
       <>
@@ -157,7 +157,7 @@ const POSTS: PostDef[] = [
           <Tx hash="0x85234a5dc158c402adfd384be8800969d570357611a1b59f3326098affc18fc4" label="the transaction" />.
         </p>
         <p>
-          This is the evidence layer Covenant is built on: a registry where an obligation moves only
+          This is the evidence layer Dokett is built on: a registry where an obligation moves only
           when a foreign-chain event is proven, never because someone said so.
         </p>
       </>
@@ -170,7 +170,7 @@ function ByLine({ date }: { date: string }) {
     <div className="post-byline">
       <span>{date}</span>
       <span className="post-byline-sep">·</span>
-      <span>Covenant</span>
+      <span>Dokett</span>
     </div>
   );
 }

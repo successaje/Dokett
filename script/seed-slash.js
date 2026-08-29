@@ -6,7 +6,7 @@
  *
  * ─── WHY THIS EXISTS ───────────────────────────────────────────────────────
  *
- * Covenant's whole market thesis is that underwriting a named borrower is a
+ * Dokett's whole market thesis is that underwriting a named borrower is a
  * priced, adversarially-tested opinion — because when that borrower defaults,
  * the underwriter's capital is slashed automatically, by evidence, with no
  * committee and no vote.

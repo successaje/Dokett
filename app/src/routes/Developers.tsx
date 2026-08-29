@@ -117,7 +117,7 @@ export default function Developers() {
         <div className="eyebrow">Build on the record</div>
         <h1 className="page-title">Developers</h1>
         <p className="page-lede">
-          Covenant has no private API. Everything the Console renders comes from the same free,
+          Dokett has no private API. Everything the Console renders comes from the same free,
           public read layer documented here — a venue, an underwriter, or a curious stranger can
           query the exact same facts.
         </p>
@@ -183,7 +183,7 @@ export default function Developers() {
           <DocSection
             id="write-path"
             title="Write path"
-            aside="Covenant is a protocol, not a viewer over one. Every state-changing call below is deployed and callable on CC3 today — including obligation creation. Where the Console has no form for one yet, that is a gap in this interface, not in the protocol, and it is named rather than hidden."
+            aside="Dokett is a protocol, not a viewer over one. Every state-changing call below is deployed and callable on CC3 today — including obligation creation. Where the Console has no form for one yet, that is a gap in this interface, not in the protocol, and it is named rather than hidden."
           >
             <WriteCall
               contract="Register"
@@ -268,7 +268,7 @@ export default function Developers() {
             <DocLink
               href="#/developers/asc-integration"
               title="ASC integration"
-              desc="Exactly how Covenant uses Attestcoin Smart Contracts — measured gas costs, batching, the liveness gate, and the guarded path around BlockProver."
+              desc="Exactly how Dokett uses Attestcoin Smart Contracts — measured gas costs, batching, the liveness gate, and the guarded path around BlockProver."
             />
             <DocLink
               href="#/developers/use-cases"
@@ -280,7 +280,7 @@ export default function Developers() {
           <DocSection id="run-it" title="Run it yourself">
             <div className="table-wrap">
               <pre className="mono doc-example" style={{ fontSize: 12.5, lineHeight: 1.7 }}>
-{`git clone ${REPO} && cd covenant
+{`git clone ${REPO} && cd dokett
 npm install
 npm test            # 66 contract tests + 7 lens projection tests
 npm run demo        # seeded Lens + Console on :5173 — no chain required`}

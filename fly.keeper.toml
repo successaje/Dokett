@@ -1,4 +1,4 @@
-# Covenant keeper — poke / prove / sweep, on independent timers.
+# Dokett keeper — poke / prove / sweep, on independent timers.
 #
 # No [http_service]: the keeper serves nothing and accepts no inbound traffic,
 # so there is nothing to health-check over HTTP. Fly still restarts the machine

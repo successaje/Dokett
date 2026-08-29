@@ -19,7 +19,7 @@ figures without re-verifying against the source (`npm run prove:one <tx>`).
 >
 > tx: 0x85234a5dc158c402adfd384be8800969d570357611a1b59f3326098affc18fc4
 >
-> This is the evidence layer we're building [Covenant] on top of — a registry
+> This is the evidence layer we're building [Dokett] on top of — a registry
 > where an obligation moves only when a foreign-chain event is proven, never
 > because someone said so.
 >

@@ -5,7 +5,7 @@ import { STATUS_MEANING, height, truncate } from '../lib/format';
 /* ──────────────────────────────── mark ──────────────────────────────── */
 
 /**
- * The Covenant mark: an open C held by a vertical rule.
+ * The Dokett mark: an open C held by a vertical rule.
  *
  * The promise stays open; the rule is what holds it — which is the protocol.
  * An obligation is not made binding by a seal, it is held by the record.

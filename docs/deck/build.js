@@ -59,7 +59,7 @@ function pageNum(s, n, dark = false) {
     align: 'right',
     margin: 0,
   });
-  s.addText('COVENANT', {
+  s.addText('DOKETT', {
     x: MARGIN,
     y: H - 0.55,
     w: 3,
@@ -107,7 +107,7 @@ async function main() {
       color: PAPER,
       margin: 0,
     });
-    s.addText('COVENANT', {
+    s.addText('DOKETT', {
       x: MARGIN,
       y: 2.5,
       w: 11,
@@ -320,7 +320,7 @@ async function main() {
       color: INK4,
       margin: 0,
     });
-    s.addText('Covenant proves that nothing did.', {
+    s.addText('Dokett proves that nothing did.', {
       x: MARGIN,
       y: 2.45,
       w: 10.5,
@@ -339,7 +339,7 @@ async function main() {
     );
 
     s.addText(
-      '"You cannot prove a negative with an inclusion proof. Covenant does not claim to. It proves an on-chain fact about Creditcoin state — no admissible proof of payment for this window was presented before the attested head passed the deadline — which is economically equivalent to non-payment, because submission is permissionless, costs a fraction of a cent, and the borrower is the party most motivated to submit it. If it is ever wrong, the proof still cures it, however late it arrives."',
+      '"You cannot prove a negative with an inclusion proof. Dokett does not claim to. It proves an on-chain fact about Creditcoin state — no admissible proof of payment for this window was presented before the attested head passed the deadline — which is economically equivalent to non-payment, because submission is permissionless, costs a fraction of a cent, and the borrower is the party most motivated to submit it. If it is ever wrong, the proof still cures it, however late it arrives."',
       {
         x: MARGIN,
         y: 4.75,
@@ -616,8 +616,8 @@ async function main() {
     pageNum(s, 12, true);
   }
 
-  await p.writeFile({ fileName: 'covenant-deck.pptx' });
-  console.log('wrote covenant-deck.pptx');
+  await p.writeFile({ fileName: 'dokett-deck.pptx' });
+  console.log('wrote dokett-deck.pptx');
 }
 
 main();

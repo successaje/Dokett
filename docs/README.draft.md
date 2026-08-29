@@ -4,7 +4,7 @@
   Written 29 Jul 2026 as a template. Prose is final; facts get filled in during the build.
 -->
 
-# Covenant
+# Dokett
 
 **The obligation layer for the open economy.**
 A registry where a promise to pay is a first-class on-chain object, and its state advances only on cryptographically verified evidence — never on anyone's word.
@@ -48,7 +48,7 @@ For the first time, the performance of a loan is something a contract can *check
 
 ---
 
-## What Covenant is
+## What Dokett is
 
 **A Liability Object** — a promise to pay, on-chain:
 
@@ -59,9 +59,9 @@ status: Active → Current → Delinquent → Default → Settled
 
 Status advances **only** when an ASC proof of the corresponding Ethereum event is verified by the `BlockProver` precompile, or when a deadline measured in Creditcoin block time expires. No party can assert a transition.
 
-**The inversion.** Every other ASC project proves that something *happened*. Covenant's `SilenceAdapter` handles the case where nothing did: an obligation **degrades unless proof of payment arrives**. No reporter, no committee, no oracle operator. Default is the default.
+**The inversion.** Every other ASC project proves that something *happened*. Dokett's `SilenceAdapter` handles the case where nothing did: an obligation **degrades unless proof of payment arrives**. No reporter, no committee, no oracle operator. Default is the default.
 
-To be precise about what that means, because it matters: *you cannot prove a negative with an inclusion proof.* Covenant does **not** claim to prove that no payment occurred on Ethereum. It proves an on-chain fact about Creditcoin state —
+To be precise about what that means, because it matters: *you cannot prove a negative with an inclusion proof.* Dokett does **not** claim to prove that no payment occurred on Ethereum. It proves an on-chain fact about Creditcoin state —
 
 > no admissible proof of payment for this window was presented before it closed
 
@@ -119,7 +119,7 @@ Design specification: [`docs/ARCHITECTURE.md`](./ARCHITECTURE.md) · Threat mode
 ## Quickstart
 
 ```bash
-git clone <!-- FILL --> && cd covenant
+git clone <!-- FILL --> && cd dokett
 cp .env.example .env          # RPCs, proof builder URL, deployer key
 pnpm install
 forge test                    # unit + fork + invariant
@@ -146,7 +146,7 @@ pnpm demo:history  # verify a 2-year-old mainnet tx and print the gas
 
 Stated plainly, because a reviewer should not have to discover them.
 
-Covenant inherits the trust model of the ASC attestor set. As of July 2026 that set is **permissioned** (`AuthorizedOnly` election mode), with a mainnet minimum bond of **0 CTC** and no publicly documented slashing regime. Covenant is therefore, today, a system with a curated federation at its evidence root — materially stronger than a multisig bridge, materially weaker than a ZK light client.
+Dokett inherits the trust model of the ASC attestor set. As of July 2026 that set is **permissioned** (`AuthorizedOnly` election mode), with a mainnet minimum bond of **0 CTC** and no publicly documented slashing regime. Dokett is therefore, today, a system with a curated federation at its evidence root — materially stronger than a multisig bridge, materially weaker than a ZK light client.
 
 We treat this as the protocol's most important external dependency and design around it: per-obligation exposure caps, and an `AscVerify` abstraction that allows a second evidence backend (ZK storage proofs, an alternate messaging layer) to be swapped in without touching `Register`.
 
@@ -159,7 +159,7 @@ Honest, and deliberately not buried:
 - **Privacy is v1.** Identity is a commitment (≥128-bit salt, client-side, never reused), but `sourcePayer`, `sourcePayee` and all amounts are **public by construction**. The roadmap answer is a source-chain payment router giving each obligation an ephemeral payer address, plus ZK selective disclosure over the schedule tree. Do not put real people's data in this registry today.
 - **One source chain.** Ethereum mainnet only, because that is what ASC attests today.
 - **Registry spam is priced, not adjudicated.** Anyone can register an obligation against any address; registrar bonds and Lens weighting make it expensive, and `dispute()` quarantines contested claims, but v1 does not adjudicate bad-faith registration.
-- **Wash underwriting is priced, not prevented.** Fabricating a repayment history costs its face value in real on-chain transfers — unlike a self-reported score — but Covenant does not solve identity. It makes identity someone's *priced* problem.
+- **Wash underwriting is priced, not prevented.** Fabricating a repayment history costs its face value in real on-chain transfers — unlike a self-reported score — but Dokett does not solve identity. It makes identity someone's *priced* problem.
 - **False-default residual.** A borrower who paid but whose proof nobody submits within window + buffer + cure is wrongly defaulted. Mitigated by permissionless submission, near-zero cost, a 7-day cure, borrower self-service in the UI, and keeper incentives. This residual is the honest price of having no trusted reporter.
 - **On-chain registration is not legal lien perfection** in any jurisdiction.
 - **Testnet, synthetic data.** No real borrower information appears anywhere in this repository.

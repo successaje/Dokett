@@ -33,7 +33,7 @@ then re-run the deck check:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" \
-  https://raw.githubusercontent.com/successaje/covenant/main/docs/COVENANT-DECK.pdf   # want 200
+  https://raw.githubusercontent.com/successaje/covenant/main/docs/DOKETT-DECK.pdf   # want 200
 ```
 
 ---
@@ -41,7 +41,7 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 ## Project name
 
 ```
-Covenant
+Dokett
 ```
 
 ## One-liner / tagline
@@ -63,7 +63,7 @@ A registry where a promise to pay is a first-class on-chain object, and its stat
 ## Project description
 
 ```
-Covenant is a registry where a promise to pay is a first-class on-chain object, and
+Dokett is a registry where a promise to pay is a first-class on-chain object, and
 its status only ever changes on proof — never on anyone's word.
 
 THE PROBLEM. A lender about to extend credit asks the oldest question in finance:
@@ -89,7 +89,7 @@ doing continuously — we measured this rather than assuming it: proving a two-y
 Ethereum fact costs 26% more than a twenty-minute-old one. Not per year; in total,
 across 51,529x the age. Remove any one condition and this does not work.
 
-THE INVERSION. Every other ASC project proves that something happened. Covenant's
+THE INVERSION. Every other ASC project proves that something happened. Dokett's
 SilenceAdapter acts on what didn't: an obligation degrades to delinquent, then
 default, purely because no admissible proof of payment arrived before an attested
 deadline. No reporter, no committee, no oracle operator. We demonstrated this live —
@@ -128,7 +128,7 @@ Testnet with synthetic data. No real borrower information appears anywhere.
 sentences.**
 
 ```
-Covenant uses Attestcoin Smart Contracts as its only source of truth about the
+Dokett uses Attestcoin Smart Contracts as its only source of truth about the
 outside world. Every status transition in the registry is caused by an ASC proof or
 by a comparison against an attested source-chain height. Nothing else can move a
 status, including us.
@@ -152,7 +152,7 @@ payment as proof of payment. AscVerify.sol asserts receipt status == 0x1 before 
 log is touched. It also replay-guards every proof on (chainKey, height, txIndex,
 logIndex), enforces confirmation depth against the attested head rather than
 assuming it, and resolves chainkeys from ChainInfo. It is published standalone under
-MIT for any ASC integrator, because these are not Covenant-specific problems.
+MIT for any ASC integrator, because these are not Dokett-specific problems.
 
 THE INVERSION. PaymentAdapter proves presence: a qualifying ERC-20 Transfer inside
 the open window advances the obligation. SilenceAdapter inverts the primitive to
@@ -221,7 +221,7 @@ this chain at all.
 Live Console      https://covenant-console.vercel.app
 Read API          https://covenant-lens.fly.dev
 Source            https://github.com/successaje/covenant
-Deck (PDF)        https://raw.githubusercontent.com/successaje/covenant/main/docs/COVENANT-DECK.pdf
+Deck (PDF)        https://raw.githubusercontent.com/successaje/covenant/main/docs/DOKETT-DECK.pdf
 Developer docs    https://covenant-console.vercel.app/#/developers
 Research          https://covenant-console.vercel.app/#/posts
 Demo video        [fill in]

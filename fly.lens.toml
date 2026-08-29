@@ -1,9 +1,9 @@
-# Covenant Lens — the read-only projection API.
+# Dokett Lens — the read-only projection API.
 #
 # This is what the Console's /api proxy and any judge's `curl` hit directly.
 # Needs to answer requests, so it gets Fly's HTTP service block; the keeper app
 # (fly.keeper.toml) deliberately does not.
-app = "covenant-lens"
+app = "dokett-lens"
 primary_region = "iad"
 
 [build]

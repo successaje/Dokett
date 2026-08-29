@@ -1,4 +1,4 @@
-# Covenant — End to End
+# Dokett — End to End
 
 **What the system does, who it is for, and what is actually load-bearing today.**
 

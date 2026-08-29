@@ -1,6 +1,6 @@
 # ASC Integration
 
-**Covenant · BUIDL CTC 2026 Fall**
+**Dokett · BUIDL CTC 2026 Fall**
 
 > Every number in this document was measured against live CC3 testnet and real
 > Ethereum mainnet transactions, across four proofs spanning twenty minutes to
@@ -12,7 +12,7 @@
 
 ## 0. Three minutes
 
-Covenant uses ASCs as its **only** source of truth about the outside world. No
+Dokett uses ASCs as its **only** source of truth about the outside world. No
 party can assert that a loan was repaid or defaulted; exactly two things move an
 obligation's state — an ASC-verified Ethereum event, or a comparison against the
 attested source-chain height.
@@ -341,7 +341,7 @@ Measured against a live head to confirm the check fires on real data.
 
 ### 4.4 Published standalone
 
-Released MIT, independent of Covenant, so any ASC project can inherit the
+Released MIT, independent of Dokett, so any ASC project can inherit the
 guards.
 
 ---

@@ -12,7 +12,7 @@ import {SilenceAdapter, IBond} from "../src/adapters/SilenceAdapter.sol";
 
 /**
  * @title Deploy
- * @notice Deploys the Covenant stack and wires it in one transaction bundle.
+ * @notice Deploys the Dokett stack and wires it in one transaction bundle.
  *
  * @dev Ordering is forced by two circular-ish dependencies, and getting either
  *      wrong produces a system that looks deployed but is permanently inert:
@@ -186,7 +186,7 @@ contract Deploy is Script {
     }
 
     function _write(Deployment memory d, Config memory cfg) internal {
-        string memory k = "covenant";
+        string memory k = "dokett";
         vm.serializeAddress(k, "ascVerifier", address(d.verifier));
         vm.serializeAddress(k, "register", address(d.register));
         vm.serializeAddress(k, "bond", address(d.bond));

@@ -72,7 +72,7 @@ contract MockBlockProver is INativeQueryVerifier {
 
 /**
  * @notice Stand-in for the ChainInfo precompile at 0x…0FD3.
- * @dev Only the pieces Covenant relies on carry behaviour; the rest satisfy the
+ * @dev Only the pieces Dokett relies on carry behaviour; the rest satisfy the
  *      interface so any signature drift is caught at compile time.
  */
 contract MockChainInfo is IChainInfo {
@@ -114,7 +114,7 @@ contract MockChainInfo is IChainInfo {
         return known[chainKey] && targetHeight <= head[chainKey];
     }
 
-    /* ── interface completeness: unused by Covenant ── */
+    /* ── interface completeness: unused by Dokett ── */
 
     function get_latest_checkpoint_height_and_hash(uint64) external pure returns (HeightHashResult memory r) {}
     function find_highest_attested_before(uint64, uint64) external pure returns (HeightHashResult memory r) {}

@@ -12,7 +12,7 @@ const erc20 = new ethers.Interface(ERC20);
 const TRANSFER_TOPIC = erc20.getEvent('Transfer').topicHash;
 
 /**
- * The Covenant keeper.
+ * The Dokett keeper.
  *
  * Permissionless by design — anyone can run one, and the demo runs two against
  * different proof builders. It does three independent jobs, and the fact that

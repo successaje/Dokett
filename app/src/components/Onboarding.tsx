@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
  * reader, in the order they will hit them.
  */
 
-const KEY = 'covenant.onboarded.v1';
+const KEY = 'dokett.onboarded.v1';
 
 const POINTS: [string, string][] = [
   [

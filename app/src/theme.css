@@ -1,9 +1,9 @@
 /*
- * Covenant Console — design system.
+ * Dokett Console — design system.
  *
  * ─── THE THESIS ────────────────────────────────────────────────────────────
  *
- * Covenant is not a yield product, so it must not look like one. Maple,
+ * Dokett is not a yield product, so it must not look like one. Maple,
  * Goldfinch and every other lending front-end are storefronts for depositors:
  * brand accent everywhere, rounded cards, APY as the hero number. They are
  * selling something, and they look like it.
@@ -1077,7 +1077,7 @@ table.data td.num {
 /* ───────────────────────── height ruler ────────────────────────────── */
 
 /*
- * Covenant's clock is attested source-chain height, not wall time. Rendering
+ * Dokett's clock is attested source-chain height, not wall time. Rendering
  * that as a physical scale — window close, cure expiry, and the live head as a
  * travelling marker — is the only chart in this app, because it is the one
  * thing users must reason about spatially: how much room is left before a
@@ -2488,5 +2488,121 @@ table.data tbody tr,
   .uw-field input,
   .uw-form .btn {
     width: 100%;
+  }
+}
+
+/* ── landing: lighter front door ──────────────────────────────────────
+ *
+ * Added when the landing page was cut back from a full argument to a front
+ * door. The removed sections were not wrong, they were in the wrong place —
+ * a visitor could understand the architecture without ever opening the
+ * product. These carry the shorter version.
+ */
+
+/* A second lede line that sits tight under the first, for the three-beat
+   "No reporter. No committee. No oracle." */
+.lp-lede-tight {
+  margin-top: -6px;
+  color: var(--ink-3);
+}
+
+/* The unanswered question — set as speech, not as a heading. */
+.lp-quiet {
+  font-family: var(--serif);
+  font-size: clamp(20px, 3.2vw, 27px);
+  color: var(--ink-3);
+  font-style: italic;
+  margin: 6px 0 18px;
+}
+
+/* Register → Prove → Degrade → Settle */
+.lp-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 22px 0 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lp-flow-step {
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.lp-flow-arrow {
+  color: var(--ink-4);
+  padding-left: 10px;
+}
+
+/* The one measured figure the front page carries. */
+.lp-measure {
+  font-size: 14px;
+  color: var(--st-current);
+  margin: 18px 0;
+  overflow-wrap: anywhere;
+}
+
+/* Who asks what — a ruled list of questions, not cards. */
+.lp-asks {
+  margin-top: 26px;
+  border-top: 1px solid var(--ink);
+}
+
+.lp-ask {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  align-items: baseline;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lp-ask-who {
+  font-size: 10.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  flex: 0 0 190px;
+}
+
+.lp-ask-q {
+  font-family: var(--serif);
+  font-size: clamp(16px, 2.4vw, 20px);
+  color: var(--ink);
+}
+
+/* What is actually shipped. Ticks are content, so they are real text. */
+.lp-checks {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 9px 28px;
+}
+
+.lp-checks li {
+  font-size: 14px;
+  color: var(--ink-2);
+  padding-left: 22px;
+  position: relative;
+}
+
+.lp-checks li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--st-current);
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .lp-ask-who {
+    flex-basis: 100%;
   }
 }
