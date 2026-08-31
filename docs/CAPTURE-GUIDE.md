@@ -140,6 +140,22 @@ Cursor rests on the **LOSS RATE** figure.
 Then slowly scroll to the **Positions** table so the individual bonds — including
 the slashed one — are visible as the sentence lands.
 
+**Optional, ~5s — the beat that turns a number into a market.** While still on
+*"recomputed from chain events, editable by nobody"*, paste a second underwriter
+into the lookup:
+
+```
+0xC282Cb7cE6c175582B84BF94C61258Bb5cDCA88e
+```
+
+A different book appears: three bonds, **0.00%** loss rate. Same page, same
+derivation, different address — which is the whole point of the sentence you are
+saying. A rating agency assigns; this is computed per address from what actually
+happened.
+
+There is no all-underwriters index, so this needs the second lookup rather than
+one screen. Costs about five seconds, against fifteen of headroom.
+
 ---
 
 ## D · The query that doesn't exist · 2:23 → 2:47

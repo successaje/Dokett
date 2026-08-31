@@ -28,7 +28,8 @@ Verify these are still live the morning you record:
 ```bash
 curl -s https://dokett-lens.fly.dev/obligation/2 | grep periodsSatisfied   # → 1
 curl -s https://dokett-lens.fly.dev/obligation/5 | grep '"status"'         # → Default
-curl -s https://dokett-lens.fly.dev/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87 | grep bondsWritten  # → 2
+curl -s https://dokett-lens.fly.dev/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87 | grep lossRateBps    # → 769
+curl -s https://dokett-lens.fly.dev/underwriter/0xC282Cb7cE6c175582B84BF94C61258Bb5cDCA88e | grep lossRateBps    # → 0
 curl -s https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f | grep -c '"id"'  # → 2
 curl -s https://dokett-relay.fly.dev/health                                # → ok:true, balance > 1 CTC
 curl -s https://dokett-lens.fly.dev/obligation/10 | grep '"status"'        # → Delinquent (only if filming Cut B)

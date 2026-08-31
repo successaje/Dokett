@@ -112,6 +112,13 @@ Dokett."
 > Not a score anyone assigned — slashed over posted, recomputed from chain
 > events, editable by nobody.
 
+> **Optional screen beat, no extra words (~5s).** While saying that last
+> sentence, look up a second underwriter — `0xC282Cb7c…` — and let a different
+> book appear: three bonds, 0.00% loss rate. Same page, same derivation,
+> different address. It shows what the sentence claims instead of asserting it.
+> Costs ~5s, and there are 15 to spare. Screen direction is in
+> CAPTURE-GUIDE.md.
+
 ## D · The query that doesn't exist — `#/encumbrance` · 0:24
 
 Paste: `0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f`
@@ -142,13 +149,17 @@ Word-counted at 150 wpm, beats included.
 | | Runs | Cumulative |
 |---|---|---|
 | Part One · animated | 1:00 | 1:00 |
-| Part Two · screen | 1:53 | **2:53** |
+| Part Two · screen | 1:45 | **2:45** |
 
-**7 seconds of headroom against the 3:00 ceiling.**
+**15 seconds of headroom against the 3:00 ceiling.**
 
-Read at a slower 135 wpm this becomes **3:12** — over. So if you naturally read
-slowly, take the cuts below *before* recording rather than discovering it in the
-edit.
+An earlier revision of this file claimed 2:53. That count mistakenly included
+the continuation lines of the ⚠️ notes as if they were narration; only their
+first lines were being skipped. Recounted per block, narration alone is 2:45.
+
+Read at a slower 135 wpm it becomes **3:04** — just over. If you read
+deliberately, take the first cut below before recording rather than finding out
+in the edit.
 
 If a take still runs long, cut in this order:
 
