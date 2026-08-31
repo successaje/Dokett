@@ -1,0 +1,20 @@
+{
+  "underwriter": "0xC282Cb7cE6c175582B84BF94C61258Bb5cDCA88e",
+  "bonds": [
+    {
+      "obligationId": "1",
+      "bondId": "5",
+      "tx": "0x30fbb589dd77afbee33c9b4870bb9dfb97041f06c1a2d02cfdfe606b683a2375"
+    },
+    {
+      "obligationId": "4",
+      "bondId": "6",
+      "tx": "0xc827d5ca664d39a89cc89863e1a0b6f856d4f44b152b7c772b9301b8181b657c"
+    },
+    {
+      "obligationId": "12",
+      "bondId": "7",
+      "tx": "0x783645bafef0b6d159d016b5f9c41f73a81ff295d2cc411e222eaf5e5641f1b0"
+    }
+  ]
+}
