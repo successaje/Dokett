@@ -218,12 +218,12 @@ this chain at all.
 ## Links
 
 ```
-Live Console      https://covenant-console.vercel.app
+Live Console      https://dokett-console.vercel.app
 Read API          https://dokett-lens.fly.dev
 Source            https://github.com/successaje/Dokett
 Deck (PDF)        https://raw.githubusercontent.com/successaje/Dokett/main/docs/DOKETT-DECK.pdf
-Developer docs    https://covenant-console.vercel.app/#/developers
-Research          https://covenant-console.vercel.app/#/posts
+Developer docs    https://dokett-console.vercel.app/#/developers
+Research          https://dokett-console.vercel.app/#/posts
 Demo video        [fill in]
 ```
 

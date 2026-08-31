@@ -280,7 +280,7 @@ curl -s https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31
 **Final card. Hold 3 seconds:**
 
 ```
-covenant-console.vercel.app
+dokett-console.vercel.app
 github.com/successaje/Dokett
 ```
 

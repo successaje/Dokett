@@ -38,7 +38,7 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC = join(HERE, '..', 'public');
-const ORIGIN = 'https://covenant-console.vercel.app';
+const ORIGIN = 'https://dokett-console.vercel.app';
 
 const INK = '#131418';
 const CREAM = '#faf9f6';
@@ -155,7 +155,7 @@ function card({ eyebrow, title, stat }) {
       ? `<text x="86" y="556" font-family="'Courier New', monospace" font-size="26" fill="${GOOD}">${esc(stat)}</text>`
       : ''
   }
-  <text x="1114" y="556" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="17" letter-spacing="1.4" fill="${MUTED}">covenant-console.vercel.app</text>
+  <text x="1114" y="556" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="17" letter-spacing="1.4" fill="${MUTED}">dokett-console.vercel.app</text>
 </svg>`;
 }
 

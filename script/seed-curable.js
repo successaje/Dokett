@@ -227,7 +227,7 @@ async function main() {
   console.log(' cursor, so only an explicit cure can restore it.');
   console.log('');
   console.log(` watch: curl -s https://dokett-lens.fly.dev/obligation/${id}`);
-  console.log(` cure:  https://covenant-console.vercel.app/#/obligation/${id}`);
+  console.log(` cure:  https://dokett-console.vercel.app/#/obligation/${id}`);
   console.log('──────────────────────────────────────────────────────────\n');
   console.log('wrote deployments/seed-curable-102031.json');
 }

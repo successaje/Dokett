@@ -149,7 +149,7 @@ Any protocol, on a repayment
   Dokett verifies it and advances the obligation → CURRENT
 ```
 
-Every endpoint above is **live, free, unauthenticated, and already serving the Console** — see [Developers](https://covenant-console.vercel.app/#/developers). There is no private API and no privileged tier: the Lens is a pure projection over chain events, so anyone can recompute every figure it reports from the chain itself. That property is deliberate. A registry that asks you to trust its own reporting has already failed at the one job it exists to do.
+Every endpoint above is **live, free, unauthenticated, and already serving the Console** — see [Developers](https://dokett-console.vercel.app/#/developers). There is no private API and no privileged tier: the Lens is a pure projection over chain events, so anyone can recompute every figure it reports from the chain itself. That property is deliberate. A registry that asks you to trust its own reporting has already failed at the one job it exists to do.
 
 The eventual users are not people browsing a site. They are lenders, RWA issuers, fintechs, asset managers, underwriters, and other credit protocols — each asking a question they currently have no way to ask.
 

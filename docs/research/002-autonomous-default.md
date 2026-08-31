@@ -87,7 +87,7 @@ back" doesn't get to make that mistake quietly.
 curl -s https://dokett-lens.fly.dev/obligation/5
 ```
 
-Or watch it live in the [Console](https://covenant-console.vercel.app/#/obligation/5) —
+Or watch it live in the [Console](https://dokett-console.vercel.app/#/obligation/5) —
 every transition links to its transaction, and the lifecycle rail shows exactly
 which step you're looking at.
 

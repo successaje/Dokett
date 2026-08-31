@@ -25,11 +25,11 @@ on camera:
 
 ```
 1  terminal (in the repo)
-2  https://covenant-console.vercel.app/#/obligation/2
-3  https://covenant-console.vercel.app/#/obligation/5
-4  https://covenant-console.vercel.app/#/obligation/11
-5  https://covenant-console.vercel.app/#/encumbrance
-6  https://covenant-console.vercel.app/#/developers
+2  https://dokett-console.vercel.app/#/obligation/2
+3  https://dokett-console.vercel.app/#/obligation/5
+4  https://dokett-console.vercel.app/#/obligation/11
+5  https://dokett-console.vercel.app/#/encumbrance
+6  https://dokett-console.vercel.app/#/developers
 ```
 
 ### Preflight — run this the morning you record
@@ -176,7 +176,7 @@ Scroll slowly through the endpoint list — `/solvency`, `/encumbrance`,
 **Final frame:** cut to a held card — Dokett wordmark, then:
 
 ```
-covenant-console.vercel.app
+dokett-console.vercel.app
 github.com/successaje/Dokett
 ```
 
