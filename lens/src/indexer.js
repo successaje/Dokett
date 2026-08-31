@@ -34,6 +34,8 @@ class Index {
     this.fromBlock = Number(addresses.deployBlock || 0);
     /** Log range per request. Large enough to be quick, small enough to return. */
     this.chunk = Number(addresses.chunk || 50_000);
+    /** First block not yet scanned for bond events. Null until the first pass. */
+    this.bondCursor = null;
     this.register = new ethers.Contract(addresses.register, REGISTER, provider);
     this.bond = addresses.bond ? new ethers.Contract(addresses.bond, BOND, provider) : null;
 
@@ -87,6 +89,7 @@ class Index {
     }
 
     await this.syncBonds(head);
+    this.bondCursor = head + 1;
     this.lastBlock = head;
     return { head, obligations: this.obligations.size, bonds: this.bonds.size };
   }
@@ -108,9 +111,9 @@ class Index {
    * advance and change with log density; the only reliable way to find the
    * ceiling is to walk into it and back off.
    */
-  async _logs(filter, head) {
+  async _logs(filter, head, fromBlock = this.fromBlock) {
     const out = [];
-    let from = this.fromBlock;
+    let from = fromBlock;
 
     while (from <= head) {
       let span = Math.min(this.chunk, head - from + 1);
@@ -133,12 +136,33 @@ class Index {
     return out;
   }
 
+  /**
+   * Bond events, scanned forward rather than from scratch.
+   *
+   * This used to re-walk the entire chain from `deployBlock` on EVERY poll.
+   * That was survivable while there were a few thousand blocks of history and
+   * the whole span fitted in one request. Once the span grew — and especially
+   * once each span had to be split into many smaller requests to stay inside
+   * the node's query budget — a single sync took minutes, polls began
+   * overlapping, and the projection fell hours behind the chain while still
+   * reporting itself healthy.
+   *
+   * Bonds accumulate into `this.bonds` and are keyed by id, so replaying old
+   * events buys nothing: the state they produce is already there. Only blocks
+   * newer than the last successful pass can change anything.
+   *
+   * `bondCursor` advances only after a pass completes. A throw leaves it where
+   * it was, so a failed sync is retried rather than silently skipped.
+   */
   async syncBonds(head) {
     if (!this.bond) return;
 
-    const posted = await this._logs(this.bond.filters.BondPosted(), head);
-    const slashed = await this._logs(this.bond.filters.BondSlashed(), head);
-    const released = await this._logs(this.bond.filters.BondReleased(), head);
+    const from = this.bondCursor ?? this.fromBlock;
+    if (from > head) return;
+
+    const posted = await this._logs(this.bond.filters.BondPosted(), head, from);
+    const slashed = await this._logs(this.bond.filters.BondSlashed(), head, from);
+    const released = await this._logs(this.bond.filters.BondReleased(), head, from);
 
     for (const e of posted) {
       this.bonds.set(e.args.bondId.toString(), {

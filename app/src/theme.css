@@ -2606,3 +2606,103 @@ table.data tbody tr,
     flex-basis: 100%;
   }
 }
+
+/* ── register form ────────────────────────────────────────────────────
+ *
+ * Sixteen contract fields reduced to seven inputs plus a derived panel.
+ * Grouped as fieldsets rather than one long column, because the three
+ * groups answer genuinely different questions — who, what counts as
+ * payment, and on what terms — and a flat list makes them look
+ * interchangeable.
+ */
+.reg { margin-top: 26px; max-width: 860px; }
+
+.reg-group {
+  border: 0;
+  border-top: 1px solid var(--ink);
+  padding: 0 0 26px;
+  margin: 0 0 22px;
+}
+
+.reg-group legend {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  padding: 14px 0 4px;
+}
+
+.reg-group[disabled] { opacity: 0.55; }
+
+.reg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.reg-field > span {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.reg-field input {
+  padding: 9px 11px;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  min-height: 40px;
+  width: 100%;
+}
+
+.reg-field input:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+.reg-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0 18px;
+}
+
+.reg-field-wide { grid-column: 1 / -1; }
+
+/* The derived values, shown in the contract's own units so the arithmetic
+   can be checked rather than trusted. */
+.reg-derived {
+  border-top: 1px solid var(--ink);
+  padding-top: 16px;
+  margin-bottom: 22px;
+}
+
+/* The salt is the one irreversible thing on this page, so it is set apart
+   rather than sitting in the flow like another field. */
+.reg-salt {
+  border: 1px solid var(--st-delinquent);
+  background: var(--st-delinquent-bg);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  margin-bottom: 22px;
+}
+
+.reg-salt .eyebrow { color: var(--st-delinquent); }
+
+.reg-salt-value {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.reg-problems {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--st-delinquent);
+}
+
+.reg-problems li { padding: 3px 0 3px 18px; position: relative; }
+.reg-problems li::before { content: "!"; position: absolute; left: 0; font-weight: 700; }

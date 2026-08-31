@@ -10,6 +10,7 @@ import Obligation from './routes/Obligation';
 import Underwriter from './routes/Underwriter';
 import Profile from './routes/Profile';
 import Developers from './routes/Developers';
+import RegisterObligation from './routes/RegisterObligation';
 import Doc from './routes/Doc';
 import { PostsIndex, PostDetail } from './routes/Posts';
 import Onboarding from './components/Onboarding';
@@ -129,6 +130,7 @@ const NAV_RECORD = [
   ['/solvency', 'Solvency'],
   ['/encumbrance', 'Encumbrance'],
   ['/underwriter', 'Underwriters'],
+  ['/register', 'Register'],
 ] as const;
 
 const NAV_MORE = [
@@ -163,6 +165,8 @@ function View({ route }: { route: string }) {
       return <Underwriter />;
     case '/registry':
       return <Registry />;
+    case '/register':
+      return <RegisterObligation />;
     case '/developers':
       return <Developers />;
     case '/posts':
