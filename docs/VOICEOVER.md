@@ -56,7 +56,7 @@ Dokett."
 
 # PART TWO — SCREEN CAPTURE · 1:53
 
-## A · Evidence — `prove:one`, then `#/obligation/2` · 0:22
+## A · Evidence — `prove:fresh`, then `#/obligation/2` · 0:22
 
 > A real Ethereum mainnet transaction. I'm asking a Creditcoin contract to prove
 > it happened. //
@@ -66,8 +66,14 @@ Dokett."
 > That's the **only** thing that moves an obligation here. This one is
 > Current because a payment was **proven**.
 
+> ⚠️ Run **`npm run prove:fresh`**, never a hash copied from these docs. Every
+> proof can be consumed only once, so any hash written down is already spent and
+> will revert on camera. `prove:fresh` finds an unproven transaction and proves
+> that.
+>
 > ⚠️ Read the gas figure off the screen. Do not memorise one — it rises as the
 > proven transaction ages, because the continuity proof walks further back.
+> Today's fresh run measured **409,962 gas · 0.000204981 CTC**.
 
 ## B · The inversion — `#/obligation/5` · 0:38
 

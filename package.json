@@ -31,7 +31,8 @@
     "seed:curable": "node --env-file-if-exists=.env script/seed-curable.js",
     "seed:quick-default": "node --env-file-if-exists=.env script/seed-quick-default.js",
     "seed:bond": "node --env-file-if-exists=.env script/seed-bond.js",
-    "seed:slash": "node --env-file-if-exists=.env script/seed-slash.js"
+    "seed:slash": "node --env-file-if-exists=.env script/seed-slash.js",
+    "prove:fresh": "node --env-file-if-exists=.env demo/prove-fresh.js"
   },
   "keywords": [],
   "author": "",

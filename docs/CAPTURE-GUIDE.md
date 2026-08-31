@@ -54,8 +54,15 @@ today's gas figure, then run it again on camera.
 **Screen 1 — terminal.** Type and run:
 
 ```bash
-npm run prove:one 0x85234a5dc158c402adfd384be8800969d570357611a1b59f3326098affc18fc4
+npm run prove:fresh
 ```
+
+> ⚠️ **Never reuse a transaction hash from these docs.** Every proof is
+> replay-guarded on `(chainKey, height, txIndex, logIndex)` and can be consumed
+> exactly once — correct behaviour, since otherwise one real payment could
+> satisfy unlimited obligations. A hash written down anywhere is therefore
+> already spent, and reusing it reverts with an opaque custom error. Run
+> `npm run prove:fresh`, which finds an unproven transaction and proves that.
 
 > *"A real Ethereum mainnet transaction. I'm asking a Creditcoin contract to prove it happened."*
 

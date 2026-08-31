@@ -40,8 +40,15 @@ proof-builder API, and the attestation head all being healthy at once. Confirm i
 succeeds, note the gas figure it returns *today*, then run it again on camera.
 
 ```bash
-npm run prove:one 0x85234a5dc158c402adfd384be8800969d570357611a1b59f3326098affc18fc4
+npm run prove:fresh
 ```
+
+> ⚠️ **Never reuse a transaction hash from these docs.** Every proof is
+> replay-guarded on `(chainKey, height, txIndex, logIndex)` and can be consumed
+> exactly once — correct behaviour, since otherwise one real payment could
+> satisfy unlimited obligations. A hash written down anywhere is therefore
+> already spent, and reusing it reverts with an opaque custom error. Run
+> `npm run prove:fresh`, which finds an unproven transaction and proves that.
 
 If the proof-builder API is down, Scene 3 falls back to `#/obligation/2` alone —
 the proven payment is already on-chain and needs nothing live. Say "this
@@ -100,7 +107,7 @@ built anywhere else." Let the three numbered conditions land.
 This is the only live command in the video. Run it for real:
 
 ```bash
-npm run prove:one 0x85234a5dc158c402adfd384be8800969d570357611a1b59f3326098affc18fc4
+npm run prove:fresh
 ```
 
 > This is a real transaction on Ethereum mainnet. I'm asking a contract on
