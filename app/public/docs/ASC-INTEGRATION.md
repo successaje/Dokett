@@ -70,17 +70,36 @@ error — it verifies proofs correctly against the wrong chain. Read live from
 `AscVerify.assertChainId()` resolves this at deploy time and reverts on
 mismatch. Nothing hardcodes a chainkey.
 
-### 1.2 EVM version — the chain told us what it is
+### 1.2 EVM version — and a claim we got wrong
 
 CC3 block headers carry **no `mixHash`**, **no `withdrawalsRoot`**, and
-`difficulty: 0x0`. That is a pre-Shanghai header, and it forced a correction:
+`difficulty: 0x0`. We pinned `evm_version = "london"` on that evidence.
 
-- Forge's fork header validation demands `prevrandao` and **panics** without it.
-- `solc` under Shanghai emits **`PUSH0`**, which this Frontier build is unlikely
-  to execute — a deploy that succeeds locally and reverts on chain.
+One of the two reasons we gave was correct, and one was not.
 
-`evm_version = "london"` matches the header evidence and emits no `PUSH0`
-(verified: zero PUSH0 prologues across all rebuilt artifacts).
+**Correct:** Forge's fork header validation demands `prevrandao` under Shanghai
+and **panics** without it, which breaks `forge script` against this chain.
+
+**Wrong:** we also claimed `solc`'s Shanghai output would emit `PUSH0` that the
+chain could not execute. That was an inference from the block header rather than
+a measurement, and it does not hold — block structure and opcode support are
+independent on a Frontier EVM. Tested directly against live CC3:
+
+| test | result |
+|---|---|
+| deploy runtime `0x5f5ff3` (`PUSH0 PUSH0 RETURN`) and call it | executes |
+| deploy a Shanghai-compiled contract, write and read storage | works |
+| read `block.prevrandao` from it | returns `0`, no revert |
+
+So **CC3 does support `PUSH0`**, and the london pin is not required for the
+chain's sake. It stays because it keeps `forge script` working, because london is
+a safe subset, and because the deployed contracts are source-verified against
+these exact settings — changing it would alter bytecode and break verification
+for no functional gain.
+
+Recorded here rather than quietly amended: a registry whose argument is that
+claims should be checkable does not get to leave an unchecked one in its own
+integration notes.
 
 ### 1.3 Precompiles cannot be read through a fork
 

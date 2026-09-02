@@ -9,13 +9,21 @@ solc = "0.8.28"
 # what it supports: no mixHash (so no prevrandao), no withdrawalsRoot, and
 # difficulty pinned to 0x0. That is a pre-Shanghai header.
 #
-# Shanghai was wrong on two counts. Forge's fork header validation demands
-# prevrandao and panics without it, and solc emits PUSH0 — a Shanghai opcode
-# this build is unlikely to execute, which would surface as a deploy that
-# succeeds locally and reverts on chain.
+# The real reason for london is Forge: its fork header validation demands
+# prevrandao under Shanghai and panics without it, which breaks `forge script`
+# against CC3.
 #
-# London matches the header evidence: difficulty instead of prevrandao, and no
-# PUSH0. Verified against a live CC3 testnet block.
+# CORRECTION. This file previously also claimed the chain could not execute
+# PUSH0. That was an inference from the block header, and it was wrong. Block
+# structure and opcode support are independent on a Frontier EVM. Tested
+# directly on live CC3: runtime `0x5f5ff3` (PUSH0 PUSH0 RETURN) deploys and
+# executes, and a Shanghai-compiled contract stores state and reads
+# block.prevrandao (as 0) without reverting.
+#
+# The pin stays because it is a safe subset, it keeps forge script working, and
+# the deployed contracts are source-verified against these exact settings —
+# changing it would alter bytecode and break that verification for no gain. It
+# is a deliberate choice, not a requirement.
 evm_version = "london"
 optimizer = true
 optimizer_runs = 200
