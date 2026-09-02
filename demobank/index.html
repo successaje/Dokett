@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DemoBank — Credit Origination</title>
+
+<!--
+  DemoBank is not part of Dokett.
+
+  It exists to test one claim that Dokett makes about itself: that the register
+  is infrastructure rather than an application, and that a third party can make
+  a credit decision from it without an account, an API key, a permission, or a
+  proprietary score.
+
+  So this file has no build step, no framework, no SDK and no dependency on
+  anything Dokett publishes except its public HTTP endpoints. It is one file
+  served as static HTML. If that claim were false, this file could not exist.
+
+  ── THE BOUNDARY THAT MATTERS ─────────────────────────────────────────────
+  Dokett returns facts. It never returns a recommendation, and it must not:
+  the moment a registry ships a verdict it has become a credit score with
+  extra steps, which is the thing Dokett argues against at length.
+
+  So the decision below is computed HERE, by POLICY, which belongs to DemoBank.
+  Another lender would set it differently against the identical facts and
+  reasonably reach the opposite answer. That is the whole design.
+-->
+
+<style>
+  /* Deliberately not Dokett's design system. A judge should be able to tell
+     at a glance that this is a different product by a different party. */
+  :root{
+    --ink:#10192b; --dim:#5b6b85; --line:#d6dde8; --bg:#eef1f6; --card:#fff;
+    --brand:#123c8c; --bad:#a4262c; --ok:#1a7f4b; --warn:#8a5a00;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+  .bar{background:var(--brand);color:#fff;padding:14px 28px;display:flex;
+    align-items:baseline;gap:14px}
+  .bar b{font-size:17px;letter-spacing:.02em}
+  .bar span{font-size:12px;opacity:.75}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--dim);font-size:13px;margin:0 0 22px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  @media(max-width:880px){.cols{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:6px;
+    padding:20px;margin-bottom:22px}
+  .card h2{font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--dim);margin:0 0 14px;font-weight:700}
+  label{display:block;font-size:12px;color:var(--dim);margin:12px 0 5px}
+  input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:4px;
+    font-family:var(--mono);font-size:12.5px;background:#fbfcfe;color:var(--ink)}
+  button{margin-top:18px;width:100%;padding:12px;background:var(--brand);color:#fff;
+    border:0;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer}
+  button:disabled{opacity:.5;cursor:default}
+  .log{font-family:var(--mono);font-size:11.5px;line-height:1.9;min-height:150px}
+  .log div{display:flex;gap:8px;opacity:0;animation:in .25s forwards}
+  @keyframes in{to{opacity:1}}
+  .log .m{color:var(--dim);flex:0 0 34px}
+  .log .u{color:var(--ink);word-break:break-all;flex:1}
+  .log .s{color:var(--ok);flex:0 0 30px;text-align:right}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{padding:7px 0;border-bottom:1px solid var(--line)}
+  td:last-child{text-align:right;font-family:var(--mono);font-weight:600}
+  tr:last-child td{border-bottom:0}
+  .rule{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);
+    font-size:12.5px;align-items:baseline}
+  .rule:last-child{border-bottom:0}
+  .rule .g{flex:0 0 16px;font-weight:700}
+  .rule .t{flex:1}
+  .rule .v{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+  .pass .g{color:var(--ok)} .fail .g{color:var(--bad)} .fail .t{font-weight:600}
+  .verdict{border-radius:6px;padding:20px;margin-bottom:14px;color:#fff}
+  .verdict.d{background:var(--bad)} .verdict.a{background:var(--ok)}
+  .verdict b{font-size:26px;letter-spacing:.06em;display:block}
+  .verdict p{margin:6px 0 0;font-size:13px;opacity:.93}
+  .foot{font-size:12px;color:var(--dim);border-top:1px solid var(--line);
+    padding-top:14px;margin-top:4px}
+  .foot b{color:var(--ink)}
+  pre{background:#0e1626;color:#d8e2f2;border-radius:5px;padding:15px;
+    font-family:var(--mono);font-size:11.5px;line-height:1.65;overflow-x:auto;margin:0}
+  pre .k{color:#7fb4ff} pre .n{color:#f0b072} pre .c{color:#6f7f99}
+  .hide{display:none}
+</style>
+</head>
+<body>
+
+<div class="bar"><b>DemoBank</b><span>Credit Origination · Underwriting Desk</span></div>
+
+<div class="wrap">
+  <h1>New credit application</h1>
+  <p class="sub">
+    DemoBank has no relationship with Dokett — no account, no key, no permission.
+    It reads the public register the way anyone can.
+  </p>
+
+  <div class="cols">
+    <div>
+      <div class="card">
+        <h2>Application</h2>
+        <label>Applicant — obligor commitment</label>
+        <input id="subject" value="0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a">
+        <label>Amount requested (USD)</label>
+        <input id="amount" value="7500">
+        <button id="go">Check Dokett</button>
+      </div>
+
+      <div class="card">
+        <h2>Registry queries</h2>
+        <div class="log" id="log"><span style="color:var(--dim);font-size:13px;
+          font-family:inherit">No queries issued yet.</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card hide" id="factsCard">
+        <h2>Dokett record — facts only</h2>
+        <table id="facts"></table>
+        <p class="foot" id="factsNote"></p>
+      </div>
+
+      <div class="card hide" id="policyCard">
+        <h2>DemoBank policy v1.2 — our rules, not Dokett's</h2>
+        <div id="rules"></div>
+      </div>
+
+      <div class="card hide" id="verdictCard">
+        <h2>Decision</h2>
+        <div id="verdict"></div>
+        <p class="foot" id="prov"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The entire integration</h2>
+    <pre><span class="c">// No SDK. No auth. No account. Public HTTP, from a static file.</span>
+<span class="k">const</span> r = <span class="k">await</span> fetch(<span class="n">`https://dokett-lens.fly.dev/solvency/${subject}`</span>).then(r => r.json());
+
+<span class="c">// Dokett returns facts. The verdict is ours, and another lender's</span>
+<span class="c">// policy would reach a different answer from the same facts.</span>
+<span class="k">const</span> POLICY = { maxExistingOutstanding: <span class="n">5000</span>, maxTotalExposure: <span class="n">10000</span>,
+                 maxDefaults: <span class="n">0</span>, allowDelinquent: <span class="k">false</span>,
+                 minEvidenceRatio: <span class="n">0.80</span>, requireBonded: <span class="k">true</span> };</pre>
+  </div>
+</div>
+
+<script>
+const LENS = 'https://dokett-lens.fly.dev';
+const usd  = n => '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+/* DemoBank's own underwriting policy. Nothing here comes from Dokett, and
+   nothing here is the only reasonable setting — a lender with more appetite
+   would raise the caps and approve what this one declines. */
+const POLICY = {
+  maxExistingOutstanding: 5000,
+  maxTotalExposure:       10000,
+  maxDefaults:            0,
+  allowDelinquent:        false,
+  minEvidenceRatio:       0.80,
+  requireBonded:          true,
+};
+
+let n = 0;
+const logEl = document.getElementById('log');
+
+/** Every registry read, shown as it happens. The URL is the point. */
+async function get(path) {
+  if (!n) logEl.innerHTML = '';
+  const row = document.createElement('div');
+  row.innerHTML = `<span class="m">${String(++n).padStart(2,'0')}</span>`
+                + `<span class="u">GET ${path}</span><span class="s">···</span>`;
+  logEl.appendChild(row);
+  const res  = await fetch(LENS + path);
+  const body = await res.json();
+  row.querySelector('.s').textContent = res.status;
+  await wait(190);                       // legible on video; not load-bearing
+  return body;
+}
+
+document.getElementById('go').onclick = async () => {
+  const subject = document.getElementById('subject').value.trim();
+  const ask     = Number(document.getElementById('amount').value) || 0;
+  const btn     = document.getElementById('go');
+  btn.disabled = true; btn.textContent = 'Querying registry…';
+  n = 0;
+
+  try {
+    await get('/health');
+    const sol = await get('/solvency/' + subject);
+
+    /* Pull each bonded obligation individually rather than trusting the
+       summary — the whole premise is that a lender verifies rather than
+       accepts a report, and that includes reports from the registry. */
+    const ids  = (sol.bonded.obligations || []).map(o => o.id);
+    const full = [];
+    for (const id of ids) full.push(await get('/obligation/' + id));
+
+    /* Any collateral pledged behind these claims: is it already spoken for? */
+    const refs = [...new Set(full
+      .map(o => (o.obligation || o).collateralRef)
+      .filter(c => c && /[1-9a-f]/i.test(c.slice(2))))];
+    const enc = [];
+    for (const ref of refs) enc.push(await get('/encumbrance/' + ref));
+
+    /* ── Facts, straight from the register ──────────────────────────── */
+    const obs         = full.map(o => o.obligation || o);
+    const outstanding = Number(sol.bonded.outstanding) / 1e6;
+    const defaults    = (sol.adverse.statuses || []).filter(s => s.status === 'Default').length;
+    const delinquent  = (sol.adverse.statuses || []).filter(s => s.status === 'Delinquent').length;
+    const proven      = obs.reduce((a, o) => a + Number(o.periodsSatisfied || 0), 0);
+    const scheduled   = obs.reduce((a, o) => a + Number(o.periodsTotal || 0), 0);
+    const ratio       = scheduled ? proven / scheduled : 1;
+    const encumbered  = enc.reduce((a, e) =>
+      a + (e.claims || []).reduce((b, c) => b + Number(c.outstanding) / 1e6, 0), 0);
+    const allBonded   = sol.unbonded.count === 0;
+
+    document.getElementById('facts').innerHTML = `
+      <tr><td>Outstanding obligations</td><td>${usd(outstanding)}</td></tr>
+      <tr><td>Active obligations</td><td>${sol.bonded.count}</td></tr>
+      <tr><td>Delinquent now</td><td>${delinquent}</td></tr>
+      <tr><td>In default</td><td>${defaults}</td></tr>
+      <tr><td>Payment evidence</td><td>${proven} / ${scheduled} periods proven</td></tr>
+      <tr><td>Encumbered collateral</td><td>${refs.length ? usd(encumbered)
+        : 'none pledged'}</td></tr>
+      <tr><td>Unbonded (unweighted) claims</td><td>${sol.unbonded.count}</td></tr>`;
+    document.getElementById('factsNote').innerHTML =
+      `Observed at Creditcoin block <b>${sol.asOfBlock.toLocaleString()}</b>. `
+      + `Every figure is recomputable from chain events. `
+      + `<b>Dokett returned no score and no recommendation.</b>`;
+    document.getElementById('factsCard').classList.remove('hide');
+
+    /* ── DemoBank applies its own policy ────────────────────────────── */
+    const checks = [
+      ['Existing outstanding within limit', outstanding <= POLICY.maxExistingOutstanding,
+       `${usd(outstanding)} vs cap ${usd(POLICY.maxExistingOutstanding)}`],
+      ['Total exposure after advance within limit', outstanding + ask <= POLICY.maxTotalExposure,
+       `${usd(outstanding + ask)} vs cap ${usd(POLICY.maxTotalExposure)}`],
+      ['No obligation in default', defaults <= POLICY.maxDefaults,
+       `${defaults} default${defaults === 1 ? '' : 's'} on record`],
+      ['Nothing currently delinquent', POLICY.allowDelinquent || delinquent === 0,
+       `${delinquent} delinquent`],
+      ['Payment evidence above threshold', ratio >= POLICY.minEvidenceRatio,
+       `${(ratio * 100).toFixed(0)}% vs floor ${(POLICY.minEvidenceRatio * 100).toFixed(0)}%`],
+      ['All claims carry a registrar bond', !POLICY.requireBonded || allBonded,
+       `${sol.unbonded.count} unbonded`],
+    ];
+
+    document.getElementById('rules').innerHTML = checks.map(([t, ok, v]) =>
+      `<div class="rule ${ok ? 'pass' : 'fail'}"><span class="g">${ok ? '✓' : '✕'}</span>`
+      + `<span class="t">${t}</span><span class="v">${v}</span></div>`).join('');
+    document.getElementById('policyCard').classList.remove('hide');
+
+    const failed   = checks.filter(c => !c[1]);
+    const approved = failed.length === 0;
+    document.getElementById('verdict').innerHTML =
+      `<div class="verdict ${approved ? 'a' : 'd'}">
+         <b>${approved ? 'CREDIT APPROVED' : 'CREDIT DECLINED'}</b>
+         <p>${approved
+              ? `${usd(ask)} advance is within DemoBank's exposure limits.`
+              : `Application for ${usd(ask)} fails ${failed.length} of `
+                + `${checks.length} policy checks: ${failed.map(f => f[0].toLowerCase()).join('; ')}.`}</p>
+       </div>`;
+    document.getElementById('prov').innerHTML =
+      `Decision based on <b>${n} public Dokett queries</b>. `
+      + `No Dokett account. No Dokett permission. No proprietary credit score. `
+      + `The registry supplied the evidence; the policy above is DemoBank's, and a `
+      + `lender with more appetite would set it differently and approve this.`;
+    document.getElementById('verdictCard').classList.remove('hide');
+  } catch (err) {
+    logEl.insertAdjacentHTML('beforeend',
+      `<div><span class="m">!!</span><span class="u" style="color:var(--bad)">`
+      + `${err.message}</span></div>`);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Check Dokett';
+  }
+};
+</script>
+</body>
+</html>
