@@ -89,8 +89,8 @@ doing continuously — we measured this rather than assuming it: proving a two-y
 Ethereum fact costs 26% more than a twenty-minute-old one. Not per year; in total,
 across 51,529x the age. Remove any one condition and this does not work.
 
-THE INVERSION. Every other ASC project proves that something happened. Dokett's
-SilenceAdapter acts on what didn't: an obligation degrades to delinquent, then
+THE INVERSION. Most cross-chain verification proves that something happened.
+Dokett's SilenceAdapter acts on what didn't: an obligation degrades to delinquent, then
 default, purely because no admissible proof of payment arrived before an attested
 deadline. No reporter, no committee, no oracle operator. We demonstrated this live —
 a registered obligation reached default in 2 minutes 18 seconds, unattended, with
@@ -158,8 +158,11 @@ THE INVERSION. PaymentAdapter proves presence: a qualifying ERC-20 Transfer insi
 the open window advances the obligation. SilenceAdapter inverts the primitive to
 drive degradation — an obligation becomes delinquent, then defaults, when the
 attested head passes a deadline with no admissible proof. This enables permissionless
-default detection with no reporter, and to our knowledge is the only ASC integration
-that acts on absence rather than presence. We are precise about the claim: this
+default detection with no reporter. Acting on absence rather than presence is the
+unusual part; what a protocol then DOES with that absence is the design question.
+Ours degrades the obligation to delinquent and then default, slashes named
+first-loss capital to the creditor in the same transaction, and keeps a cure path
+open so a late proof reverses it. We are precise about the claim: this
 proves no admissible proof was presented before the deadline, not that no payment
 occurred. It is economically equivalent because submission is permissionless and
 costs a fraction of a cent, and it is reversible by a late proof.
