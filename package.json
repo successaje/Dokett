@@ -1,7 +1,7 @@
 {
   "name": "dokett",
   "version": "1.0.0",
-  "description": "The obligation layer for the open economy \u2014 a registry where a promise to pay is a first-class on-chain object, advanced only by cryptographic evidence.",
+  "description": "The obligation layer for the open economy — a registry where a promise to pay is a first-class on-chain object, advanced only by cryptographic evidence.",
   "main": "index.js",
   "directories": {
     "doc": "docs",
@@ -33,7 +33,8 @@
     "seed:bond": "node --env-file-if-exists=.env script/seed-bond.js",
     "seed:slash": "node --env-file-if-exists=.env script/seed-slash.js",
     "prove:fresh": "node --env-file-if-exists=.env demo/prove-fresh.js",
-    "seed:underwriter2": "node --env-file-if-exists=.env script/seed-underwriter2.js"
+    "seed:underwriter2": "node --env-file-if-exists=.env script/seed-underwriter2.js",
+    "seed:encumbered": "node --env-file-if-exists=.env script/seed-encumbered.js"
   },
   "keywords": [],
   "author": "",

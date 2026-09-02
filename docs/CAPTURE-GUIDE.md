@@ -1,4 +1,4 @@
-# Screen capture guide — Part Two (1:00 → 2:53)
+# Screen capture guide — Part Two (0:55 → 2:54)
 
 The companion to `VOICEOVER.md`. That file is what you *say*; this is what is
 *on screen* while you say it.
@@ -28,8 +28,11 @@ on camera:
 2  https://dokett-console.vercel.app/#/obligation/2
 3  https://dokett-console.vercel.app/#/obligation/5
 4  https://dokett-console.vercel.app/#/obligation/11
-5  https://dokett-console.vercel.app/#/encumbrance
-6  https://dokett-console.vercel.app/#/developers
+5  https://dokett-console.vercel.app/#/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87
+6  <DemoBank URL>            ← a different domain. That it is not
+                                dokett-console.vercel.app is the whole point
+                                of the scene; do not serve it from a path
+                                under the Console.
 ```
 
 ### Preflight — run this the morning you record
@@ -40,7 +43,16 @@ curl -s https://dokett-relay.fly.dev/health
 curl -s https://dokett-lens.fly.dev/obligation/2  | grep '"status"'   # Current
 curl -s https://dokett-lens.fly.dev/obligation/5  | grep '"status"'   # Default
 curl -s https://dokett-lens.fly.dev/obligation/11 | grep '"status"'   # Default + slash
+curl -s https://dokett-lens.fly.dev/obligation/13 | grep '"status"'   # Active — the encumbered pledge
+
+# Scene E's strongest decline reason depends on this returning THREE claims
+curl -s https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f \
+  | grep -c '"id"'
 ```
+
+Then open DemoBank and run one throwaway application before recording. It
+makes seven live calls to the Lens; if any of them is slow or the Lens is
+mid-restart, you want to know before the camera is on.
 
 Then do **one throwaway `prove:one` run** before recording. It is the only live
 command in the video and it depends on the proof-builder API, the keeper's
@@ -49,7 +61,7 @@ today's gas figure, then run it again on camera.
 
 ---
 
-## A · Evidence · 1:00 → 1:22
+## A · Evidence · 0:55 → 1:13
 
 **Screen 1 — terminal.** Type and run:
 
@@ -86,7 +98,7 @@ Let the cursor rest on the **CURRENT** pill as you say "proven."
 
 ---
 
-## B · The inversion · 1:22 → 2:00
+## B · The inversion · 1:13 → 1:58
 
 **This is the scene that wins. Everything here moves slower than feels natural.**
 
@@ -116,7 +128,7 @@ reads as confidence. Motion under it reads as hurrying past something.
 
 ---
 
-## C · The slash · 2:00 → 2:23
+## C · The slash · 1:58 → 2:16
 
 > ⚠️ **Navigate to obligation 11, not 5.** Obligation 5 has no bonds and its
 > Underwriting section says *"No bonds posted"* — the exact opposite of this
@@ -128,7 +140,7 @@ creditor.
 
 > *"When it defaults, first-loss capital is slashed to the creditor in the same transaction."*
 
-**Cut to `#/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87`.** The four
+**Cut to tab 5 (`#/underwriter/0x60eF…8e87`).** The four
 figures at the top are the payoff.
 
 > *"This underwriter's loss rate went from zero to seven point six nine percent."*
@@ -140,7 +152,9 @@ Cursor rests on the **LOSS RATE** figure.
 Then slowly scroll to the **Positions** table so the individual bonds — including
 the slashed one — are visible as the sentence lands.
 
-**Optional, ~5s — the beat that turns a number into a market.** While still on
+**Optional — but the headroom is now 6 seconds, not 15.** Take this only if
+your read is comfortably under time. The beat that turns a number into a
+market: While still on
 *"recomputed from chain events, editable by nobody"*, paste a second underwriter
 into the lookup:
 
@@ -153,50 +167,54 @@ derivation, different address — which is the whole point of the sentence you a
 saying. A rating agency assigns; this is computed per address from what actually
 happened.
 
-There is no all-underwriters index, so this needs the second lookup rather than
-one screen. Costs about five seconds, against fifteen of headroom.
+There is no all-underwriters index, so this needs a second lookup rather than
+one screen. It costs about five seconds of a six-second margin — so it is the
+first thing to drop, not the last.
 
 ---
 
-## D · The query that doesn't exist · 2:23 → 2:47
+## D · Someone else's application · 2:16 → 2:54
 
-**Cut to tab 5 (`#/encumbrance`).** Empty search field, nothing entered yet.
+> **Scene D of the old cut is gone.** It paged through the Encumbrance screen
+> to show an asset pledged twice. This scene shows a lender *declining because
+> of* that encumbrance, which is the same fact doing work rather than sitting
+> on screen. The line it was worth keeping moved here.
 
-Paste, but **do not submit yet**:
+**Cut to tab 6 — DemoBank.** Land on the application form, already filled:
+applicant commitment `0x986a7f70…`, amount `7500`. Nothing queried yet.
 
-```
-0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f
-```
+> *"This console isn't the product. It's how a person reads the register."*
 
-> *"A collateral reference — a warehouse receipt. Before lending against it, ask whether anything already has a claim."*
+Say that while still on the Console, then cut. The cut lands on the word
+"person" — a visibly different product by a visibly different party.
 
-**Now submit.** Results arrive on the beat.
+> *"Here's a different application, by a different party. No account, no key, no permission."*
 
-> *"Two live obligations. It's pledged twice."*
+**Click "Check Dokett".** The query log fills one line at a time, each showing
+its full URL. **Do not talk over this.** Seven public GETs appearing on screen
+is the proof; narrating it competes with it.
 
-Cursor moves down the two rows, one per phrase. Do not click into them.
+> *"It asks what this borrower owes — and whether their collateral is already pledged elsewhere."*
 
-> *"That question has no answer anywhere else in crypto."*
+The facts panel arrives. Rest the cursor on **prior claims by other lenders —
+2 · $60,169**.
 
-Hold on the result table.
+> *"It is. Twice. That question has no answer anywhere else in crypto."*
 
----
+**Hold still here.** Then scroll to the policy checks so the six red crosses
+and one green tick are visible, and let the verdict land.
 
-## E · Close · 2:47 → 2:53
+> *"Seven queries. Credit declined — on DemoBank's policy, not Dokett's score."*
 
-**Cut to tab 6 (`#/developers`).** Land on the **Read API** section with the four
-endpoints visible.
+Cursor rests on the line under the verdict: *Decision based on 7 public Dokett
+queries. No Dokett account. No Dokett permission. No proprietary credit score.*
 
-> *"This console isn't the product. It's how a person reads the register. The product is the record — and that anything can query it. Free, public, live now."*
+Finally scroll to **The entire integration** — the whole policy visible as a
+few lines of code.
 
-Scroll slowly through the endpoint list — `/solvency`, `/encumbrance`,
-`/obligation`, `/profile`.
+> *"We didn't build a lending protocol. We built the record that lending protocols can finally read."*
 
-> *"Everything here is testnet."*
-
-> *"Dokett. The obligation layer for the open economy."*
-
-**Final frame:** cut to a held card — Dokett wordmark, then:
+**Final frame:** hold a card — Dokett wordmark, then:
 
 ```
 dokett-console.vercel.app
@@ -211,9 +229,11 @@ Hold three seconds. Do not fade to black on a scrolling page.
 
 | Problem | What to do |
 |---|---|
+| DemoBank shows fewer than 7 queries | Obligation 13 or its bond is missing. Re-run `npm run seed:encumbered`, wait ~20s for the Lens, reload. |
+| DemoBank's encumbrance check passes | The prior claims went inactive. Verify with the `grep -c '"id"'` preflight — it must return 3. |
 | `prove:one` fails or hangs | Skip the terminal. Open `#/obligation/2` and say *"this obligation advanced to Current because a payment was proven at source-chain height 25,773,802."* The proof is already on-chain and needs nothing live. |
 | An obligation changed status | Use the live register. Every scene works with **any** obligation in the right state — the script names ids for convenience, not because they are special. Check with `curl .../obligations`. |
-| The Lens is unreachable | Stop. Do not film the degraded state. Check `flyctl status -a dokett-lens`. |
+| The Lens is unreachable | Stop — DemoBank cannot render without it, and neither can the Console. Check `flyctl status -a dokett-lens`. |
 | The gas figure differs from what you rehearsed | Read what is on screen. Both numbers are correct; they answer different questions. |
 
 ---

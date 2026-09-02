@@ -1,0 +1,10 @@
+{
+  "obligationId": "13",
+  "obligor": "0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a",
+  "obligorPreimage": "대현상사",
+  "collateralRef": "0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f",
+  "collateralRefPreimage": "warehouse-receipt:BUSAN-WR-88214",
+  "bondId": "8",
+  "underwriter": "0xC282Cb7cE6c175582B84BF94C61258Bb5cDCA88e",
+  "anchorTx": "0x8046e2c71ca0eb5d8cf1cc85a93ef854cf4797e88dd9c3225f266a6af2afbe63"
+}

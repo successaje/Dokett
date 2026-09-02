@@ -29,8 +29,6 @@ Two parts. **Part One is animated** (no UI — typography, motion, diagram).
 >
 > **What do you already owe?** //
 >
-> In traditional finance, an apparatus exists to answer it. //
->
 > Now move that borrower on-chain. A loan on Ethereum. Collateral on a second
 > chain. A tokenized asset on a third. //
 >
@@ -54,9 +52,9 @@ Dokett."
 
 ---
 
-# PART TWO — SCREEN CAPTURE · 1:53
+# PART TWO — SCREEN CAPTURE · 1:59
 
-## A · Evidence — `prove:fresh`, then `#/obligation/2` · 0:22
+## A · Evidence — `prove:fresh`, then `#/obligation/2` · 0:18
 
 > A real Ethereum mainnet transaction. I'm asking a Creditcoin contract to prove
 > it happened. //
@@ -75,7 +73,7 @@ Dokett."
 > proven transaction ages, because the continuity proof walks further back.
 > Today's fresh run measured **409,962 gas · 0.000204981 CTC**.
 
-## B · The inversion — `#/obligation/5` · 0:38
+## B · The inversion — `#/obligation/5` · 0:45
 
 **Slow down. This is the scene that wins.**
 
@@ -96,7 +94,7 @@ Dokett."
 > The caveat is not a disclaimer to rush past. It is the most credible thing in
 > the video. Rehearse it until it is exact.
 
-## C · The slash — `#/obligation/11`, then `#/underwriter/0x60eF…8e87` · 0:23
+## C · The slash — `#/obligation/11`, then `#/underwriter/0x60eF…8e87` · 0:18
 
 > ⚠️ **Navigate to obligation 11.** Scene B leaves you on 5, which carries no
 > bonds and displays "No bonds posted" — the exact opposite of what this VO
@@ -119,57 +117,70 @@ Dokett."
 > Costs ~5s, and there are 15 to spare. Screen direction is in
 > CAPTURE-GUIDE.md.
 
-## D · The query that doesn't exist — `#/encumbrance` · 0:24
+## E · Someone else's application — `demobank` · 0:38
 
-Paste: `0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f`
+**The close. D was folded into this scene — showing a lender act on the
+encumbrance beats showing the encumbrance.**
 
-> A collateral reference — a warehouse receipt. Before lending against it, ask
-> whether anything already has a claim. //
+> This console isn't the product. It's how a *person* reads the register. //
 >
-> **Two live obligations.** It's pledged twice. //
+> Here's a different application, by a different party. No account, no key, no
+> permission. //
 >
-> That question has no answer anywhere else in crypto.
+> It asks what this borrower owes — and whether their collateral is already
+> pledged elsewhere. //
+>
+> It is. Twice. **That question has no answer anywhere else in crypto.** //
+>
+> Seven queries. Credit declined — on DemoBank's policy, not Dokett's score. //
+>
+> We didn't build a lending protocol. **We built the record that lending
+> protocols can finally read.**
 
-## E · Close — `#/developers` · 0:25
-
-> This console isn't the product. It's how a person reads the register.
-> The product is the record — and that **anything** can query it. Free, public,
-> live now. //
->
-> Everything here is testnet. //
->
-> **Dokett. The obligation layer for the open economy.**
+> Dokett returns facts and never a recommendation. If you ad-lib one sentence
+> here, make it that one — it is the difference between a registry and a credit
+> bureau, and the whole README argues for it.
 
 ---
 
 ## Timing
 
-Word-counted at 150 wpm, beats included.
+**Counted by script, per scene, from this file** — not estimated. Narration
+words at 150 wpm plus one second per `//` beat, excluding ⚠️ notes and their
+continuation lines.
 
 | | Runs | Cumulative |
 |---|---|---|
-| Part One · animated | 1:00 | 1:00 |
-| Part Two · screen | 1:45 | **2:45** |
+| Part One · animated | 0:55 | 0:55 |
+| Part Two · screen | 1:59 | **2:54** |
 
-**15 seconds of headroom against the 3:00 ceiling.**
+**6 seconds of headroom against the 3:00 ceiling.** That is thin. Read at a
+deliberate 135 wpm this becomes 3:11, so take a cut below *before* recording
+rather than discovering it in the edit.
 
-An earlier revision of this file claimed 2:53. That count mistakenly included
-the continuation lines of the ⚠️ notes as if they were narration; only their
-first lines were being skipped. Recounted per block, narration alone is 2:45.
+### Two corrections to what this file used to claim
 
-Read at a slower 135 wpm it becomes **3:04** — just over. If you read
-deliberately, take the first cut below before recording rather than finding out
-in the edit.
+**The old numbers were wrong, and wrong in the dangerous direction.** Three
+figures in this file disagreed with each other: the Part Two header said 1:53,
+the timing table said 1:45, and the scene headings summed to 2:12. Measured,
+Part Two was **2:06** — so the advertised 2:45 total was really ~3:06, over the
+ceiling, in a file whose whole purpose is to keep the video under it.
+
+**Scene D was cut, not shortened.** It displayed a twice-pledged asset on the
+Encumbrance page. Scene E now shows a *lender declining because of* that
+encumbrance, which is the same fact doing work instead of sitting on screen.
+Its best line — *"that question has no answer anywhere else in crypto"* —
+moved into E, where it lands on a decision rather than a table.
 
 If a take still runs long, cut in this order:
 
-1. "In traditional finance, an apparatus exists to answer it." — Part One. The
-   animation can show bureaus and registries without you naming them. ~0:04
-2. "Everything here is testnet." — E. The footer and landing page both say it. ~0:03
-3. "Submission is permissionless and costs a fraction of a cent." — B. Weakens
-   the caveat's economics, so take this one last. ~0:05
+1. "Submission is permissionless and costs a fraction of a cent." — B.
+   Weakens the caveat's economics, so it is a real loss. ~0:05
+2. "It's how a *person* reads the register." — E. The contrast survives
+   without it. ~0:03
 
-**Never cut** the caveat itself in B, or the closing line.
+**Never cut** the caveat itself in B, the "no score, facts only" line in E, or
+the closing line.
 
 ---
 
@@ -181,6 +192,10 @@ curl -s https://dokett-relay.fly.dev/health
 curl -s https://dokett-lens.fly.dev/obligation/2  | grep '"status"'   # want Current
 curl -s https://dokett-lens.fly.dev/obligation/5  | grep '"status"'   # want Default
 curl -s https://dokett-lens.fly.dev/obligation/11 | grep '"status"'   # want Default — the slash
+curl -s https://dokett-lens.fly.dev/obligation/13 | grep '"status"'   # want Active — the encumbered pledge
+
+# Scene D wants THREE claims; Scene E's decline depends on two of them
+curl -s https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f | grep '"id"'
 ```
 
 Console in **light theme**, onboarding dismissed, zoom 110%, clean browser

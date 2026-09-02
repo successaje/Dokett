@@ -145,7 +145,8 @@
 <span class="c">// policy would reach a different answer from the same facts.</span>
 <span class="k">const</span> POLICY = { maxExistingOutstanding: <span class="n">5000</span>, maxTotalExposure: <span class="n">10000</span>,
                  maxDefaults: <span class="n">0</span>, allowDelinquent: <span class="k">false</span>,
-                 minEvidenceRatio: <span class="n">0.80</span>, requireBonded: <span class="k">true</span> };</pre>
+                 minEvidenceRatio: <span class="n">0.80</span>, requireBonded: <span class="k">true</span>,
+                 requireUnencumbered: <span class="k">true</span> };</pre>
   </div>
 </div>
 
@@ -164,6 +165,7 @@ const POLICY = {
   allowDelinquent:        false,
   minEvidenceRatio:       0.80,
   requireBonded:          true,
+  requireUnencumbered:    true,
 };
 
 let n = 0;
@@ -216,9 +218,15 @@ document.getElementById('go').onclick = async () => {
     const proven      = obs.reduce((a, o) => a + Number(o.periodsSatisfied || 0), 0);
     const scheduled   = obs.reduce((a, o) => a + Number(o.periodsTotal || 0), 0);
     const ratio       = scheduled ? proven / scheduled : 1;
-    const encumbered  = enc.reduce((a, e) =>
-      a + (e.claims || []).reduce((b, c) => b + Number(c.outstanding) / 1e6, 0), 0);
     const allBonded   = sol.unbonded.count === 0;
+
+    /* The applicant's own claims on a pledged asset are not the interesting
+       part. What matters is whether OTHER lenders already have a claim on the
+       same security — the question no borrower would volunteer and no other
+       venue can answer, because each one sees only its own book. */
+    const mine   = new Set(ids);
+    const others = enc.flatMap(e => (e.claims || []).filter(c => !mine.has(c.id)));
+    const encOthers = others.reduce((a, c) => a + Number(c.outstanding) / 1e6, 0);
 
     document.getElementById('facts').innerHTML = `
       <tr><td>Outstanding obligations</td><td>${usd(outstanding)}</td></tr>
@@ -226,8 +234,10 @@ document.getElementById('go').onclick = async () => {
       <tr><td>Delinquent now</td><td>${delinquent}</td></tr>
       <tr><td>In default</td><td>${defaults}</td></tr>
       <tr><td>Payment evidence</td><td>${proven} / ${scheduled} periods proven</td></tr>
-      <tr><td>Encumbered collateral</td><td>${refs.length ? usd(encumbered)
-        : 'none pledged'}</td></tr>
+      <tr><td>Collateral pledged</td><td>${refs.length
+        ? refs.length + ' asset' + (refs.length === 1 ? '' : 's') : 'none'}</td></tr>
+      <tr><td>&nbsp;&nbsp;↳ prior claims by other lenders</td><td>${refs.length
+        ? others.length + ' · ' + usd(encOthers) : '—'}</td></tr>
       <tr><td>Unbonded (unweighted) claims</td><td>${sol.unbonded.count}</td></tr>`;
     document.getElementById('factsNote').innerHTML =
       `Observed at Creditcoin block <b>${sol.asOfBlock.toLocaleString()}</b>. `
@@ -249,6 +259,9 @@ document.getElementById('go').onclick = async () => {
        `${(ratio * 100).toFixed(0)}% vs floor ${(POLICY.minEvidenceRatio * 100).toFixed(0)}%`],
       ['All claims carry a registrar bond', !POLICY.requireBonded || allBonded,
        `${sol.unbonded.count} unbonded`],
+      ['Pledged collateral free of prior claims',
+       !POLICY.requireUnencumbered || others.length === 0,
+       `${others.length} prior claim${others.length === 1 ? '' : 's'} · ${usd(encOthers)}`],
     ];
 
     document.getElementById('rules').innerHTML = checks.map(([t, ok, v]) =>
