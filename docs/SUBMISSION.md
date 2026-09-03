@@ -28,6 +28,152 @@ curl -s -o /dev/null -w "deck  %{http_code}\n" https://raw.githubusercontent.com
 
 ---
 
+---
+
+## DoraHacks form — exact fields, in order
+
+Answers for the live form. **Verified `2026-09-03`** — every URL below returned
+200 and every image returned a correct `content-type`.
+
+### Project Logo (Image URL)
+
+```
+https://raw.githubusercontent.com/successaje/Dokett/main/brand/dokett-mark.png
+```
+
+512x512 PNG, `content-type: image/png`. Use `dokett-avatar.png` instead if the
+form wants something larger — it is the same mark at 1024x1024. An SVG is at
+`brand/dokett-mark.svg` if vector is preferred, but PNG is the safer bet for a
+form that may not sanitise and render SVG.
+
+### Project Sector
+
+```
+RWA
+```
+
+One word, matching the track. If the field takes more than one:
+
+```
+RWA · Infrastructure · DeFi (Credit)
+```
+
+Do **not** add Oracle. The submission's strongest claim is "no reporter, no
+committee, no oracle operator", and the sector field is read before the
+description.
+
+### Project Description
+
+Paste the block under **Project description** above, verbatim. 5,290 characters.
+If the field caps shorter, drop whole paragraphs in this order: WHY PRIOR
+ATTEMPTS DIDN'T FIX IT, then CONTRIBUTED BACK, then NOT AN APPLICATION.
+
+### USC Integration Summary
+
+**Paste the USC-worded block below, not the ASC one.** The form says USC, so the
+copy should too — same content, ecosystem's own vocabulary.
+
+```
+Dokett uses Universal Smart Contracts (USC / Attestcoin) as its only source of truth about the
+outside world. Every status transition in the registry is caused by a USC proof or
+by a comparison against an attested source-chain height. Nothing else can move a
+status, including us.
+
+WHAT WE CALL. The BlockProver precompile at
+0x0000000000000000000000000000000000000FD2 for single and batch verification (batch
+limit 10), and ChainInfo at 0x0000000000000000000000000000000000000fD3 to resolve
+chainkeys at runtime rather than hardcoding them — chainkeys are not portable, and
+on CC3 testnet Ethereum mainnet is chainKey 3 while on mainnet it is 1. We deploy
+and link the EvmV1Decoder library from @gluwa/usc-contracts, which is a public
+Solidity library and cannot be inlined.
+
+REAL MAINNET EVIDENCE, FROM TESTNET. CC3 testnet attests Ethereum mainnet at
+chainkey 3, so every proof in this build is against a real Ethereum transaction —
+not a Sepolia transaction we sent ourselves minutes earlier.
+
+THE FOOTGUN WE FIXED. BlockProver does not validate whether the proven transaction
+succeeded. A reverted ERC-20 transfer is still a validly-included transaction, so an
+integrator that reads logs without checking the receipt will happily accept a failed
+payment as proof of payment. AscVerify.sol asserts receipt status == 0x1 before any
+log is touched. It also replay-guards every proof on (chainKey, height, txIndex,
+logIndex), enforces confirmation depth against the attested head rather than
+assuming it, and resolves chainkeys from ChainInfo. It is published standalone under
+MIT for any USC integrator, because these are not Dokett-specific problems.
+
+THE INVERSION. PaymentAdapter proves presence: a qualifying ERC-20 Transfer inside
+the open window advances the obligation. SilenceAdapter inverts the primitive to
+drive degradation — an obligation becomes delinquent, then defaults, when the
+attested head passes a deadline with no admissible proof. This enables permissionless
+default detection with no reporter. Acting on absence rather than presence is the
+unusual part; what a protocol then DOES with that absence is the design question.
+Ours degrades the obligation to delinquent and then default, slashes named
+first-loss capital to the creditor in the same transaction, and keeps a cure path
+open so a late proof reverses it. We are precise about the claim: this
+proves no admissible proof was presented before the deadline, not that no payment
+occurred. It is economically equivalent because submission is permissionless and
+costs a fraction of a cent, and it is reversible by a late proof.
+
+LIVENESS GATE. Penalties require an unbroken observation record — penaltiesEnabled
+checks healthySince covers recoveryGrace (3600s) with no sample gap exceeding
+maxSampleGap (900s). Without this, an attestation stall followed by a catch-up jump
+would mass-default every obligation at once. A stalled oracle must never manufacture
+defaults, and this is enforced in the contract rather than in the keeper.
+
+HEIGHT, NOT TIME. No timestamp exists in anything an ASC proof binds, so every
+deadline is denominated in attested source-chain block height. This also makes stall
+protection structural: a frozen attested head expires nothing.
+
+MEASURED, NOT QUOTED. We measured the cost curve on five real mainnet transactions
+spanning 20 minutes to 2 years old. Proving a 2-year-old fact costs 26% more than a
+20-minute-old one — 478,786 gas versus 380,674 — because the continuity proof
+saturates at 232 roots past roughly a year rather than growing without bound. That
+near-flat curve is what makes a permanent registry economic. Batching amortises it
+further: 10 queries sharing one continuity proof cost 87,055 gas each, a 78.4%
+saving over 403,774 for a single query. Our measured cost is ~7.4x the published
+formula, and we decomposed why rather than shrugging at it — the per-root
+coefficient actually agrees (440 gas measured vs 580 published); the entire gap is
+fixed base cost, because the published figure is the bare precompile call while ours
+is the full guarded path including decoder, receipt decoding, replay-guard SSTORE,
+ChainInfo staticcall and event emit. The safety guards cost more than the proof.
+
+A BUG A 1% ANOMALY CAUGHT. One measurement came in 3,608 gas under the model fitted
+to the others. Chasing it revealed the transaction was type-0 legacy, encoding 128
+bytes smaller — and that our test suite had never exercised a pre-EIP-1559
+transaction. A registry that mishandled legacy transactions would wrongly default
+exactly the borrowers who send them. There is now a real type-0 mainnet fixture and
+a regression test.
+
+Reproduce any of it: npm run prove:one <txHash>, npm run prove:batch 1,5,10.
+Full methodology: docs/ASC-INTEGRATION.md.
+```
+
+### GitHub Repository URL
+
+```
+https://github.com/successaje/Dokett
+```
+
+Public, README at root returns 200.
+
+### Project Deck or Whitepaper (PDF URL)
+
+```
+https://raw.githubusercontent.com/successaje/Dokett/main/docs/DOKETT-DECK.pdf
+```
+
+Direct link to the PDF bytes, which is what a "PDF URL" field wants. The
+`github.com/.../blob/...` form renders GitHub's viewer instead and is worse here.
+
+### Prototype Demo Video URL
+
+**Not recorded yet.** This is the only field with no answer, and it is the field
+most likely to decide the outcome. Scripts are ready: `docs/VOICEOVER.md` (2:54,
+6s headroom) and `docs/CAPTURE-GUIDE.md`.
+
+Do not submit this field empty or with a placeholder link.
+
+---
+
 ## Project name
 
 ```
