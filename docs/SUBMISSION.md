@@ -6,34 +6,24 @@ bottom before pasting** — a few drift.
 
 ---
 
-## ⛔ BLOCKER — the repository is still private
+## ✅ Publication checks — cleared
 
-Checked `2026-08-26`: `api.github.com/repos/successaje/Dokett` returns
-**Not Found** to an unauthenticated request. Everything below that points at
-GitHub currently 404s for a judge:
-
-- the **deck PDF** in the submission form (verified: HTTP 404)
-- **"Read the source"** on the landing page
-- all four design-doc links on the **Developers** page
-- the `AscVerify.sol` link — and the claim that it is *"published standalone,
-  MIT, for the whole ecosystem"*, which is not true while nobody can read it
-- every `docs/research/` link in the README and in the Posts pages
-
-**It is safe to publish.** History was scanned before writing this:
+Re-verified `2026-09-03`. The blocker this section used to carry (private
+repository, 404ing deck and source links) is resolved.
 
 | check | result |
 |---|---|
+| `api.github.com/repos/successaje/Dokett` | **200** — public |
+| `docs/DOKETT-DECK.pdf` raw URL | **200** |
 | `.env` ever committed | never |
 | private keys anywhere in history | none |
-| `.env.example` contents | no real values |
 | `.gitignore` covers `.env` / `.env.*` | yes |
 
-Flip it to public in **Settings → General → Danger Zone → Change visibility**,
-then re-run the deck check:
+Re-run before pasting anything, since both depend on repository visibility:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" \
-  https://raw.githubusercontent.com/successaje/Dokett/main/docs/DOKETT-DECK.pdf   # want 200
+curl -s -o /dev/null -w "repo  %{http_code}\n" https://api.github.com/repos/successaje/Dokett
+curl -s -o /dev/null -w "deck  %{http_code}\n" https://raw.githubusercontent.com/successaje/Dokett/main/docs/DOKETT-DECK.pdf
 ```
 
 ---
@@ -50,13 +40,30 @@ Dokett
 The obligation layer for the open economy.
 ```
 
-## Vision (≤250 characters)
+## Vision — the problem it solves (≤256 characters)
 
 ```
-A registry where a promise to pay is a first-class on-chain object, and its status moves only on cryptographic proof — never on anyone's word. Turning leverage nobody could see into a record anyone can verify.
+Before lending, every lender asks: what do you already owe? On-chain there is nowhere to send that question — debt hides across chains. Dokett answers it: a registry where an obligation's status moves only on cryptographic proof, never on anyone's word.
 ```
 
-*209 characters.*
+*253 characters.* Counted, not estimated.
+
+The field asks for the **problem**, so this leads with someone unable to do
+something rather than with what Dokett is. The previous version opened *"A
+registry where a promise to pay is a first-class on-chain object…"* — an
+accurate description of the product, and an answer to a question the form did
+not ask.
+
+"Nowhere to send that question" is doing deliberate work: it separates Dokett
+from the dozen-odd credit-score submissions without naming them, since a score
+is an answer nobody can check rather than an answer that exists.
+
+**Shorter alternative** if the form counts characters differently and 253 is
+uncomfortably close to the ceiling (223 chars):
+
+```
+A borrower can owe money on five chains and no lender can see any of it. Dokett turns leverage nobody could see into a record anyone can verify: obligations whose status moves only on cryptographic proof, never on a report.
+```
 
 ---
 
