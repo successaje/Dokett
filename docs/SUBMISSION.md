@@ -69,6 +69,9 @@ A borrower can owe money on five chains and no lender can see any of it. Dokett 
 
 ## Project description
 
+**Verified `2026-09-03` against the live deployment and a full test run.** Every
+figure below was measured, not recalled.
+
 ```
 Dokett is a registry where a promise to pay is a first-class on-chain object, and
 its status only ever changes on proof — never on anyone's word.
@@ -97,11 +100,12 @@ Ethereum fact costs 26% more than a twenty-minute-old one. Not per year; in tota
 across 51,529x the age. Remove any one condition and this does not work.
 
 THE INVERSION. Most cross-chain verification proves that something happened.
-Dokett's SilenceAdapter acts on what didn't: an obligation degrades to delinquent, then
-default, purely because no admissible proof of payment arrived before an attested
-deadline. No reporter, no committee, no oracle operator. We demonstrated this live —
-a registered obligation reached default in 2 minutes 18 seconds, unattended, with
-every transition linked to a real transaction.
+Dokett's SilenceAdapter acts on what didn't: an obligation degrades to delinquent,
+then default, purely because no admissible proof of payment arrived before an
+attested deadline. No reporter, no committee, no oracle operator. We demonstrated
+this live — a registered obligation reached default in 2 minutes 18 seconds,
+unattended, and first-loss capital was slashed to the creditor in the same
+transaction that recorded the default.
 
 We do not claim to prove a negative. What is proven on-chain is narrower and
 correct: no admissible proof of payment was presented before the deadline. That
@@ -109,22 +113,46 @@ stands in for non-payment economically because submission is permissionless and
 costs a fraction of a cent, and it is reversible — a late proof of an in-window
 payment still cures the obligation.
 
+THE QUESTION NOTHING ELSE ANSWERS. A borrower pledges a warehouse receipt. Is it
+already pledged? On the live register that asset carries three claims across two
+lenders, neither of whom could see the other's book. No credit score can produce
+that answer, because it isn't a fact about the borrower — it's a fact about the
+asset, held by strangers.
+
+WHAT IT LOOKS LIKE WHEN SOMETHING READS IT. A record nobody acts on is just data,
+so we built the thing that acts on it. DemoBank is a separate application on a
+separate domain that underwrites a loan application by querying Dokett over public
+HTTP — no account, no API key, no permission, one static file with no build step and
+no SDK. It issues seven queries, assembles what the borrower owes and whether their
+collateral is already encumbered, and declines the application on six of its own
+seven policy checks. Crucially, Dokett returns no score and no recommendation: the
+verdict is DemoBank's, computed from DemoBank's policy, and a lender with more
+appetite would set it differently and approve. The moment a registry ships a verdict
+it has become a credit score with extra steps.
+
 NOT AN APPLICATION. The Console is how a person reads the register. The product is
-the record, and that anything can query it: a lender before underwriting, an RWA
-platform checking whether collateral is already pledged, any protocol advancing an
-obligation on a proven repayment. Every endpoint is live, free and unauthenticated,
-and the read layer is a pure projection over chain events — so anyone can recompute
-every figure from the chain itself. A registry that asks you to trust its own
-reporting has already failed at the one job it exists to do.
+the record, and that anything can query it. Every endpoint is free, live and
+unauthenticated, and the read layer is a pure projection over chain events — so
+anyone can recompute every figure from the chain itself. A registry that asks you to
+trust its own reporting has already failed at the one job it exists to do.
 
-STATUS. Contracts deployed and source-verified on CC3 testnet. Keeper running
-unattended on Fly.io. Free read API live. Console live. A cure relay that pays gas
-so a borrower needs no account, no wallet and no CTC to restore their own record.
-66 contract tests and 7 projection tests passing. The register currently carries
-obligations in every state of the lifecycle: Active, Current, Delinquent, Default
-and Settled.
+CONTRIBUTED BACK. AscVerify.sol is published standalone under MIT because the
+problems it solves are not ours alone. BlockProver does not check whether the proven
+transaction succeeded, so an integrator reading logs without checking the receipt
+will accept a failed payment as proof of payment. Our library asserts receipt status
+first, replay-guards every proof on (chainKey, height, txIndex, logIndex), and
+resolves chainkeys at runtime rather than hardcoding them.
 
-Testnet with synthetic data. No real borrower information appears anywhere.
+STATUS, MEASURED TODAY. Contracts deployed and source-verified on CC3 testnet.
+Keeper running unattended on Fly.io. Free read API live. Console live. A cure relay
+that pays gas so a borrower needs no account, no wallet and no CTC to restore their
+own record. 90 tests passing: 67 contract, 7 projection, 16 relay. The register
+carries 13 obligations across 10 distinct borrowers and every state of the
+lifecycle — Active, Current, Delinquent, Default and Settled — with 12 of 13 backed
+by a registrar bond.
+
+Testnet with synthetic data. No real borrower information appears anywhere, and
+obligors are stored as commitments, never as identities.
 ```
 
 ---
