@@ -240,16 +240,34 @@ Full methodology: docs/ASC-INTEGRATION.md.
 
 ## Team
 
+> **Fill in your teammate's name and channels before pasting.** The `[NAME]`
+> placeholders below are the only unverified thing in this file.
+
 ```
-Solo build. Contracts, keeper, indexer, relay and Console built end to end by one
-engineer, with a working method the project itself demonstrates: read the shipped
-ABIs and precompile behaviour rather than the prose docs, measure real costs on real
-transactions instead of trusting a published formula, and when something renders
-blank, trace it to actual chain state rather than caption around it. That is how a
-1% gas anomaly surfaced an untested legacy-transaction path, and how an empty
-Underwriters page turned out to be a collateral token that had no code deployed on
-this chain at all.
+Two people.
+
+Engineering — Success Aje. Contracts, keeper, indexer, cure relay and Console,
+end to end. The working method is one the project itself demonstrates: read the
+shipped ABIs and precompile behaviour rather than the prose docs, measure real
+costs on real transactions instead of trusting a published formula, and when
+something renders blank, trace it to actual chain state rather than caption
+around it. That is how a 1% gas anomaly surfaced an untested legacy-transaction
+path, and how an empty Underwriters page turned out to be a collateral token
+with no code deployed on this chain at all.
+
+Growth and communications — [NAME]. Owns how the work reaches people who did not
+build it: positioning, the written argument, and the case that a registry is
+worth registering on. That is not decoration on an infrastructure project, it is
+the hard half. A registry's value is its coverage, and coverage is a
+distribution problem, not an engineering one — every prior attempt at on-chain
+credit shipped working contracts and still died for want of anyone using them.
 ```
+
+**Why this framing.** The instinct on a technical submission is to list the
+engineer and mention marketing at the end. That gets it backwards for *this*
+project specifically: the read API is free and unauthenticated precisely because
+coverage beats revenue, which is a go-to-market position expressed in code.
+Saying so makes the team composition look deliberate rather than incidental.
 
 ---
 
