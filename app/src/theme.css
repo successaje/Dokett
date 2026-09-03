@@ -262,8 +262,8 @@ hr {
 
 .masthead-inner {
   display: flex;
-  align-items: baseline;
-  gap: 32px;
+  align-items: center;
+  gap: 24px;
   padding: 18px 0 12px;
   flex-wrap: wrap;
 }
@@ -297,12 +297,24 @@ hr {
   font-weight: 500;
 }
 
-/* Navigation set as an index, not a button bar. */
+/*
+ * Navigation set as an index, not a button bar.
+ *
+ * flex: 1 makes the nav the element that absorbs a tight window — it wraps
+ * its OWN links onto a second line (it already carries flex-wrap for that)
+ * before the row as a whole does. Without this, the fixed-width items on
+ * either side (wordmark, theme/session controls) are what get shoved onto an
+ * orphan line the moment the row is a few pixels too wide, which is what was
+ * happening: the theme toggle alone landing on its own row and roughly
+ * doubling the header's height.
+ */
 .nav {
   display: flex;
   gap: 28px;
-  margin-left: auto;
+  flex: 1 1 auto;
+  min-width: 0;
   align-items: baseline;
+  justify-content: flex-end;
   flex-wrap: wrap;
 }
 
@@ -336,10 +348,58 @@ hr {
 }
 
 /*
- * Narrow screens: the wordmark and the theme control hold the first line, and
- * the index drops to its own full-width line that scrolls rather than
- * truncating. A navigation item you cannot reach is worse than one you have to
- * swipe to.
+ * The session control and the theme toggle, held together as one unit.
+ *
+ * Before this existed they were two independent flex children of
+ * .masthead-inner. The moment the row was a few pixels too wide for its
+ * container — which happens on the full Console nav at ordinary desktop
+ * widths, not just small screens — flex-wrap peeled off whichever child
+ * didn't fit. Because the theme toggle was last, it was always the one
+ * bumped to an orphan second line, roughly doubling the header's height for
+ * a single glyph. Grouping them means they wrap together or not at all, and
+ * flex-shrink: 0 means this cluster is never what gives way — .nav is (see
+ * its own flex: 1 above).
+ */
+.masthead-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/*
+ * A square icon control, sized to its glyph rather than to text-button
+ * padding. The theme toggle carries a single character (◑ / ☀ / ☾), and
+ * .btn's padding (5px 11px) is tuned for a word like "Connect" — on one
+ * glyph it produces a box noticeably wider than it needs to be, which was
+ * part of what made the header feel crowded even before it started wrapping.
+ */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/*
+ * Narrow screens: the wordmark and the actions cluster hold the first line,
+ * and the index drops to its own full-width line that scrolls rather than
+ * truncating. A navigation item you cannot reach is worse than one you have
+ * to swipe to.
  */
 @media (max-width: 720px) {
   .masthead-inner {
@@ -356,7 +416,7 @@ hr {
     padding: 2px 0 0;
   }
 
-  .masthead-inner > .btn {
+  .masthead-actions {
     order: 2;
     margin-left: auto;
   }
@@ -364,7 +424,6 @@ hr {
   .nav {
     order: 3;
     width: 100%;
-    margin-left: 0;
     gap: 18px;
     overflow-x: auto;
     scrollbar-width: none;
@@ -391,6 +450,11 @@ hr {
 
   .masthead-inner .btn {
     min-height: 40px;
+  }
+
+  .icon-btn {
+    width: 40px;
+    height: 40px;
   }
 }
 
@@ -1585,11 +1649,36 @@ table.data td.num {
   padding-bottom: 40px;
 }
 
+/*
+ * The hero fills the screen and stops there. Below the fold is a real edge,
+ * not an accident of the copy's length: nothing of "The problem" should be
+ * visible until a visitor scrolls, so the first thing anyone sees is the
+ * argument in five lines and two buttons, not a decision about how far to
+ * read.
+ *
+ * --header-h tracks the landing masthead's actual measured height (61px at
+ * one line, 113px once the mobile breakpoint wraps the wordmark subtitle
+ * onto its own line) so the hero fills exactly what's left of the screen —
+ * not 100dvh flush, which would push part of the hero itself below the fold
+ * along with the section after it.
+ */
+:root {
+  --header-h: 61px;
+}
+
 .lp-cover {
+  min-height: calc(100dvh - var(--header-h));
   padding: 92px 28px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 @media (max-width: 720px) {
+  :root {
+    --header-h: 113px;
+  }
+
   .lp-cover {
     padding: 46px 16px 44px;
   }

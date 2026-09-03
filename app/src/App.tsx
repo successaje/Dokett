@@ -108,7 +108,7 @@ function ThemeToggle() {
   const next = theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
   return (
     <button
-      className="btn"
+      className="icon-btn"
       onClick={() => setTheme(next)}
       title={`Theme: ${theme}. Click for ${next}.`}
       aria-label={`Theme: ${theme}. Switch to ${next}.`}
@@ -205,7 +205,9 @@ export default function App() {
             <nav className="nav">
               <a href="#/registry">Enter the register</a>
             </nav>
-            <ThemeToggle />
+            <div className="masthead-actions">
+              <ThemeToggle />
+            </div>
           </div>
         </header>
         <main style={{ flex: 1 }}>
@@ -245,8 +247,10 @@ export default function App() {
               </a>
             ))}
           </nav>
-          <SessionMenu />
-          <ThemeToggle />
+          <div className="masthead-actions">
+            <SessionMenu />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
