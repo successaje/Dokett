@@ -271,6 +271,80 @@ Saying so makes the team composition look deliberate rather than incidental.
 
 ---
 
+## Team information — paste-ready variants
+
+> **Everything in `[BRACKETS]` is a placeholder.** Nothing about the second
+> person is written here, because inventing a background for a real teammate is
+> the one failure this project cannot survive: the whole argument is that claims
+> should be checkable, and a judge who checks is exactly the reader you want.
+
+### Team name
+
+`Dokett` — same as the project. On a two-person entry a separate studio name
+invents an entity that does not exist and reads as padding. Prefer it unless
+[NAME] already ships under a shared banner.
+
+### One-line team descriptor (~90 chars)
+
+```
+Two people building the obligation layer for the open economy — one on protocol, one on reach.
+```
+
+### Short team bio (~55 words)
+
+```
+Two people. Success Aje builds the protocol — contracts, keeper, indexer, cure
+relay and Console, end to end. [NAME] owns growth and communications: positioning,
+the written argument, and the case for registering on a registry. Coverage is what
+makes a registry worth anything, and coverage is a distribution problem.
+```
+
+### Long team bio (~150 words)
+
+```
+Two people, split along the line that actually decides whether an obligation
+registry works.
+
+Success Aje builds the protocol: Solidity contracts, the unattended keeper, the
+projection indexer, the cure relay and the Console. The method shows up in the
+artifacts — read the shipped ABIs and precompile behaviour rather than the prose
+docs, measure real gas on real mainnet transactions instead of trusting a published
+formula, and when a page renders blank, trace it to chain state rather than caption
+around it. A 1% gas anomaly turned out to be an untested legacy-transaction path.
+An empty Underwriters page turned out to be an allowlisted collateral token with no
+code deployed on this chain at all.
+
+[NAME] owns growth and communications. Every prior attempt at on-chain credit
+shipped working contracts and died for want of anyone using them. A registry is
+worth exactly its coverage, and coverage is won by argument, not by throughput.
+```
+
+### Member entries
+
+```
+Success Aje — Protocol engineering
+Contracts, keeper, indexer, cure relay, Console. github.com/successaje ·
+medium.com/@finishr
+
+[NAME] — Growth and communications
+[ROLE DETAIL: what they own — positioning, partnerships, content, community]
+[LINKS: X / LinkedIn / site]
+```
+
+### What to fill in
+
+| placeholder | what it needs |
+|---|---|
+| `[NAME]` | your teammate's name as they want it published |
+| `[ROLE DETAIL]` | one clause on what they actually own |
+| `[LINKS]` | their handle — on a growth role, the account *is* the credential |
+
+Add them as a member on the BUIDL page too. The page shows a member count
+publicly, and a Team field describing two people beside `Members 1` is a visible
+inconsistency in a submission arguing that claims should be checkable.
+
+---
+
 ## Links
 
 ```
