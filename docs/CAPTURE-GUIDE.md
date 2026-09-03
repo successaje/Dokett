@@ -29,7 +29,8 @@ on camera:
 3  https://dokett-console.vercel.app/#/obligation/5
 4  https://dokett-console.vercel.app/#/obligation/11
 5  https://dokett-console.vercel.app/#/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87
-6  <DemoBank URL>            ← a different domain. That it is not
+6  https://demobank-credit.vercel.app
+                              ← a different origin. That it is not
                                 dokett-console.vercel.app is the whole point
                                 of the scene; do not serve it from a path
                                 under the Console.
@@ -49,6 +50,17 @@ curl -s https://dokett-lens.fly.dev/obligation/13 | grep '"status"'   # Active �
 curl -s https://dokett-lens.fly.dev/encumbrance/0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f \
   | grep -c '"id"'
 ```
+
+**Confirm DemoBank is not behind a login wall.** It ships with Vercel
+Deployment Protection on by default, which 302s to a Vercel SSO page — fatal
+here, since the scene's whole claim is that no account is needed:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://demobank-credit.vercel.app   # want 200, not 302
+```
+
+If that returns 302: Vercel dashboard → project **demobank** → Settings →
+Deployment Protection → **Vercel Authentication: Disabled** → Save.
 
 Then open DemoBank and run one throwaway application before recording. It
 makes seven live calls to the Lens; if any of them is slow or the Lens is
