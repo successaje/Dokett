@@ -166,8 +166,20 @@ names it:
 | Box | Label (small caps) | Contents (mono, small) |
 |---|---|---|
 | Left | `ETHEREUM` | `LOAN · 1,000,000 USDC` |
-| Centre | `CHAIN B` | `COLLATERAL · LOCKED` |
-| Right | `CHAIN C` | `TOKENIZED ASSET` |
+| Centre | `BASE` | `COLLATERAL · LOCKED` |
+| Right | `ARBITRUM` | `TOKENIZED ASSET` |
+
+**Name the chains — and put their logos in these boxes, small, monochrome, at
+the same weight as the label.** Naming them here is accurate and stronger than
+`CHAIN B`: this shot is the *problem*, a borrower whose position really is
+scattered across venues that cannot see each other. Concrete names make a judge
+picture a real borrower instead of an abstraction.
+
+> ⚠️ **These three names carry a constraint into shot 8.** Dokett proves facts
+> on **one** source chain — Ethereum mainnet, Attestcoin chainkey 3. Nothing in
+> this build touches Base or Arbitrum. They are honest as a depiction of
+> fragmentation and dishonest the moment a proof line connects them. See the
+> warning in shot 8, which is not optional.
 
 Each box is lit faintly **from inside** — its own contents are legible and
 crisp. Crucially: **no line connects any box to any other.** The empty space
@@ -242,12 +254,28 @@ positions.
 
 - On **"Creditcoin"** — the Creditcoin logo (attached) fades in at the lower
   left, small and understated.
-- On **"lets it see across chains"** — **one continuous line draws left to
-  right**, beneath all three boxes, connecting every one. Draw it in Proven
-  green. This is the payoff of the whole sequence and the only long green
-  element. Let it take the full length of the phrase.
-- As the line passes under each box, that box **brightens from Faint back to
-  Ink** — the record can now see it.
+- On **"lets it see across chains"** — a line draws left to right beneath the
+  boxes in Proven green. This is the payoff of the whole sequence and the only
+  long green element. Let it take the full length of the phrase.
+
+  > ⚠️ **The line is solid under `ETHEREUM` and dashed under `BASE` and
+  > `ARBITRUM`.** Dokett proves one source chain: Ethereum mainnet, chainkey 3.
+  > A solid line under all three states, in the most memorable form available,
+  > that this build verifies Base and Arbitrum. It does not. The same reasoning
+  > keeps both chains out of the submission's Layer-2 field.
+  >
+  > Dashing them costs nothing and gains something: it distinguishes what ships
+  > from what the primitive extends to, which is the distinction a judge is
+  > looking for and rarely finds.
+
+- As the line passes under **`ETHEREUM`**, that box brightens from Faint to full
+  **Ink** and takes the proof seal from shot 7. `BASE` and `ARBITRUM` lift only
+  part-way — visibly reached, not yet verified.
+- One caption, Muted mono, beneath the line, held for the phrase:
+
+  ```
+  ETHEREUM · CHAINKEY 3 · LIVE          BASE · ARBITRUM — AS ATTESTCOIN ATTESTS THEM
+  ```
 - On **"a shared, verifiable record of obligations"** — the boxes and line
   recede, and the Dokett wordmark resolves centred with
   `REGISTER OF OBLIGATIONS` beneath.
@@ -265,10 +293,21 @@ Final frame holds two seconds on the wordmark, then cuts to the screen recording
   the Dokett wordmark. This is a Dokett video that credits Creditcoin, not a
   co-branded one.
 - Do not place the two logos side by side at equal size at any point.
+- **Chain logos (Ethereum, Base, Arbitrum)** — shots 4–6 and 8 only, inside
+  their boxes, small and monochrome so they read as labels rather than
+  endorsements. Pull them from each project's official brand kit rather than an
+  image search: these are live trademarks, and the usable versions are published
+  precisely so nobody has to guess. Never larger than the Dokett wordmark, and
+  never on the final frame — the last thing on screen is Dokett alone.
 
 ---
 
 ## 7 · Failure modes to check before delivering
+
+**Check this one first.** Freeze on the last frame of shot 8. If a viewer who
+knows nothing about the project would conclude that Dokett verifies Base and
+Arbitrum today, the shot is wrong regardless of how good it looks. Solid line
+and proof seal on Ethereum only; dashed elsewhere.
 
 - Does anything bounce or overshoot? → wrong, it should absorb
 - Is green used anywhere other than shot 7's proof and shot 8's line? → remove it
