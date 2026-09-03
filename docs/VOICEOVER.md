@@ -14,7 +14,7 @@ Two parts. **Part One is animated** (no UI — typography, motion, diagram).
 - `//` is a **beat** — about one second. They are counted in the timing, so
   taking them does not put you over.
 - **Bold** takes the stress.
-- Read numbers as the *[spoken: …]* notes say. "2m18s" out loud is worse than
+- Read numbers as the *[spoken: …]* notes say. "2m15s" out loud is worse than
   useless.
 - *CRED-it-coin · at-TEST-coin · COV-en-ant*
 - Record audio separately from the screen. One bad sentence then costs one
@@ -84,7 +84,7 @@ Dokett."
 >
 > We registered this obligation and did nothing.
 >
-> Two minutes and eighteen seconds later it was in default — marked delinquent,
+> Two minutes and fifteen seconds later it was in default — marked delinquent,
 > then defaulted, by an unattended keeper. Nobody reported it. //
 >
 > To be precise: we don't claim to prove a negative. What's proven is narrower —
@@ -95,6 +95,15 @@ Dokett."
 
 > The caveat is not a disclaimer to rush past. It is the most credible thing in
 > the video. Rehearse it until it is exact.
+
+> ⚠️ **2m15s, not 2m18s.** Measured from the three `StatusChanged` events on
+> obligation 5: registered at t=0, Delinquent at +15s, Default at +135s. An
+> earlier draft said 2m18s, which nothing on chain supports. A judge who pulls
+> those transactions gets 135 seconds, and being caught inflating the one number
+> the scene turns on would cost more than the three seconds are worth.
+>
+> This number belongs to obligation **5** alone. Obligation 11 took **21m15s**,
+> so Scene C cannot inherit the line.
 
 ## C · The slash — `#/obligation/11`, then `#/underwriter/0x60eF…8e87` · 0:20
 

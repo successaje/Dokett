@@ -160,7 +160,7 @@ screen rather than from this script. See the note below.**
 > We registered this obligation and then did nothing at all. No payment. No
 > report. No intervention.
 >
-> Two minutes and eighteen seconds later it was in default. Delinquent, then
+> Two minutes and fifteen seconds later it was in default. Delinquent, then
 > defaulted — by an unattended keeper watching the attested Ethereum head.
 
 **Beat.**

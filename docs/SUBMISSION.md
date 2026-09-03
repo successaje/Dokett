@@ -249,7 +249,7 @@ THE INVERSION. Most cross-chain verification proves that something happened.
 Dokett's SilenceAdapter acts on what didn't: an obligation degrades to delinquent,
 then default, purely because no admissible proof of payment arrived before an
 attested deadline. No reporter, no committee, no oracle operator. We demonstrated
-this live — a registered obligation reached default in 2 minutes 18 seconds,
+this live — a registered obligation reached default in 2 minutes 15 seconds,
 unattended, and first-loss capital was slashed to the creditor in the same
 transaction that recorded the default.
 
@@ -518,7 +518,7 @@ All source-verified on Blockscout.
 ### Evidence a judge can check in 30 seconds
 
 ```
-Autonomous default, three transactions, 2m18s, zero humans:
+Autonomous default, three transactions, 2m15s, zero humans:
   0x7da80af3fcedc969167c1ad4cc818f513e30deef555581ad7a195f83e9eb9fc8   registered
   0x72127e0d2db87c381e266be69f6c9dac90585d04b471a0cd57c0425bf7202789   → Delinquent
   0x7ce07a2ec62b1b41bce4565784c51a97d57b6a1b7b5933a84724960759a61f7d   → Default

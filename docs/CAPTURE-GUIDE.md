@@ -134,7 +134,7 @@ Hold on the status pill. Do not scroll yet.
 Now scroll slowly to **Record of transitions**. The three entries should arrive
 under the words that describe them:
 
-> *"Two minutes and eighteen seconds later it was in default — marked delinquent, then defaulted, by an unattended keeper. Nobody reported it."*
+> *"Two minutes and fifteen seconds later it was in default — marked delinquent, then defaulted, by an unattended keeper. Nobody reported it."*
 
 Rest the cursor beside each transition as you name it. Do not click through to
 the explorer — it takes the viewer off the page and you cannot get back cheaply.
