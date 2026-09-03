@@ -180,7 +180,8 @@ first thing to drop, not the last.
 > of* that encumbrance, which is the same fact doing work rather than sitting
 > on screen. The line it was worth keeping moved here.
 
-**Cut to tab 6 — DemoBank.** Land on the application form, already filled:
+**Cut to tab 6 — DemoBank**, on its own domain. Land on the form, already
+filled:
 applicant commitment `0x986a7f70…`, amount `7500`. Nothing queried yet.
 
 > *"This console isn't the product. It's how a person reads the register."*
@@ -188,7 +189,13 @@ applicant commitment `0x986a7f70…`, amount `7500`. Nothing queried yet.
 Say that while still on the Console, then cut. The cut lands on the word
 "person" — a visibly different product by a visibly different party.
 
-> *"Here's a different application, by a different party. No account, no key, no permission."*
+> *"So here's a different application reading it. We wrote this one, but it has no Dokett account, no key and no permission — because there is nothing to have. One static file."*
+
+**Say "we wrote this one" and do not skip it.** DemoBank is a reference
+consumer, not an independent integrator, and your GitHub account is on the
+submission form. The claim that survives checking is not *someone else built
+this* — it is *this is all it takes*, which is both true and the more
+impressive of the two.
 
 **Click "Check Dokett".** The query log fills one line at a time, each showing
 its full URL. **Do not talk over this.** Seven public GETs appearing on screen

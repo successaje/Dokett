@@ -124,8 +124,9 @@ encumbrance beats showing the encumbrance.**
 
 > This console isn't the product. It's how a *person* reads the register. //
 >
-> Here's a different application, by a different party. No account, no key, no
-> permission. //
+> So here's a different application reading it. We wrote this one, but it has
+> no Dokett account, no key and no permission — because there is nothing to
+> have. One static file. //
 >
 > It asks what this borrower owes — and whether their collateral is already
 > pledged elsewhere. //

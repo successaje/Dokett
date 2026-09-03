@@ -6,12 +6,15 @@
 <title>DemoBank — Credit Origination</title>
 
 <!--
-  DemoBank is not part of Dokett.
+  DemoBank is a reference consumer of the Dokett register, written by the
+  Dokett team. It is not an independent third party and does not pretend to
+  be one — pasting it into a separate repository would not have made it one.
 
-  It exists to test one claim that Dokett makes about itself: that the register
-  is infrastructure rather than an application, and that a third party can make
-  a credit decision from it without an account, an API key, a permission, or a
-  proprietary score.
+  It exists to test one claim Dokett makes about itself: that the register is
+  infrastructure rather than an application, and that a lender can make a
+  credit decision from it with no account, no API key, no permission and no
+  proprietary score. That claim is checkable regardless of who wrote this
+  file, which is why the file is worth having.
 
   So this file has no build step, no framework, no SDK and no dependency on
   anything Dokett publishes except its public HTTP endpoints. It is one file
@@ -94,8 +97,9 @@
 <div class="wrap">
   <h1>New credit application</h1>
   <p class="sub">
-    DemoBank has no relationship with Dokett — no account, no key, no permission.
-    It reads the public register the way anyone can.
+    A reference consumer, written by the Dokett team — not an independent third
+    party. It holds no Dokett account, key or permission, because there is
+    nothing to hold: it reads the public register the way anyone can.
   </p>
 
   <div class="cols">
