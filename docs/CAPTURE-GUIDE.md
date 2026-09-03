@@ -1,4 +1,4 @@
-# Screen capture guide — Part Two (0:55 → 2:54)
+# Screen capture guide — Part Two (1:00 → 2:55)
 
 The companion to `VOICEOVER.md`. That file is what you *say*; this is what is
 *on screen* while you say it.
@@ -61,7 +61,7 @@ today's gas figure, then run it again on camera.
 
 ---
 
-## A · Evidence · 0:55 → 1:13
+## A · Evidence · 1:00 → 1:18
 
 **Screen 1 — terminal.** Type and run:
 
@@ -98,7 +98,7 @@ Let the cursor rest on the **CURRENT** pill as you say "proven."
 
 ---
 
-## B · The inversion · 1:13 → 1:58
+## B · The inversion · 1:18 → 1:54
 
 **This is the scene that wins. Everything here moves slower than feels natural.**
 
@@ -128,7 +128,7 @@ reads as confidence. Motion under it reads as hurrying past something.
 
 ---
 
-## C · The slash · 1:58 → 2:16
+## C · The slash · 1:54 → 2:14
 
 > ⚠️ **Navigate to obligation 11, not 5.** Obligation 5 has no bonds and its
 > Underwriting section says *"No bonds posted"* — the exact opposite of this
@@ -152,7 +152,7 @@ Cursor rests on the **LOSS RATE** figure.
 Then slowly scroll to the **Positions** table so the individual bonds — including
 the slashed one — are visible as the sentence lands.
 
-**Optional — but the headroom is now 6 seconds, not 15.** Take this only if
+**Optional — but the headroom is 5 seconds, not 15.** Take this only if
 your read is comfortably under time. The beat that turns a number into a
 market: While still on
 *"recomputed from chain events, editable by nobody"*, paste a second underwriter
@@ -168,12 +168,12 @@ saying. A rating agency assigns; this is computed per address from what actually
 happened.
 
 There is no all-underwriters index, so this needs a second lookup rather than
-one screen. It costs about five seconds of a six-second margin — so it is the
+one screen. It costs about five seconds of a five-second margin — so it is the
 first thing to drop, not the last.
 
 ---
 
-## D · Someone else's application · 2:16 → 2:54
+## D · Someone else's application · 2:14 → 2:55
 
 > **Scene D of the old cut is gone.** It paged through the Encumbrance screen
 > to show an asset pledged twice. This scene shows a lender *declining because

@@ -29,6 +29,8 @@ Two parts. **Part One is animated** (no UI — typography, motion, diagram).
 >
 > **What do you already owe?** //
 >
+> In traditional finance, an apparatus exists to answer it. //
+>
 > Now move that borrower on-chain. A loan on Ethereum. Collateral on a second
 > chain. A tokenized asset on a third. //
 >
@@ -52,7 +54,7 @@ Dokett."
 
 ---
 
-# PART TWO — SCREEN CAPTURE · 1:59
+# PART TWO — SCREEN CAPTURE · 1:54
 
 ## A · Evidence — `prove:fresh`, then `#/obligation/2` · 0:18
 
@@ -73,7 +75,7 @@ Dokett."
 > proven transaction ages, because the continuity proof walks further back.
 > Today's fresh run measured **409,962 gas · 0.000204981 CTC**.
 
-## B · The inversion — `#/obligation/5` · 0:45
+## B · The inversion — `#/obligation/5` · 0:36
 
 **Slow down. This is the scene that wins.**
 
@@ -94,7 +96,7 @@ Dokett."
 > The caveat is not a disclaimer to rush past. It is the most credible thing in
 > the video. Rehearse it until it is exact.
 
-## C · The slash — `#/obligation/11`, then `#/underwriter/0x60eF…8e87` · 0:18
+## C · The slash — `#/obligation/11`, then `#/underwriter/0x60eF…8e87` · 0:20
 
 > ⚠️ **Navigate to obligation 11.** Scene B leaves you on 5, which carries no
 > bonds and displays "No bonds posted" — the exact opposite of what this VO
@@ -117,26 +119,25 @@ Dokett."
 > Costs ~5s, and there are 15 to spare. Screen direction is in
 > CAPTURE-GUIDE.md.
 
-## E · Someone else's application — `demobank` · 0:38
+## E · Someone else's application — `demobank` · 0:40
 
 **The close. D was folded into this scene — showing a lender act on the
 encumbrance beats showing the encumbrance.**
 
-> This console isn't the product. It's how a *person* reads the register. //
+> This console isn't the product — it's how a *person* reads the register. //
 >
-> So here's a different application reading it. We wrote this one, but it has
-> no Dokett account, no key and no permission — because there is nothing to
-> have. One static file. //
+> Here's a different application reading it. We wrote it, but it holds no key
+> and no permission — there's nothing to hold. One static file. //
 >
-> It asks what this borrower owes — and whether their collateral is already
-> pledged elsewhere. //
+> It asks what this borrower owes, and whether their collateral is pledged
+> elsewhere. //
 >
-> It is. Twice. **That question has no answer anywhere else in crypto.** //
+> It is. Twice. **No answer to that exists anywhere else in crypto.** //
 >
-> Seven queries. Credit declined — on DemoBank's policy, not Dokett's score. //
+> Seven queries. Credit declined — DemoBank's policy, not Dokett's score. //
 >
-> We didn't build a lending protocol. **We built the record that lending
-> protocols can finally read.**
+> We didn't build a lending protocol. **We built the record lending protocols
+> can finally read.**
 
 > Dokett returns facts and never a recommendation. If you ad-lib one sentence
 > here, make it that one — it is the difference between a registry and a credit
@@ -146,26 +147,39 @@ encumbrance beats showing the encumbrance.**
 
 ## Timing
 
-**Counted by script, per scene, from this file** — not estimated. Narration
-words at 150 wpm plus one second per `//` beat, excluding ⚠️ notes and their
-continuation lines.
+```bash
+python3 script/time-voiceover.py
+```
+
+Counted **by script, from this file** — narration words at 150 wpm plus one
+second per `//` beat. Do not hand-count it; three separate hand-counts of this
+file have now been wrong.
 
 | | Runs | Cumulative |
 |---|---|---|
-| Part One · animated | 0:55 | 0:55 |
-| Part Two · screen | 1:59 | **2:54** |
+| Part One · animated | 1:00 | 1:00 |
+| Part Two · screen | 1:54 | **2:55** |
 
-**6 seconds of headroom against the 3:00 ceiling.** That is thin. Read at a
-deliberate 135 wpm this becomes 3:11, so take a cut below *before* recording
-rather than discovering it in the edit.
+**5 seconds of headroom against the 3:00 ceiling.** Read at a deliberate
+135 wpm this becomes 3:12, so if your natural pace is slow, take cut 1 below
+*before* recording rather than discovering it in the edit.
 
-### Two corrections to what this file used to claim
+### Why there is now a script
 
-**The old numbers were wrong, and wrong in the dangerous direction.** Three
-figures in this file disagreed with each other: the Part Two header said 1:53,
-the timing table said 1:45, and the scene headings summed to 2:12. Measured,
-Part Two was **2:06** — so the advertised 2:45 total was really ~3:06, over the
-ceiling, in a file whose whole purpose is to keep the video under it.
+Every hand-count of this file has been wrong, in both directions, because
+narration and director's notes are both blockquotes and the eye does not
+separate them reliably.
+
+- The original count swallowed the continuation lines of ⚠️ notes and reported
+  **2:45**.
+- Three figures then disagreed at once: the Part Two header said 1:53, the
+  table said 1:45, the scene headings summed to 2:12.
+- The recount that caught that swallowed a whole 24-word note inside Scene B
+  and reported **3:28**, which triggered trims that were not needed.
+
+`script/time-voiceover.py` classifies note blocks explicitly instead of
+guessing. Re-run it after any edit to narration; the numbers above came from
+it, not from a person.
 
 **Scene D was cut, not shortened.** It displayed a twice-pledged asset on the
 Encumbrance page. Scene E now shows a *lender declining because of* that
@@ -175,10 +189,13 @@ moved into E, where it lands on a decision rather than a table.
 
 If a take still runs long, cut in this order:
 
-1. "Submission is permissionless and costs a fraction of a cent." — B.
-   Weakens the caveat's economics, so it is a real loss. ~0:05
-2. "It's how a *person* reads the register." — E. The contrast survives
-   without it. ~0:03
+1. "In traditional finance, an apparatus exists to answer it." — Part One.
+   Cut animation shot 3 with it rather than holding 4.5 seconds of silent
+   boxes; the brief builds that shot around this line. ~0:04
+2. "It's how a *person* reads the register." — E. The contrast survives on
+   the cut alone. ~0:03
+3. "Submission is permissionless and costs a fraction of a cent." — B.
+   Weakens the caveat's economics, so it is a real loss. Take it last. ~0:05
 
 **Never cut** the caveat itself in B, the "no score, facts only" line in E, or
 the closing line.
