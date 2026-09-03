@@ -62,6 +62,14 @@ curl -s -o /dev/null -w "%{http_code}\n" https://demobank-credit.vercel.app   # 
 If that returns 302: Vercel dashboard → project **demobank** → Settings →
 Deployment Protection → **Vercel Authentication: Disabled** → Save.
 
+> ⚠️ **Re-alias after any redeploy.** `demobank-credit.vercel.app` is a manual
+> alias and does **not** follow a new production deployment on its own — a
+> redeploy leaves it serving the previous build. After any `vercel deploy`:
+>
+> ```bash
+> vercel alias set <new-deployment-url> demobank-credit.vercel.app
+> ```
+
 Then open DemoBank and run one throwaway application before recording. It
 makes seven live calls to the Lens; if any of them is slow or the Lens is
 mid-restart, you want to know before the camera is on.

@@ -191,7 +191,14 @@ async function get(path) {
   return body;
 }
 
-document.getElementById('go').onclick = async () => {
+/* addEventListener rather than an onclick property.
+   To be accurate about why: the onclick form was NOT broken. A browser
+   automation harness failed to fire it during verification, which looked like
+   a page bug and wasn't — its ref-to-coordinate mapping was mis-scaled and the
+   click was landing on the body. The listener form behaves identically there.
+   Kept anyway, because it composes: a listener survives anything that later
+   assigns to the property, and there is exactly one click in this demo. */
+document.getElementById('go').addEventListener('click', async () => {
   const subject = document.getElementById('subject').value.trim();
   const ask     = Number(document.getElementById('amount').value) || 0;
   const btn     = document.getElementById('go');
@@ -298,7 +305,7 @@ document.getElementById('go').onclick = async () => {
   } finally {
     btn.disabled = false; btn.textContent = 'Check Dokett';
   }
-};
+});
 </script>
 </body>
 </html>
