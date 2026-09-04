@@ -121,9 +121,14 @@ function ThemeToggle() {
 /*
  * Two clusters, not one flat list. The record itself — Registry / Solvency /
  * Encumbrance / Underwriters — is precise bureau vocabulary and stays put.
- * Developers, Posts, and About are real destinations that were previously
- * unreachable from inside the app (About existed only as a wordmark click),
- * so they're added rather than swapped in over the first cluster.
+ * Developers and Posts are real destinations that were previously
+ * unreachable from inside the app, so they're added rather than swapped in
+ * over the first cluster.
+ *
+ * "About" was dropped from this list, not from the app — the wordmark still
+ * links to "/" from every page, exactly as it did before this nav existed.
+ * Losing it as an explicit label was the cheapest width to reclaim toward
+ * fitting the whole header on one line.
  */
 const NAV_RECORD = [
   ['/registry', 'Registry'],
@@ -136,7 +141,6 @@ const NAV_RECORD = [
 const NAV_MORE = [
   ['/developers', 'Developers'],
   ['/posts', 'Posts'],
-  ['/', 'About'],
 ] as const;
 
 function View({ route }: { route: string }) {
@@ -197,32 +201,33 @@ export default function App() {
       <div className="shell">
         <header className="masthead">
           {/*
-            Single row, not the two-row .masthead-top/.nav split the Console
-            header uses. That split exists because the Console's full nav
-            (8 items) can genuinely outgrow the row alongside a long session
-            label — see the fix in .masthead-inner. Landing's nav is one
-            link, "Enter the register", which never comes close to that
-            problem, so forcing it onto its own row here just adds a mostly
-            empty second line under a mostly empty first one.
+            Same .masthead-top/.nav structure as the Console header — one
+            mechanism for both, not two parallel ones. (A previous version
+            kept a separate always-single-row variant for this page; it and
+            the Console header's --header-h drifted out of sync within one
+            edit, which is exactly the failure mode sharing one mechanism is
+            meant to prevent.)
 
-            The subtitle is dropped too, but for a different reason: it's
-            redundant here specifically. The hero copy one paragraph down
-            already spells out "a cross-chain registry" in full sentences —
-            the tiny header label is only useful once someone is deep in the
-            Console with no restating copy nearby, which is exactly where it
-            still appears.
+            The subtitle is dropped, but for a different reason than the
+            structure: it's redundant here specifically. The hero copy one
+            paragraph down already spells out "a cross-chain registry" in
+            full sentences — the tiny header label only earns its place once
+            someone is deep in the Console with no restating copy nearby,
+            which is exactly where it still appears.
           */}
-          <div className="page masthead-inner masthead-inner-simple">
-            <a className="wordmark" href="#/">
-              <Mark />
-              Dokett
-            </a>
+          <div className="page masthead-inner">
+            <div className="masthead-top">
+              <a className="wordmark" href="#/">
+                <Mark />
+                Dokett
+              </a>
+              <div className="masthead-actions">
+                <ThemeToggle />
+              </div>
+            </div>
             <nav className="nav">
               <a href="#/registry">Enter the register</a>
             </nav>
-            <div className="masthead-actions">
-              <ThemeToggle />
-            </div>
           </div>
         </header>
         <main style={{ flex: 1 }}>

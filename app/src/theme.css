@@ -288,10 +288,31 @@ hr {
  * on its own terms. Nothing on the top row can ever be pushed anywhere by
  * how long the nav or the account label happen to be.
  */
+/*
+ * One row, two flex children: .masthead-top (wordmark + actions, always
+ * together, never splittable) and .nav (see below). Both the Console header
+ * and the Landing header use exactly this — no more special-cased variant
+ * for one of them, which is what let their two --header-h values quietly
+ * drift apart last time.
+ *
+ * In the common case (a connected wallet's short truncated-address label,
+ * which is what this session control shows for the overwhelming majority of
+ * real usage) everything shares one line, because .nav's flex-basis lets it
+ * sit in whatever's left after the fixed-width wordmark and actions cluster.
+ * It only drops to its own full-width line — never splitting, never
+ * orphaning a single control — in the rare case a label is unusually long
+ * (an email address rather than a wallet address) or the window is
+ * unusually narrow. That fallback is deliberate: a two-row header some of
+ * the time is a normal, professional pattern; an orphaned theme toggle or a
+ * nav link scrolled invisibly off-screen — both real failure modes hit while
+ * building this — are not.
+ */
 .masthead-inner {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
   padding: 18px 0 12px;
 }
 
@@ -300,24 +321,7 @@ hr {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  flex-wrap: wrap;
-}
-
-/*
- * Landing only. One link's worth of nav never risks the overflow the
- * two-row split above exists to prevent, so it stays a single inline row —
- * wordmark, nav, actions — instead of gaining an mostly-empty second line
- * under a mostly-empty first one.
- */
-.masthead-inner-simple {
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.masthead-inner-simple .nav {
-  flex: 1 1 auto;
-  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .wordmark {
@@ -350,15 +354,20 @@ hr {
 }
 
 /*
- * Navigation set as an index, not a button bar. It owns its own full-width
- * row (see .masthead-inner above), so wrapping here never competes with the
- * wordmark or the actions cluster for space — it just grows the header a
- * line taller on the rare window narrow enough to need it.
+ * Navigation set as an index, not a button bar. flex: 1 1 auto with
+ * min-width: 0 is what lets it share the header's one row with
+ * .masthead-top when there's room, and drop cleanly to its own full-width
+ * line as a single unit — not link-by-link — when there isn't. See
+ * .masthead-inner above for why that split, and not the nav's own internal
+ * flex-wrap, is what absorbs a tight window.
  */
 .nav {
   display: flex;
   gap: 28px;
+  flex: 1 1 auto;
+  min-width: 0;
   align-items: baseline;
+  justify-content: flex-end;
   flex-wrap: wrap;
 }
 
@@ -463,6 +472,19 @@ hr {
   }
 
   .nav {
+    /*
+     * justify-content reverts to flex-start here, deliberately overriding
+     * the base rule's flex-end. On desktop flex-end right-aligns nav against
+     * the actions cluster when they share a line. On mobile nav becomes a
+     * horizontally-scrolling single line instead (overflow-x below) — and
+     * flex-end there would mean the scroll position defaults to showing the
+     * LAST links, with the first ones (Registry — typically the active page)
+     * scrolled out of view at load, invisible with no indication anything is
+     * off-screen. Hit exactly this once already; it's why this override
+     * exists rather than being an oversight.
+     */
+    justify-content: flex-start;
+    width: 100%;
     flex-wrap: nowrap;
     gap: 18px;
     overflow-x: auto;
