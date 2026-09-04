@@ -97,7 +97,7 @@ export default function SessionMenu() {
         aria-expanded={open}
         aria-haspopup="menu"
       >
-        {s.label ?? (address ? truncate(address, 6, 4) : 'Account')}
+        <span className="sess-label">{s.label ?? (address ? truncate(address, 6, 4) : 'Account')}</span>
         <span className="sess-caret" aria-hidden="true">
           {open ? '▴' : '▾'}
         </span>

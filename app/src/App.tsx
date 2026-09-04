@@ -197,17 +197,19 @@ export default function App() {
       <div className="shell">
         <header className="masthead">
           <div className="page masthead-inner">
-            <a className="wordmark" href="#/">
-              <Mark />
-              Dokett
-              <span className="wordmark-sub">Register of Obligations</span>
-            </a>
+            <div className="masthead-top">
+              <a className="wordmark" href="#/">
+                <Mark />
+                Dokett
+                <span className="wordmark-sub">Register of Obligations</span>
+              </a>
+              <div className="masthead-actions">
+                <ThemeToggle />
+              </div>
+            </div>
             <nav className="nav">
               <a href="#/registry">Enter the register</a>
             </nav>
-            <div className="masthead-actions">
-              <ThemeToggle />
-            </div>
           </div>
         </header>
         <main style={{ flex: 1 }}>
@@ -229,11 +231,17 @@ export default function App() {
     <div className="shell">
       <header className="masthead">
         <div className="page masthead-inner">
-          <a className="wordmark" href="#/">
-            <Mark />
-            Dokett
-            <span className="wordmark-sub">Register of Obligations</span>
-          </a>
+          <div className="masthead-top">
+            <a className="wordmark" href="#/">
+              <Mark />
+              Dokett
+              <span className="wordmark-sub">Register of Obligations</span>
+            </a>
+            <div className="masthead-actions">
+              <SessionMenu />
+              <ThemeToggle />
+            </div>
+          </div>
           <nav className="nav">
             {NAV_RECORD.map(([href, label]) => (
               <a key={href} href={`#${href}`} aria-current={active === href ? 'page' : undefined}>
@@ -247,10 +255,6 @@ export default function App() {
               </a>
             ))}
           </nav>
-          <div className="masthead-actions">
-            <SessionMenu />
-            <ThemeToggle />
-          </div>
         </div>
       </header>
 

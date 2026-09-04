@@ -260,11 +260,46 @@ hr {
   z-index: 20;
 }
 
+/*
+ * Two fixed rows, not one flex line trying to fit everything.
+ *
+ * An earlier version put the wordmark, the nav and the actions cluster in a
+ * single flex-wrap row and tried to make the nav "absorb" overflow via
+ * flex-basis tricks. It didn't hold: flex-wrap decides which item spills to
+ * the next line using each item's hypothetical (near-content) size in a
+ * single pass, not by proportionally shrinking from the start — so depending
+ * on exactly how wide the signed-in label was, sometimes the nav wrapped
+ * internally (fine), sometimes the actions cluster got orphaned alone onto
+ * its own line (the original bug), and once — while chasing this with
+ * overflow-x on the nav instead — the ACTIVE nav link scrolled off-screen
+ * entirely and became invisible. Three different failure modes from one
+ * fragile mechanism.
+ *
+ * The numbers don't leave room for a clever single-row fix, either: the full
+ * Console nav's own natural width is ~700-850px, the wordmark is ~300px, and
+ * a signed-in label can legitimately be an email address — sum those and a
+ * long-enough label mathematically cannot share a line with a full nav
+ * inside an ~1180px container, regardless of how the flex properties are
+ * tuned.
+ *
+ * So: the wordmark and the actions cluster are pinned together as their own
+ * row via .masthead-top (two small, bounded-width items — this always fits),
+ * and .nav is a fully separate row underneath, wrapping its own links
+ * on its own terms. Nothing on the top row can ever be pushed anywhere by
+ * how long the nav or the account label happen to be.
+ */
 .masthead-inner {
   display: flex;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  gap: 8px;
   padding: 18px 0 12px;
+}
+
+.masthead-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
   flex-wrap: wrap;
 }
 
@@ -298,23 +333,15 @@ hr {
 }
 
 /*
- * Navigation set as an index, not a button bar.
- *
- * flex: 1 makes the nav the element that absorbs a tight window — it wraps
- * its OWN links onto a second line (it already carries flex-wrap for that)
- * before the row as a whole does. Without this, the fixed-width items on
- * either side (wordmark, theme/session controls) are what get shoved onto an
- * orphan line the moment the row is a few pixels too wide, which is what was
- * happening: the theme toggle alone landing on its own row and roughly
- * doubling the header's height.
+ * Navigation set as an index, not a button bar. It owns its own full-width
+ * row (see .masthead-inner above), so wrapping here never competes with the
+ * wordmark or the actions cluster for space — it just grows the header a
+ * line taller on the rare window narrow enough to need it.
  */
 .nav {
   display: flex;
   gap: 28px;
-  flex: 1 1 auto;
-  min-width: 0;
   align-items: baseline;
-  justify-content: flex-end;
   flex-wrap: wrap;
 }
 
@@ -396,15 +423,17 @@ hr {
 }
 
 /*
- * Narrow screens: the wordmark and the actions cluster hold the first line,
- * and the index drops to its own full-width line that scrolls rather than
- * truncating. A navigation item you cannot reach is worse than one you have
- * to swipe to.
+ * Narrow screens: the wordmark/actions row and the nav row are already
+ * separate (see .masthead-inner above) — mobile only needs to shrink the
+ * wordmark, let its subtitle drop to its own line, and make the nav scroll
+ * horizontally instead of wrapping to a second internal line, which would
+ * otherwise make an already-tight screen taller still. A navigation item you
+ * cannot reach is worse than one you have to swipe to.
  */
 @media (max-width: 720px) {
   .masthead-inner {
     padding: 14px 0 6px;
-    gap: 10px;
+    gap: 6px;
   }
 
   .wordmark {
@@ -416,14 +445,8 @@ hr {
     padding: 2px 0 0;
   }
 
-  .masthead-actions {
-    order: 2;
-    margin-left: auto;
-  }
-
   .nav {
-    order: 3;
-    width: 100%;
+    flex-wrap: nowrap;
     gap: 18px;
     overflow-x: auto;
     scrollbar-width: none;
@@ -1994,6 +2017,20 @@ table.data td.num {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+}
+
+/*
+ * Belt-and-suspenders: .masthead-top already can't be pushed around by a
+ * long label (it's a fixed row of its own, not competing with the nav for
+ * space — see .masthead-inner). This just keeps the label itself from
+ * stretching the button into something ungainly when it happens to be a long
+ * email address rather than a truncated wallet address.
+ */
+.sess-label {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sess-caret {
