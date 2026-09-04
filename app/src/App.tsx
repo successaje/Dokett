@@ -196,20 +196,33 @@ export default function App() {
     return (
       <div className="shell">
         <header className="masthead">
-          <div className="page masthead-inner">
-            <div className="masthead-top">
-              <a className="wordmark" href="#/">
-                <Mark />
-                Dokett
-                <span className="wordmark-sub">Register of Obligations</span>
-              </a>
-              <div className="masthead-actions">
-                <ThemeToggle />
-              </div>
-            </div>
+          {/*
+            Single row, not the two-row .masthead-top/.nav split the Console
+            header uses. That split exists because the Console's full nav
+            (8 items) can genuinely outgrow the row alongside a long session
+            label — see the fix in .masthead-inner. Landing's nav is one
+            link, "Enter the register", which never comes close to that
+            problem, so forcing it onto its own row here just adds a mostly
+            empty second line under a mostly empty first one.
+
+            The subtitle is dropped too, but for a different reason: it's
+            redundant here specifically. The hero copy one paragraph down
+            already spells out "a cross-chain registry" in full sentences —
+            the tiny header label is only useful once someone is deep in the
+            Console with no restating copy nearby, which is exactly where it
+            still appears.
+          */}
+          <div className="page masthead-inner masthead-inner-simple">
+            <a className="wordmark" href="#/">
+              <Mark />
+              Dokett
+            </a>
             <nav className="nav">
               <a href="#/registry">Enter the register</a>
             </nav>
+            <div className="masthead-actions">
+              <ThemeToggle />
+            </div>
           </div>
         </header>
         <main style={{ flex: 1 }}>

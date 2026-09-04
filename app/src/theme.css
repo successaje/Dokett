@@ -303,6 +303,23 @@ hr {
   flex-wrap: wrap;
 }
 
+/*
+ * Landing only. One link's worth of nav never risks the overflow the
+ * two-row split above exists to prevent, so it stays a single inline row —
+ * wordmark, nav, actions — instead of gaining an mostly-empty second line
+ * under a mostly-empty first one.
+ */
+.masthead-inner-simple {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.masthead-inner-simple .nav {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+
 .wordmark {
   font-family: var(--serif);
   font-size: 25px;
@@ -1679,11 +1696,19 @@ table.data td.num {
  * argument in five lines and two buttons, not a decision about how far to
  * read.
  *
- * --header-h tracks the landing masthead's actual measured height (61px at
- * one line, 113px once the mobile breakpoint wraps the wordmark subtitle
- * onto its own line) so the hero fills exactly what's left of the screen —
- * not 100dvh flush, which would push part of the hero itself below the fold
- * along with the section after it.
+ * --header-h tracks the landing masthead's actual measured height so the
+ * hero fills exactly what's left of the screen — not 100dvh flush, which
+ * would push part of the hero itself below the fold along with the section
+ * after it.
+ *
+ * Landing's header is single-row at every width (it dropped the subtitle
+ * and never needs the Console's two-row nav split — a one-link nav always
+ * fits), so this used to need a separate, taller mobile value for when the
+ * subtitle wrapped onto its own line. It doesn't anymore; verify both
+ * numbers stay true if the header's content changes again — the earlier
+ * version of this comment described a two-line mobile header that no
+ * longer exists, and the two figures had silently drifted apart once
+ * before.
  */
 :root {
   --header-h: 61px;
@@ -1699,7 +1724,7 @@ table.data td.num {
 
 @media (max-width: 720px) {
   :root {
-    --header-h: 113px;
+    --header-h: 64px;
   }
 
   .lp-cover {
