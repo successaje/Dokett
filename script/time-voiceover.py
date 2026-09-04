@@ -27,4 +27,10 @@ for sc, body in out:
     secs = words / 150 * 60 + beats
     tot_s += secs
     print(f'  {sc[:44]:<46} {words:>4}w {beats}b   {int(secs//60)}:{int(secs%60):02d}')
-print(f'\n  {"TOTAL":<46} {"":>9}   {int(tot_s//60)}:{int(tot_s%60):02d}    headroom {180-tot_s:.0f}s')
+
+# Not a hard rule — the live DoraHacks page states no video-length limit
+# (checked 2026-09-04). This is a deliberate, self-imposed target: 48
+# submissions means judges skim, so density still matters even without a cap.
+TARGET_S = 220  # ~3:40
+print(f'\n  {"TOTAL":<46} {"":>9}   {int(tot_s//60)}:{int(tot_s%60):02d}'
+      f'    vs ~{int(TARGET_S//60)}:{int(TARGET_S%60):02d} target: {tot_s-TARGET_S:+.0f}s')

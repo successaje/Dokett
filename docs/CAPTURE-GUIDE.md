@@ -1,4 +1,11 @@
-# Screen capture guide — Part Two (1:00 → 2:55)
+# Screen capture guide — Part Two (1:00 → 3:37)
+
+**Extended cut.** Two scenes were added to the original 2:55 version: a new
+Scene B ("Why only here," on the Developers/ASC-integration page) and two new
+lines folded into the close of Scene E. See `VOICEOVER.md`'s "On length" note
+for why — there is no stated video-length limit on the live DoraHacks rules
+page (checked 2026-09-04), and this is a deliberate ~3:40 target, not padding
+toward an old 3:00 rule that turned out not to exist.
 
 The companion to `VOICEOVER.md`. That file is what you *say*; this is what is
 *on screen* while you say it.
@@ -26,10 +33,11 @@ on camera:
 ```
 1  terminal (in the repo)
 2  https://dokett-console.vercel.app/#/obligation/2
-3  https://dokett-console.vercel.app/#/obligation/5
-4  https://dokett-console.vercel.app/#/obligation/11
-5  https://dokett-console.vercel.app/#/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87
-6  https://demobank-credit.vercel.app
+3  https://dokett-console.vercel.app/#/developers/asc-integration
+4  https://dokett-console.vercel.app/#/obligation/5
+5  https://dokett-console.vercel.app/#/obligation/11
+6  https://dokett-console.vercel.app/#/underwriter/0x60eF148485C2a5119fa52CA13c52E9fd98F28e87
+7  https://demobank-credit.vercel.app
                               ← a different origin. That it is not
                                 dokett-console.vercel.app is the whole point
                                 of the scene; do not serve it from a path
@@ -118,11 +126,48 @@ Let the cursor rest on the **CURRENT** pill as you say "proven."
 
 ---
 
-## B · The inversion · 1:18 → 1:54
+## B · Why only here · 1:18 → 1:48
+
+**New scene.** The viewer just watched an ASC proof resolve in Scene A — this
+is the moment to say why that was hard to build anywhere else, while it's
+still fresh. Verified live at 1440×900: the "0. Three minutes" table and the
+"Verified end to end" code block (real tx hashes, real gas) render together
+in one screen when you `scrollIntoView({block:'center'})` on the table, so a
+single controlled scroll carries the whole scene.
+
+**Cut to tab 3 (`#/developers/asc-integration`).** Land with the page heading
+and the pull-quote ("Every number in this document was measured against live
+CC3 testnet...") visible — do not start mid-scroll.
+
+> *"Why only here?"*
+
+Hold a beat on the heading. Then begin a slow, continuous scroll — not a
+jump-cut — timed to land on the five-row table by the second sentence:
+
+> *"Three things had to be true at once. A chain whose subject is already credit. A way to verify another chain's event with no bridge and no oracle operator. Verification cheap enough, forever, to run continuously."*
+
+Let the cursor drift down the table rows as each condition is named — it
+doesn't need to match 1:1, just move in the same direction as the sentence.
+
+> *"Creditcoin is the first. Attestcoin is the second — a Creditcoin contract reading a real Ethereum event with nobody standing between them."*
+
+Continue the scroll to the **"Verified end to end on 17 Aug 2026"** code
+block — real source tx, proof tx, gas, cost. This is the strongest single
+frame to be holding when the line lands:
+
+> *"Remove any one, and there is no Dokett."*
+
+**Hold on the code block for this line. Do not scroll during it.** A real
+transaction hash sitting still under "there is no Dokett" is the visual
+argument; a moving screen undercuts it.
+
+---
+
+## C · The inversion · 1:48 → 2:24
 
 **This is the scene that wins. Everything here moves slower than feels natural.**
 
-**Cut to tab 3 (`#/obligation/5`).** Start at the top so the **DEFAULT** pill is
+**Cut to tab 4 (`#/obligation/5`).** Start at the top so the **DEFAULT** pill is
 the first thing visible.
 
 > *"Now the harder half. Proving a payment is easy. What about proving that nothing happened?"*
@@ -148,19 +193,19 @@ reads as confidence. Motion under it reads as hurrying past something.
 
 ---
 
-## C · The slash · 1:54 → 2:14
+## D · The slash · 2:24 → 2:44
 
 > ⚠️ **Navigate to obligation 11, not 5.** Obligation 5 has no bonds and its
 > Underwriting section says *"No bonds posted"* — the exact opposite of this
 > narration. 11 is the one that was actually slashed.
 
-**Cut to tab 4 (`#/obligation/11`).** Scroll to *Record of transitions* and stop
+**Cut to tab 5 (`#/obligation/11`).** Scroll to *Record of transitions* and stop
 on the final entry, which reads that first-loss capital was slashed to the
 creditor.
 
 > *"When it defaults, first-loss capital is slashed to the creditor in the same transaction."*
 
-**Cut to tab 5 (`#/underwriter/0x60eF…8e87`).** The four
+**Cut to tab 6 (`#/underwriter/0x60eF…8e87`).** The four
 figures at the top are the payoff.
 
 > *"This underwriter's loss rate went from zero to seven point six nine percent."*
@@ -172,9 +217,9 @@ Cursor rests on the **LOSS RATE** figure.
 Then slowly scroll to the **Positions** table so the individual bonds — including
 the slashed one — are visible as the sentence lands.
 
-**Optional — but the headroom is 5 seconds, not 15.** Take this only if
-your read is comfortably under time. The beat that turns a number into a
-market: While still on
+**Optional — but the margin against the ~3:40 target is 3 seconds, not 15.**
+Take this only if your read is comfortably under time. The beat that turns a
+number into a market: While still on
 *"recomputed from chain events, editable by nobody"*, paste a second underwriter
 into the lookup:
 
@@ -182,25 +227,27 @@ into the lookup:
 0xC282Cb7cE6c175582B84BF94C61258Bb5cDCA88e
 ```
 
-A different book appears: three bonds, **0.00%** loss rate. Same page, same
+A different book appears: four bonds, **0.00%** loss rate. Same page, same
 derivation, different address — which is the whole point of the sentence you are
 saying. A rating agency assigns; this is computed per address from what actually
 happened.
 
 There is no all-underwriters index, so this needs a second lookup rather than
-one screen. It costs about five seconds of a five-second margin — so it is the
-first thing to drop, not the last.
+one screen. It costs about five seconds of a three-second margin — so it is
+the first thing to drop, not the last.
 
 ---
 
-## D · Someone else's application · 2:14 → 2:55
+## E · Someone else's application · 2:44 → 3:35
 
-> **Scene D of the old cut is gone.** It paged through the Encumbrance screen
-> to show an asset pledged twice. This scene shows a lender *declining because
-> of* that encumbrance, which is the same fact doing work rather than sitting
-> on screen. The line it was worth keeping moved here.
+> **An earlier "Scene D" is gone**, not the current one — see the letter note
+> in `VOICEOVER.md`'s Scene E header if the lettering here doesn't match an
+> older recording. That earlier scene paged through the Encumbrance screen to
+> show an asset pledged twice. This scene shows a lender *declining because
+> of* that encumbrance instead, which is the same fact doing work rather than
+> sitting on screen. The line it was worth keeping moved here.
 
-**Cut to tab 6 — DemoBank**, on its own domain. Land on the form, already
+**Cut to tab 7 — DemoBank**, on its own domain. Land on the form, already
 filled:
 applicant commitment `0x986a7f70…`, amount `7500`. Nothing queried yet.
 
@@ -237,7 +284,16 @@ Cursor rests on the line under the verdict: *Decision based on 7 public Dokett
 queries. No Dokett account. No Dokett permission. No proprietary credit score.*
 
 Finally scroll to **The entire integration** — the whole policy visible as a
-few lines of code.
+few lines of code, opening on *"// No SDK. No auth. No account."*
+
+> *"This isn't a Creditcoin-only problem — every chain that tokenizes a real asset inherits it."*
+
+Hold on that comment line as you say it — it's a real, verified line of the
+actual code, not a claim laid over a generic screen. Then let the cursor drift
+down through the `fetch()` call and the `POLICY` object as the next line
+lands, ending on the closing brace:
+
+> *"Attestcoin is what makes it provable instead of asserted, here first."*
 
 > *"We didn't build a lending protocol. We built the record that lending protocols can finally read."*
 
@@ -262,6 +318,7 @@ Hold three seconds. Do not fade to black on a scrolling page.
 | An obligation changed status | Use the live register. Every scene works with **any** obligation in the right state — the script names ids for convenience, not because they are special. Check with `curl .../obligations`. |
 | The Lens is unreachable | Stop — DemoBank cannot render without it, and neither can the Console. Check `flyctl status -a dokett-lens`. |
 | The gas figure differs from what you rehearsed | Read what is on screen. Both numbers are correct; they answer different questions. |
+| The ASC-integration page's table or figures look different from this guide | It's a live-rendered markdown doc (`docs/ASC-INTEGRATION.md`), not a static screen — it can be edited between when this guide was written and when you record. Scene B still works with whatever the page currently shows; the scene doesn't depend on the exact wording, only on the table and the verified-tx block existing. |
 
 ---
 
@@ -270,7 +327,9 @@ Hold three seconds. Do not fade to black on a scrolling page.
 - **Burn in subtitles.** A meaningful share of judging happens in a second
   language, possibly on a phone.
 - Speed up only the `prove:one` wait. Nothing else.
-- No music under the caveat in Scene B, if you use music at all.
+- No music under the caveat in Scene C (the inversion) or under the "remove
+  any one, and there is no Dokett" line in Scene B, if you use music at all —
+  both are places where a still, quiet frame is doing real work.
 - Export 1080p. Check it once at phone size before submitting — if the mono
   figures are unreadable there, raise the browser zoom and re-record rather than
   shipping it.
