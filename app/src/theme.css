@@ -1718,19 +1718,25 @@ table.data td.num {
  * argument in five lines and two buttons, not a decision about how far to
  * read.
  *
- * --header-h tracks the landing masthead's actual measured height so the
- * hero fills exactly what's left of the screen — not 100dvh flush, which
- * would push part of the hero itself below the fold along with the section
- * after it.
+ * --header-h fills exactly what's left of the screen — not 100dvh flush,
+ * which would push part of the hero itself below the fold along with the
+ * section after it. It's set at runtime (App.tsx, useHeaderHeightVar) from
+ * the header's own measured height via ResizeObserver, not hardcoded here.
  *
- * Landing's header is single-row at every width (it dropped the subtitle
- * and never needs the Console's two-row nav split — a one-link nav always
- * fits), so this used to need a separate, taller mobile value for when the
- * subtitle wrapped onto its own line. It doesn't anymore; verify both
- * numbers stay true if the header's content changes again — the earlier
- * version of this comment described a two-line mobile header that no
- * longer exists, and the two figures had silently drifted apart once
- * before.
+ * It was a hardcoded pixel constant, once per breakpoint, until it broke
+ * twice from that in immediate succession: once when the header's subtitle
+ * was dropped and the mobile figure didn't follow, again when nav links
+ * were added back and it grew past the same stale figure. Both times "The
+ * problem" quietly became partly visible on load — the one thing this
+ * property exists to prevent — and neither was visible without actually
+ * loading the page; the numbers alone looked reasonable. Measuring the real
+ * header removes the constant, and the bug class with it.
+ *
+ * The value below is a pre-JS fallback only, for the first paint before the
+ * measurement effect runs (or on the rare client with JS disabled). It does
+ * not need to be exact — just close enough that nothing looks broken for one
+ * frame — so resist the urge to keep it in sync by hand; that's the habit
+ * that caused this.
  */
 :root {
   --header-h: 61px;
@@ -1745,10 +1751,6 @@ table.data td.num {
 }
 
 @media (max-width: 720px) {
-  :root {
-    --header-h: 64px;
-  }
-
   .lp-cover {
     padding: 46px 16px 44px;
   }

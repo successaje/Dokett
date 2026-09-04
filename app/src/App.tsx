@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { lens, useLens } from './lib/lens';
 import { height } from './lib/format';
 import { Mark } from './components/primitives';
@@ -187,8 +187,48 @@ function View({ route }: { route: string }) {
   }
 }
 
+/*
+ * --header-h drives .lp-cover's height (see theme.css) so the landing hero
+ * fills exactly the screen and stops there. It used to be a hardcoded pixel
+ * value, once per breakpoint — and broke twice from that: once when the
+ * subtitle was dropped and the mobile header shrank without the constant
+ * following, and again when nav links were added and the mobile header grew.
+ * Both times "the problem" section quietly became partly visible on load,
+ * which is the one thing this variable exists to prevent, and neither
+ * would have been caught without measuring the live page rather than
+ * trusting the number.
+ *
+ * Measuring it instead of hardcoding it removes the whole bug class: this
+ * observes whatever .masthead actually renders, on either page, and stays
+ * correct no matter how its content changes in the future.
+ */
+function useHeaderHeightVar(route: string) {
+  // Layout effect, not a plain effect: this must land before the browser
+  // paints, or the hero briefly renders at its un-measured fallback height
+  // and then visibly snaps to the correct one a frame later.
+  useLayoutEffect(() => {
+    const header = document.querySelector('.masthead');
+    if (!header) return;
+
+    const set = () => {
+      const h = header.getBoundingClientRect().height;
+      if (h > 0) document.documentElement.style.setProperty('--header-h', `${h}px`);
+    };
+
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(header);
+    return () => ro.disconnect();
+    // Re-attach on every route change: switching between the Landing header
+    // and the Console header replaces the DOM node entirely, and an observer
+    // bound to the old (now-detached) node would silently stop updating.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route]);
+}
+
 export default function App() {
   const route = useHashRoute();
+  useHeaderHeightVar(route);
 
   /*
    * The title page runs without the console's chrome. Its job is to explain what
@@ -227,6 +267,8 @@ export default function App() {
             </div>
             <nav className="nav">
               <a href="#/registry">Enter the register</a>
+              <a href="#/solvency">Solvency</a>
+              <a href="#/encumbrance">Encumbrance</a>
             </nav>
           </div>
         </header>
