@@ -36,6 +36,78 @@ guess that it's "probably fine."
 
 ---
 
+## This week's posting calendar
+
+Five posts, one per day is fine, order isn't rigid — post whichever fits the
+day. All character counts below use X's rule that any URL counts as 23
+characters regardless of its real length, and all were re-verified live on
+2026-09-05.
+
+**Day 1 — "why only here."** New this week, ties directly to the video's new
+Scene B:
+
+```
+Why does this only work on Creditcoin?
+
+Three things had to be true at once: a chain whose subject is
+already credit, no bridge or oracle standing between chains, and
+verification cheap enough forever to run continuously.
+
+Remove one, and there's no Dokett.
+```
+
+257 chars. Good screenshot: the `/developers/asc-integration` page's "0. Three
+minutes" table.
+
+**Day 2 — the encumbrance fact.** See #1 below — unchanged, still the
+strongest concrete fact.
+
+**Day 3 — DemoBank.** ⚠️ The version further down this file (§2) is **364
+characters — over X's limit, never actually postable.** Use this one instead:
+
+```
+Nobody outside this project had queried Dokett's API. So we built
+something that would.
+
+DemoBank: separate app, no account, no key, no SDK. It reads the
+register and declines a loan on its own policy, not Dokett's.
+
+Facts, never a score.
+
+demobank-credit.vercel.app
+```
+
+266 chars, verified.
+
+**Day 4 — build-in-public: a bug caught before it hit video.** Shows the
+rigor rather than asserting it:
+
+```
+Caught before it hit video: a demo scene said "three bonds, 0.00%
+loss rate" for an underwriter. Checked it live — it's four now, from
+a seed script we ran days earlier.
+
+Every number gets re-verified against the chain the morning we
+record. Not once, at the start.
+```
+
+265 chars. No screenshot needed — this one's about process, not a feature.
+
+**Day 5 — the cost-curve nugget.** Same fact as the Medium post draft, standalone:
+
+```
+We measured it instead of trusting the spec: proving a 2-year-old
+Ethereum fact on Creditcoin costs 26% more than a 20-minute-old one.
+
+Not per year — total, across 51,529x the age.
+
+That's what makes a permanent registry economically possible.
+```
+
+244 chars, re-verified against `docs/ASC-INTEGRATION.md` §3.3.
+
+---
+
 ## Ready-to-post, verified today
 
 ### 1 — the encumbrance fact (best one right now)
@@ -61,18 +133,10 @@ Good screenshot: the Encumbrance page on the Console with that hash pasted in.
 
 ### 2 — DemoBank (the newest thing, and the most concrete)
 
-```
-Nobody outside this project had ever queried Dokett's API. So we built
-something that would.
-
-DemoBank: a separate app, separate domain, no account, no key, no SDK.
-It asks the register what a borrower owes and whether their collateral
-is already pledged — then declines the loan on its own policy.
-
-Dokett returns facts. Never a score.
-
-demobank-credit.vercel.app
-```
+> ⚠️ **This version is 364 characters — over X's 280 limit.** It was written
+> before anyone actually counted it, so it was never postable as-is. Use the
+> 266-char version in the Day 3 calendar entry above instead. Left here only
+> so nobody re-derives the same too-long draft from the same idea.
 
 Live and working. Click "Check Dokett" on that page, screenshot the query log
 (7 requests, each shown with its URL) and the CREDIT DECLINED verdict.
