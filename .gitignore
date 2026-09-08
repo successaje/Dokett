@@ -26,3 +26,10 @@ app/dist/
 # local deploy rehearsals; real deployments are committed deliberately
 deployments/31337.json
 docs/blog
+# internal production notes — kept locally, not on GitHub
+docs/ANIMATION-BRIEF.md
+docs/CAPTURE-GUIDE.md
+docs/DEMO-SCRIPT.md
+docs/SOCIAL-BRIEF.md
+docs/SUBMISSION.md
+docs/VOICEOVER.md
