@@ -294,6 +294,9 @@ export default function Landing() {
                 A register of obligations, built on Attestcoin Smart Contracts. Every status here
                 was reached by evidence — never by a reporter, a committee, or an oracle operator.
               </p>
+              <a href="https://x.com/dokettlabs" target="_blank" rel="noreferrer">
+                X (Twitter)
+              </a>
             </div>
 
             <div className="lp-col">

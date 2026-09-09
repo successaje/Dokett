@@ -6,6 +6,8 @@ A registry where a promise to pay is a first-class on-chain object, and its stat
 
 Built on **Attestcoin Smart Contracts (ASCs)** · Creditcoin CC3
 
+[Console](https://dokett-console.vercel.app) · [X](https://x.com/dokettlabs)
+
 > Creditcoin knows how to record credit. Attestcoin lets it see across chains.
 > **Dokett turns what it can see into a shared, verifiable record of obligations.**
 
