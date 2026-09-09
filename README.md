@@ -211,6 +211,61 @@ The eventual users are not people browsing a site. They are lenders, RWA issuers
 
 ---
 
+## How this makes money
+
+The short version: **the lookup is free forever, because coverage is worth more
+than rent.** A registry is worth exactly what is registered in it, and coverage
+comes from venues integrating the read path. Charging at the door would trade
+the network effect for rounding-error revenue — that is why
+[`lens/src/api.js`](lens/src/api.js) is unauthenticated and CORS-open, and it is
+a go-to-market position expressed in code rather than a feature we have not
+finished.
+
+### What already moves value on-chain
+
+These are live in the contracts today, not planned. None of them is *Dokett's*
+revenue — they are the protocol's own incentives, and the distinction matters:
+
+| Flow | Who pays | Who earns | Where |
+|---|---|---|---|
+| **Registrar bond** — 1 CTC, staked against a claim being real | Registrar | Slashed or returned; gives a claim weight in the Lens | `Register.MIN_REGISTRAR_BOND` |
+| **Keeper fund** — 0.5 CTC per obligation | Registrar | Keepers, as `BountyPaid`, for poking the lifecycle | `Register.MIN_KEEPER_FUND` |
+| **Underwriting premium** — the spread on named first-loss capital | Creditor | Underwriter, **iff the obligation settles**; refunded if the bond is slashed | `Bond.fundPremium` |
+| **Slashing** — first-loss capital moved by proof | Underwriter | Creditor, in the same transaction as the default | `Bond.slash` |
+
+The protocol is therefore already self-funding in the narrow sense: keepers are
+paid to run it, and underwriters are paid to take risk on it. Nobody has to
+subsidise the lifecycle for it to keep turning.
+
+### Where a business sits on top — *proposed, not built*
+
+Per-obligation lookups stay free. The commercial product is the **aggregate**
+one, which is exactly what a free per-row API cannot give you:
+
+- **Concentration and correlation** — how much of a lender's book depends on the
+  same obligor, the same collateral, or the same underwriter.
+- **Portfolio exposure** — the view across many obligations at once, for a
+  venue that holds hundreds.
+- **Encumbrance monitoring** — a standing subscription to *this asset just
+  acquired a second claim*, rather than a lookup you have to remember to run.
+
+The reasoning: the query that makes registering worthwhile must be free, or
+coverage never happens and there is nothing to sell. The query an institution
+runs against its whole book is worth paying for, and only exists once coverage
+does.
+
+**None of this is built, and no one has been charged anything.** Saying so
+plainly is the point — this is the reasoning behind a decision already made in
+code, not a forecast.
+
+### No token
+
+Dokett has no token and is not planning one. Bonds, keeper funds and premiums
+are denominated in **CTC** and the collateral asset. A token would add a
+governance surface and a price to defend, on a project whose entire argument is
+that state should move on proof rather than on anyone's discretion — including
+ours.
+
 ## How ASCs are used
 
 Full detail in [`docs/ASC-INTEGRATION.md`](docs/ASC-INTEGRATION.md).
