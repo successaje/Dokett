@@ -69,6 +69,41 @@ Two things, and both are recent enough that this was not buildable before.
 
 For the first time, the performance of a loan is something a contract can **check** rather than something a human tells you. Dokett is what you build once that's true.
 
+## What inspired this
+
+Not a chain, and not a hackathon theme. A pattern in how on-chain credit kept
+dying.
+
+Goldfinch had real underwriters and real borrowers. Maple had real capital.
+Aave shipped credit delegation years ago. None of them failed because the
+model was wrong — they failed because **nobody could see anything**. Goldfinch
+borrowers reported performance in PDFs. Maple's pool delegates could not
+observe exposure at other venues. Every post-mortem was attacked with a better
+model; not one was attacked with better evidence.
+
+That reframing is the whole origin. The industry kept asking *"how do we
+underwrite better?"* when the unanswered question was *"how does a contract
+find out what actually happened?"*
+
+Two things then made an answer possible, and both are recent enough that this
+was not buildable before:
+
+**Repayment became an event.** When loans settle in stablecoins, "did they
+pay?" stops being something a borrower tells you at the end of a quarter and
+becomes a fact at a specific block height. Goldfinch's fatal flaw is not one
+anyone has to accept anymore.
+
+**A contract gained the ability to check it.** Attestcoin means a Creditcoin
+contract can verify that Ethereum event itself, in one transaction, with no
+bridge and no oracle operator in the path.
+
+The last turn — the one that made this a registry instead of a proof demo —
+was realising the primitive runs **backwards**. Everyone uses inclusion proofs
+to show something happened. But the hardest question in credit is not *"did
+they pay?"* It is *"did they not pay?"* — and in every existing system,
+somebody has to volunteer that bad news. `SilenceAdapter` came from asking
+what happens if nobody ever has to.
+
 ## Why Creditcoin, specifically
 
 This project is not on Creditcoin because a hackathon required it. Three things had to be true at once for an obligation layer to be buildable, and they are true here and nowhere else:
@@ -80,6 +115,23 @@ This project is not on Creditcoin because a hackathon required it. Three things 
 **3. Verification cheap enough to do continuously, over deep history.** A registry's entire job is answering questions about *old* obligations. We measured this rather than assuming it: proving a two-year-old Ethereum fact costs **26% more** than a twenty-minute-old one — not 26% per year, 26% total across 51,529× the age. History is nearly flat-cost to verify here. That is what makes a *permanent* registry economically possible instead of theoretically nice.
 
 Take any one of the three away and this doesn't work.
+
+## Why Attestcoin, and not the alternatives
+
+"Verify a foreign chain's event" has existing answers. Each one breaks a
+property this specific product cannot give up.
+
+| Approach | Why it fails here |
+|---|---|
+| **Oracle network** (Chainlink et al.) | A committee reports that a payment happened. That is a *claim*, and a registry whose statuses move on claims is a credit bureau with extra steps — exactly the thing the previous generation failed as. |
+| **Bridge / messaging layer** | Inherits the bridge's trust model and its failure modes. A cross-chain credit record secured by a multisig is secured by a multisig. |
+| **Self-reporting + attestation** | Goldfinch, restated. Someone has to volunteer bad news, and defaulting borrowers do not. |
+| **Light client in a contract** | Correct trust model, wrong economics. Verifying deep Ethereum history in EVM gas, continuously, for a permanent registry, does not price out. |
+| **Attestcoin** | A Creditcoin contract verifies a specific Ethereum event directly. No reporter, no committee, no bridge. And — measured, not assumed — proving a **two-year-old** fact costs 26% more than a twenty-minute-old one, which is what makes a *permanent* record economically possible rather than theoretically nice. |
+
+The absence case is the one that settles it. Every alternative above can, in
+principle, tell you a payment occurred. None of them lets a contract act on a
+payment that **never** occurred, without a human deciding to say so.
 
 ## What Dokett is
 
@@ -194,6 +246,36 @@ The `BlockProver` precompile **does not validate whether the proven transaction 
 
 End to end: [`docs/USE-CASES.md`](docs/USE-CASES.md) · Design spec: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Threat model: [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
 
+## Deployed contracts — CC3 testnet
+
+All source-verified on Blockscout (re-checked 2026-09-09 via its API; every row
+returned `is_verified: true`). Chain id **102031**, deployed at block
+**5,324,811**.
+
+| Contract | Address | Role |
+|---|---|---|
+| `Register` | [`0xCaFF129Ec344A98Da8C9a4091a239DF158Cf31A5`](https://creditcoin-testnet.blockscout.com/address/0xCaFF129Ec344A98Da8C9a4091a239DF158Cf31A5) | Obligations, status machine, registrar bonds |
+| `AscVerifier` | [`0x02406b6d17E743deA7fBbfAE8A15c82e4481E168`](https://creditcoin-testnet.blockscout.com/address/0x02406b6d17E743deA7fBbfAE8A15c82e4481E168) | The single shared evidence instance — one replay map, one observation record |
+| `PaymentAdapter` | [`0xA68f1CBff869a7f6c7A9BC9313E0B9E135A79a60`](https://creditcoin-testnet.blockscout.com/address/0xA68f1CBff869a7f6c7A9BC9313E0B9E135A79a60) | Proof present → advance. Also the cure path |
+| `SilenceAdapter` | [`0x8e827a12C78dED9459268eb05cce2C5d709FE6AF`](https://creditcoin-testnet.blockscout.com/address/0x8e827a12C78dED9459268eb05cce2C5d709FE6AF) | Proof absent → delinquent → default |
+| `Bond` | [`0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e`](https://creditcoin-testnet.blockscout.com/address/0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e) | Named first-loss capital, pro-rata slashing |
+
+**Attestcoin precompiles this build calls:** `BlockProver` at
+`0x…0FD2` (single + batch verification, batch limit 10) and `ChainInfo` at
+`0x…0fD3` (chainkey resolution at runtime — chainkeys are *not* portable; on
+CC3 testnet Ethereum mainnet is chainKey 3, on mainnet it is 1).
+
+### Live services
+
+| | |
+|---|---|
+| Console | [dokett-console.vercel.app](https://dokett-console.vercel.app) |
+| Read API | [dokett-lens.fly.dev](https://dokett-lens.fly.dev) — free, unauthenticated, CORS-open |
+| DemoBank | [demobank-credit.vercel.app](https://demobank-credit.vercel.app) — a third party reading the register |
+| Cure relay | `dokett-relay.fly.dev` — pays a borrower's gas so curing needs no CTC |
+| Demo video | [youtu.be/JbFceGWRdt8](https://youtu.be/JbFceGWRdt8) |
+| X | [@dokettlabs](https://x.com/dokettlabs) |
+
 ## Research
 
 Findings from operating the protocol against live chains, not marketing copy —
@@ -204,6 +286,57 @@ every number below links to a real transaction.
 - [**#002 — We watched an obligation default. Nobody reported it.**](docs/research/002-autonomous-default.md) A live trace of an unattended keeper degrading an obligation to default in 2.3 minutes, with linked transactions for every step.
 
 ---
+
+## What we learned building this
+
+Six things this project taught us that were not obvious going in. Each one is
+a real incident with a commit behind it, not a lesson we knew already and
+wrote up afterwards.
+
+**The safety guards cost more than the proof.** We expected verification cost
+to be dominated by the cryptography. It is not. Our measured cost is ~7.4× the
+published formula — and when we decomposed the gap rather than shrugging at
+it, the per-root coefficient actually *agreed* (440 gas measured vs 580
+published). The entire difference is fixed base cost: decoder, receipt
+decoding, the replay-guard `SSTORE`, the `ChainInfo` staticcall, the event
+emit. Proving the fact is cheap. Refusing to trust it is what costs.
+
+**History is nearly flat to verify, and that changes what you can build.**
+Proving a two-year-old Ethereum fact costs 26% more than a twenty-minute-old
+one — *total*, across 51,529× the age — because continuity proofs saturate at
+232 roots past roughly a year instead of growing without bound. A registry has
+to answer questions about old obligations forever. We did not know this was
+affordable until we measured it.
+
+**A constant can have a shelf life, and nothing in your tooling tracks it.**
+Our indexer paged the chain in 50,000-block chunks. Correct the hour it was
+written, when the contracts were an hour old. Eight days later that page was
+wider than the node's 10-second query timeout, and the service could no longer
+cold-start. It had been running fine for eleven days — because a warm cursor
+never has to do the thing that was broken. **Long uptime is not evidence your
+startup path works.** It is time for that path to rot untested.
+
+**Chase the 1% anomaly.** One gas measurement came in 3,608 under the model
+fitted to the others — about 1%. Chasing it revealed the transaction was
+type-0 legacy, encoding 128 bytes smaller, and that our test suite had never
+once exercised a pre-EIP-1559 transaction. A registry that mishandled legacy
+transactions would have wrongly defaulted exactly the borrowers who send them.
+
+**We were wrong in public, and fixing it cost nothing.** We claimed CC3 could
+not execute `PUSH0`, inferred from a missing field in the block header. Then we
+tested it directly: it executes fine. The claim was corrected in the docs as a
+visible correction rather than a silent edit. Same with a uniqueness claim —
+we wrote that we were the only ASC project acting on absence, discovered
+another submission doing something similar, and retracted it. **In a project
+whose entire thesis is that assertions should be checkable, getting caught
+overclaiming would cost more than any claim is worth.**
+
+**Verify the thing, not the report of the thing.** The Underwriters page was
+empty for days. The obvious read was "no bonds posted yet." The actual cause:
+the only allowlisted collateral token was Ethereum mainnet's USDC address,
+reused as a placeholder — which has no code at all on CC3. `cast code` returned
+`0x`. Nobody could ever have posted a bond. The door was configured to
+something that was not a door.
 
 ## Quickstart
 
@@ -268,7 +401,7 @@ Each phase is a capability that the next one depends on, not a feature list.
 | **2 · Obligations** | *Can we represent a promise to pay?* | The status machine, the inversion, the liveness gate. **Done** — a live autonomous default with [linked transactions](docs/research/002-autonomous-default.md). |
 | **3 · Visibility** | *Can anything query those obligations?* | Registry, Solvency, Encumbrance, and the free read API. **Live today**; next is the first external caller — one real venue querying before it lends. |
 | **4 · Capital** | *Can markets price and finance them?* | Bonded underwriting with real first-loss capital, and a first proven mainnet default with a real slash. **First slash demonstrated on testnet** — [linked transactions](docs/research/003-first-slash.md). |
-| **4b · Origination UI** | *Can a person create one without an ABI?* | `Register.register()` is deployed and callable today — it carries the whole instrument, and every seed script uses it. What is missing is a browser form, deferred only because registration posts a CTC registrar bond and a usable flow needs a faucet behind it. A gap in the interface, not in the protocol. |
+| **4b · Origination UI** | *Can a person create one without an ABI?* | **Done.** `#/register` turns the 16-field struct into seven inputs with a derived-terms panel, and the cure relay's faucet — the dependency that deferred this — is live, so a registrar bond no longer requires already holding CTC. |
 | **5 · Shared layer** | *Can any credit protocol build on this state?* | An ERC standard for Obligations, a Registrar Council, attested Register mirrors on other chains, and a second evidence backend behind the same `AscVerify` interface. |
 
 The near-term measure of success is not TVL. It is **one protocol we do not control making a query to this registry before extending credit** — because that is the moment it stops being an application and starts being infrastructure.
