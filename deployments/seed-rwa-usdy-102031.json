@@ -1,0 +1,17 @@
+{
+  "asset": "USDY",
+  "assetName": "Ondo U.S. Dollar Yield",
+  "assetClass": "treasury yield",
+  "sourceToken": "0x96F6eF951840721AdBF46Ac996b59E0235CB985C",
+  "decimals": 18,
+  "obligationId": "16",
+  "anchorTx": "0xe80f4f68c0b1882c24306e73e81805f5a8adc2076a3081fa8de3f5488b1f5368",
+  "anchorBlock": 25948799,
+  "anchorValue": "2246.996825785066676976",
+  "obligor": "0x03921650254e23e9d7167d1b8d51bd0e18503f1e414206d5cb01217dc82d6905",
+  "creditor": "0xb9d57d1fb724e8abecec1e98ef6c0bd1b380ca12935ed80de1fe61b2a987d32a",
+  "collateralRef": "0x94a945b2aa2ae35f591829bc4ffa09a40a392d716af781c15201d0378cd563fa",
+  "collateralRefPreimage": "usdy-position:|0x96F6eF951840721AdBF46Ac996b59E0235CB985C|0xDa7D5dD3ebA22099629177F4Ac3034027dF224bb",
+  "bondId": "11",
+  "underwriter": "0xC282Cb7cE6c175582B84BF94C61258Bb5cDCA88e"
+}

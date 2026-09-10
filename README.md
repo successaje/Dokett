@@ -286,36 +286,48 @@ governance surface and a price to defend, on a project whose entire argument is
 that state should move on proof rather than on anyone's discretion — including
 ours.
 
-## The asset is real
+## The assets are real
 
-A registry that only ever records claims against invented assets is a mechanism
-demo. So the register carries an obligation denominated in **[PAX Gold
-(PAXG)](https://etherscan.io/token/0x45804880De22913dAFE09f4980848ECE6EcbAf78)** —
-each token backed by one fine troy ounce of London Good Delivery gold, vaulted
-with Brink's, redeemable for the bar, serial numbers published by Paxos.
+A registry that only records claims against invented assets is a mechanism
+demo. So the register carries obligations denominated in **real tokenized
+real-world assets**, each advanced `Active → Current` by proving a real
+Ethereum mainnet transfer through Attestcoin at chainKey 3. Nobody reported
+any of them.
 
-[Obligation #14](https://dokett-console.vercel.app/#/obligation/14) is 24 PAXG
-over three periods. It advanced `Active → Current` because a **real 8.0 PAXG
-transfer on Ethereum mainnet** was cryptographically proven on Creditcoin —
-eight troy ounces of gold moving between two real addresses, at mainnet height
-25,948,972, verified through Attestcoin at chainKey 3. Nobody reported it.
+| # | Asset | Class | Proven from mainnet |
+|---|---|---|---|
+| [14](https://dokett-console.vercel.app/#/obligation/14) | **PAXG** — Paxos Gold | precious metals | 8.0 troy oz of vaulted gold, height 25,948,972 |
+| [15](https://dokett-console.vercel.app/#/obligation/15) | **BUIDL** — BlackRock USD Institutional Digital Liquidity Fund | institutional money market | 241.18 shares, height 25,947,634 |
+| [16](https://dokett-console.vercel.app/#/obligation/16) | **USDY** — Ondo U.S. Dollar Yield | treasury yield | 2,246.99 tokens, height 25,948,799 |
 
-```
-source tx   0xc9d04b4398d9bba0821ea6e510a2528a503fc42a6bbb28b364e051f305a78925
-proof tx    0x2cda9e7cff9b5832a5f6e292842230418a6809299052bdab47eef6f5644f940d
-gas         612,766      status  Active -> Current      periods  1/3
-```
+None of these tokens are ours. PAXG is a troy ounce of London Good Delivery
+gold vaulted with Brink's; BUIDL is BlackRock's tokenized fund holding cash,
+Treasury bills and repo; USDY is backed by short-term Treasuries and bank
+deposits. They trade on Ethereum mainnet, and mainnet is what CC3 attests — so
+`PaymentAdapter` proved all three with **no protocol change at all**.
 
-**Why tokenized gold is the stronger demonstration, not the weaker one.**
-Gold-backed lending normally needs someone to appraise the metal and take
-custody of it, and that someone has to be trusted. Tokenized gold is already
-appraised, already custodied, already audited — so proving a gold-backed
-repayment needs no appraiser in the loop at all. The trusted intermediary is
-removed rather than digitised.
+**The plural is the point.** One gold obligation demonstrates gold. Three
+across metals, a money-market fund and a treasury-yield token demonstrate that
+the registry does not care what the asset is — it never learns. It records what
+is owed against a commitment, and the commitment could be anything. That is
+what makes it a registry rather than a product for one asset class.
+
+**Tokenized RWA is the stronger demonstration, not the weaker one.** Gold-backed
+lending normally needs someone to appraise the metal and take custody of it, and
+that someone must be trusted. Tokenized gold is already appraised, custodied and
+audited — so proving a gold-backed repayment needs no appraiser in the loop.
+The intermediary is removed rather than digitised.
 
 Dokett does not tokenize the asset. **It records what is owed against one** —
-and the collateral reference commits to a real PAXG position without disclosing
-whose it is, the same privacy posture the obligor commitment uses.
+and each collateral reference commits to a real position without disclosing
+whose it is, the same posture the obligor commitment uses.
+
+> **A note on cost, since it is measurable here.** The three proofs cost 612,766,
+> 629,790 and 872,186 gas. The outlier is USDY, whose payment sat at **log index
+> 20 of a 24-log receipt** — a DEX settlement. Receipt size drives verification
+> cost, not asset value: proving one transfer inside a busy settlement costs
+> about 40% more than proving one that arrives alone. Reproduce with
+> `npm run seed:rwa <ASSET>` then `npm run prove:payment <id> <txHash>`.
 
 ## How ASCs are used
 

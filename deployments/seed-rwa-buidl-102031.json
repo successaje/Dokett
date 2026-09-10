@@ -1,0 +1,17 @@
+{
+  "asset": "BUIDL",
+  "assetName": "BlackRock USD Institutional Digital Liquidity Fund",
+  "assetClass": "institutional money market",
+  "sourceToken": "0x7712c34205737192402172409a8F7ccef8aA2AEc",
+  "decimals": 6,
+  "obligationId": "15",
+  "anchorTx": "0x3ddcebd625b98f3a02ce254eb31d9468ff0beea995a7ac22b94aef98a64991a8",
+  "anchorBlock": 25947634,
+  "anchorValue": "241.18",
+  "obligor": "0xd551f2273396faa9fe6b9a3d2d6761ac7b9fc7c126ee491d9bc8eb84def26d45",
+  "creditor": "0x74aec9333e6a7003c5b85192612c3e2936550d5ac58c0d2dd9f0a8d9de0421af",
+  "collateralRef": "0x9f16e4f1fff05ab02cfa8803036251859dd7ef926239e450b96d614a84a428bc",
+  "collateralRefPreimage": "buidl-position:|0x7712c34205737192402172409a8F7ccef8aA2AEc|0x77021d475E36b3ab1921a0e3A8380f069d3263de",
+  "bondId": "10",
+  "underwriter": "0xC282Cb7cE6c175582B84BF94C61258Bb5cDCA88e"
+}

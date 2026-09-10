@@ -35,7 +35,7 @@
     "prove:fresh": "node --env-file-if-exists=.env demo/prove-fresh.js",
     "seed:underwriter2": "node --env-file-if-exists=.env script/seed-underwriter2.js",
     "seed:encumbered": "node --env-file-if-exists=.env script/seed-encumbered.js",
-    "seed:paxg": "node --env-file-if-exists=.env script/seed-paxg.js"
+    "seed:rwa": "node --env-file-if-exists=.env script/seed-rwa.js"
   },
   "keywords": [],
   "author": "",

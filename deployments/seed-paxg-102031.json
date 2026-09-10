@@ -1,0 +1,14 @@
+{
+  "obligationId": "14",
+  "sourceToken": "0x45804880De22913dAFE09f4980848ECE6EcbAf78",
+  "sourceTokenName": "Paxos Gold (PAXG)",
+  "anchorTx": "0xc9d04b4398d9bba0821ea6e510a2528a503fc42a6bbb28b364e051f305a78925",
+  "anchorBlock": 25948972,
+  "anchorValuePaxg": "8.0",
+  "obligor": "0x0cd9f2ab865acdfe475390033d9ab7fb83f28d6e92d56db9508d36ff610f9aa0",
+  "creditor": "0x3cb4f7895ec88a63df543b7224a069f43c9171c6ef860259505159107384427c",
+  "collateralRef": "0xb83de0994f70fde101fe26e60c9e776d6e354e7398bde3ae931e06a8e01703de",
+  "collateralRefPreimage": "paxg-position:|0x45804880De22913dAFE09f4980848ECE6EcbAf78|0xaeA86ac3A1639D8e3734861d3FfbE75A27124F5b",
+  "bondId": "9",
+  "underwriter": "0xC282Cb7cE6c175582B84BF94C61258Bb5cDCA88e"
+}
