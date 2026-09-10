@@ -121,7 +121,7 @@ Design specification: [`docs/ARCHITECTURE.md`](./ARCHITECTURE.md) · Threat mode
 ## Quickstart
 
 ```bash
-git clone <!-- FILL --> && cd dokett
+git clone <!-- FILL --> && cd Dokett
 cp .env.example .env          # RPCs, proof builder URL, deployer key
 pnpm install
 forge test                    # unit + fork + invariant

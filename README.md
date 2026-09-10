@@ -459,9 +459,9 @@ something that was not a door.
 ## Quickstart
 
 ```bash
-git clone https://github.com/successaje/Dokett && cd dokett
+git clone https://github.com/successaje/Dokett && cd Dokett
 npm install
-npm test            # 66 contract tests + 7 lens projection tests
+npm test            # 67 contract + 7 projection + 16 relay tests
 npm run demo        # seeded Lens + Console on :5173 — no chain required
 ```
 
