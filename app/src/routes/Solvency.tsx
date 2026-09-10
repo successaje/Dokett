@@ -9,6 +9,7 @@ import {
   Section,
   StatusPill,
   UnbondedFlag,
+  Amt,
 } from '../components/primitives';
 import type { Bucket } from '../lib/types';
 
@@ -71,7 +72,7 @@ function BucketColumn({
                   <td>
                     <StatusPill status={o.status} />
                   </td>
-                  <td className="num">{units(o.outstanding)}</td>
+                  <td className="num"><Amt raw={o.outstanding} token={o.sourceToken} /></td>
                   <td>
                     <span className="row" style={{ gap: 7 }}>
                       <Addr value={o.registrar} lead={6} tail={4} />

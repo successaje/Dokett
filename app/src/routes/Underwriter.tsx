@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { lens, useLens } from '../lib/lens';
-import { big, bps, isAddress, units } from '../lib/format';
-import { Empty, Failed, Figure, Figures, Loading, Section } from '../components/primitives';
+import { big, bps, isAddress } from '../lib/format';
+import { Empty, Failed, Figure, Figures, Loading, Section , Amt } from '../components/primitives';
 
 function Book({ address }: { address: string }) {
   const res = useLens((s) => lens.underwriter(address, s), [address]);
@@ -27,10 +27,10 @@ function Book({ address }: { address: string }) {
     <>
       <Figures>
         <Figure label="Bonds written" value={u.bondsWritten} sub={`${live} live`} />
-        <Figure label="Total posted" value={units(u.totalPosted)} sub="first-loss capital staked" />
+        <Figure label="Total posted" value={<Amt raw={u.totalPosted} token={u.bonds?.[0]?.collateral} />} sub="first-loss capital staked" />
         <Figure
           label="Total slashed"
-          value={units(u.totalSlashed)}
+          value={<Amt raw={u.totalSlashed} token={u.bonds?.[0]?.collateral} />}
           sub="paid to creditors on proven default"
         />
         <Figure
@@ -74,9 +74,9 @@ function Book({ address }: { address: string }) {
                         {b.obligationId}
                       </a>
                     </td>
-                    <td className="num">{units(b.amount)}</td>
+                    <td className="num"><Amt raw={b.amount} token={b.collateral} /></td>
                     <td className="num" style={{ color: slashed ? 'var(--st-default)' : undefined }}>
-                      {units(b.slashed)}
+                      <Amt raw={b.slashed} token={b.collateral} />
                     </td>
                     <td className="num">{bps(b.spreadBps)}</td>
                     <td>

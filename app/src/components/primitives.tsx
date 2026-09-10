@@ -1,6 +1,14 @@
 import type { ReactNode } from 'react';
 import type { Status } from '../lib/types';
-import { STATUS_MEANING, height, truncate } from '../lib/format';
+import {
+  STATUS_MEANING,
+  height,
+  truncate,
+  units,
+  compact,
+  tokenDecimals,
+  tokenSymbol,
+} from '../lib/format';
 
 /* ──────────────────────────────── mark ──────────────────────────────── */
 
@@ -75,6 +83,37 @@ export function Addr({ value, lead, tail }: { value: string; lead?: number; tail
 }
 
 /* ────────────────────────────── figures ─────────────────────────────── */
+
+/**
+ * An amount, rendered in its OWN token's units.
+ *
+ * ─── WHY THIS IS A COMPONENT AND NOT A CALL TO units() ─────────────────────
+ *
+ * Every amount in this app used to be rendered at a hardcoded 6 decimals,
+ * correct while the register was all USDC and wrong by eight decimal places
+ * the moment it carried PAXG and USDY. Fixing that one call site at a time
+ * leaves the next new screen free to reintroduce it, so the decimals decision
+ * lives here and every screen inherits it.
+ *
+ * `token` is the token the amount is DENOMINATED IN, which is not always the
+ * obligation's source token. An obligation carries two at once: `outstanding`,
+ * `principal` and `periodAmount` are in `sourceToken`, while `coverage` and
+ * every bond figure are in the bond's collateral. Passing the wrong one is the
+ * exact class of bug this component exists to prevent, so it is required
+ * rather than defaulted.
+ *
+ * Folded for display, never destroyed: the exact figure and its ticker are
+ * always in the title.
+ */
+export function Amt({ raw, token }: { raw: string; token?: string }) {
+  const decimals = tokenDecimals(token);
+  const symbol = tokenSymbol(token);
+  return (
+    <span title={`${units(raw, decimals)}${symbol ? ` ${symbol}` : ''}`}>
+      {compact(raw, decimals)}
+    </span>
+  );
+}
 
 export function Figures({ children }: { children: ReactNode }) {
   return <div className="figures">{children}</div>;

@@ -1,4 +1,5 @@
-import { big, bps, units } from '../lib/format';
+import { big, bps, tokenSymbol, tokenUnit } from '../lib/format';
+import { Amt } from './primitives';
 import type { ObligationDetail } from '../lib/types';
 
 /**
@@ -35,12 +36,42 @@ export default function UnderwritingFile({ o }: { o: ObligationDetail }) {
   const coverage = big(o.coverage);
   const live = o.bonds.filter((b) => !b.released);
 
-  // Uncovered exposure — what a creditor eats today if this defaults. Floors at
-  // zero rather than rendering a negative: coverage above outstanding is
-  // over-collateralised, not "negative exposure".
-  const uncovered = outstanding > coverage ? outstanding - coverage : 0n;
+  /*
+   * Uncovered exposure and coverage % are only real when the obligation and
+   * the bond are denominated in the SAME asset.
+   *
+   * This used to subtract and divide them unconditionally. That was fine while
+   * everything was dollars, and became nonsense once obligations arrived in
+   * PAXG and USDY: it was taking 18-decimal gold minus 6-decimal mUSDC, and
+   * obligation 16 reported "0.0% covered" while carrying 1,100 mUSDC of real
+   * first-loss capital. On the one screen in this app that exists for deciding
+   * whether to underwrite, that is the worst possible place to be wrong.
+   *
+   * Netting them properly needs a price for gold in dollars. Dokett has no
+   * price oracle, deliberately — so when the denominations differ the figures
+   * are shown side by side and the netting is declined, exactly as the Registry
+   * declines to sum across denominations.
+   */
+  const collateralToken = live[0]?.collateral;
+  const srcUnit = tokenUnit(o.sourceToken);
+  const colUnit = tokenUnit(collateralToken);
+  // Same UNIT, not same token: a USDC obligation bonded in mUSDC nets fine —
+  // both are dollars. A PAXG obligation bonded in mUSDC does not, because
+  // that needs a gold price. Unknown tokens never net.
+  const commensurable =
+    live.length === 0 || (srcUnit !== null && srcUnit === colUnit);
+  // Same unit but different tokens is a real comparison with a small basis
+  // risk, so it is marked approximate rather than presented as exact.
+  const approximate =
+    commensurable && live.length > 0 && tokenSymbol(o.sourceToken) !== tokenSymbol(collateralToken);
+
+  const uncovered = !commensurable
+    ? null
+    : outstanding > coverage
+      ? outstanding - coverage
+      : 0n;
   const coveredPct =
-    outstanding > 0n ? Number((coverage * 10000n) / outstanding) / 100 : 0;
+    commensurable && outstanding > 0n ? Number((coverage * 10000n) / outstanding) / 100 : null;
 
   const proven = o.periodsSatisfied;
   const total = o.periodsTotal;
@@ -56,25 +87,33 @@ export default function UnderwritingFile({ o }: { o: ObligationDetail }) {
       <div className="uwfile-grid">
         <div className="uwfile-cell">
           <div className="uwfile-k">Outstanding</div>
-          <div className="uwfile-v">{units(o.outstanding)}</div>
-          <div className="uwfile-s">of {units(o.principal)} principal</div>
+          <div className="uwfile-v"><Amt raw={o.outstanding} token={o.sourceToken} /></div>
+          <div className="uwfile-s">of <Amt raw={o.principal} token={o.sourceToken} /> principal</div>
         </div>
 
         <div className="uwfile-cell">
           <div className="uwfile-k">Already covered</div>
-          <div className="uwfile-v">{units(o.coverage)}</div>
+          <div className="uwfile-v"><Amt raw={o.coverage} token={collateralToken} /></div>
           <div className="uwfile-s">
             {live.length === 0
               ? 'no first-loss capital posted'
-              : `${coveredPct.toFixed(1)}% across ${live.length} bond${live.length === 1 ? '' : 's'}`}
+              : coveredPct === null
+                ? `across ${live.length} bond${live.length === 1 ? '' : 's'}, in a different asset`
+                : `${approximate ? '≈' : ''}${coveredPct.toFixed(1)}% across ${live.length} bond${live.length === 1 ? '' : 's'}`}
           </div>
         </div>
 
-        <div className="uwfile-cell" data-emphasis={uncovered > 0n ? 'true' : 'false'}>
+        <div className="uwfile-cell" data-emphasis={uncovered !== null && uncovered > 0n ? 'true' : 'false'}>
           <div className="uwfile-k">Uncovered exposure</div>
-          <div className="uwfile-v">{units(uncovered.toString())}</div>
+          <div className="uwfile-v">
+            {uncovered === null ? '—' : <Amt raw={uncovered.toString()} token={o.sourceToken} />}
+          </div>
           <div className="uwfile-s">
-            {uncovered > 0n ? 'the creditor carries this today' : 'fully covered'}
+            {uncovered === null
+              ? 'not netted — obligation and bond are different assets, and this registry has no price oracle'
+              : uncovered > 0n
+                ? `the creditor carries this today${approximate ? ', netted across dollar-denominated assets' : ''}`
+                : 'fully covered'}
           </div>
         </div>
 

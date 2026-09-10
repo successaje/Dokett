@@ -9,7 +9,7 @@ import {
   FAUCET_URL,
   explainRevert,
 } from '../lib/chain';
-import { units } from '../lib/format';
+import { Amt } from './primitives';
 import { useSession } from '../lib/auth';
 import type { ObligationDetail } from '../lib/types';
 
@@ -172,7 +172,7 @@ export default function UnderwriteFlow({ obligation }: { obligation: ObligationD
 
       {obligation.coverage && obligation.coverage !== '0' ? (
         <p className="note">
-          Already covered: <strong>{units(obligation.coverage)}</strong> across{' '}
+          Already covered: <strong><Amt raw={obligation.coverage} token={obligation.bonds?.[0]?.collateral} /></strong> across{' '}
           {obligation.bonds.filter((b) => !b.released).length} live bond(s). Slashing is pro-rata,
           so additional capital shares the loss rather than subordinating to it.
         </p>

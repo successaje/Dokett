@@ -52,11 +52,15 @@ export function units(raw: string, decimals = 6, maxFrac = 2): string {
  * from the ticker — BUIDL is 6 where PAXG and USDY are 18, and guessing by
  * asset class would have got it wrong.
  */
-const TOKENS: Record<string, { decimals: number; symbol: string }> = {
-  '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': { decimals: 6, symbol: 'USDC' },
-  '0x45804880de22913dafe09f4980848ece6ecbaf78': { decimals: 18, symbol: 'PAXG' },
-  '0x7712c34205737192402172409a8f7ccef8aa2aec': { decimals: 6, symbol: 'BUIDL' },
-  '0x96f6ef951840721adbf46ac996b59e0235cb985c': { decimals: 18, symbol: 'USDY' },
+const TOKENS: Record<string, { decimals: number; symbol: string; unit: 'USD' | 'XAU' }> = {
+  '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': { decimals: 6, symbol: 'USDC', unit: 'USD' },
+  '0x45804880de22913dafe09f4980848ece6ecbaf78': { decimals: 18, symbol: 'PAXG', unit: 'XAU' },
+  '0x7712c34205737192402172409a8f7ccef8aa2aec': { decimals: 6, symbol: 'BUIDL', unit: 'USD' },
+  '0x96f6ef951840721adbf46ac996b59e0235cb985c': { decimals: 18, symbol: 'USDY', unit: 'USD' },
+  // Bond collateral on CC3, not a mainnet asset. Bonds and coverage are
+  // denominated in this, NOT in the obligation's source token — the two live
+  // side by side on the same obligation and must never be netted.
+  '0xefe4479b9056b6520831a4d5a7987a07e8df3402': { decimals: 6, symbol: 'mUSDC', unit: 'USD' },
 };
 
 /**
@@ -70,6 +74,23 @@ const TOKENS: Record<string, { decimals: number; symbol: string }> = {
 export function tokenDecimals(token?: string): number {
   if (!token) return 18;
   return TOKENS[token.toLowerCase()]?.decimals ?? 18;
+}
+
+/**
+ * Unit of account, which is NOT the same question as which token.
+ *
+ * Netting an obligation against its bond needs a shared unit, not an identical
+ * token. USDC, BUIDL, USDY and the mUSDC bond collateral are all denominated
+ * in dollars, so coverage against any of them is a real number. PAXG is
+ * denominated in troy ounces of gold, so netting it against a dollar bond
+ * needs a gold price — which this registry deliberately does not have.
+ *
+ * Returns null for unknown tokens, which the caller must treat as
+ * "not comparable" rather than guessing.
+ */
+export function tokenUnit(token?: string): 'USD' | 'XAU' | null {
+  if (!token) return null;
+  return TOKENS[token.toLowerCase()]?.unit ?? null;
 }
 
 /** Ticker for a source token, or null if we cannot name it honestly. */

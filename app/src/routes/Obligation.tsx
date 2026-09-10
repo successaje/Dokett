@@ -1,5 +1,5 @@
 import { lens, useLens } from '../lib/lens';
-import { big, blocksToDuration, bps, height, units } from '../lib/format';
+import { big, blocksToDuration, bps, height } from '../lib/format';
 import {
   Addr,
   DL,
@@ -16,6 +16,7 @@ import {
   StatusPill,
   UnbondedFlag,
   type DocketEntry,
+  Amt,
 } from '../components/primitives';
 import type { ObligationDetail } from '../lib/types';
 import CureFlow from '../components/CureFlow';
@@ -65,7 +66,7 @@ function buildDocket(o: ObligationDetail): DocketEntry[] {
       body: (
         <>
           Each advance required an ASC proof that a qualifying transfer of at least{' '}
-          {units(o.periodAmount)} was included on the source chain at a height inside the open
+          <Amt raw={o.periodAmount} token={o.sourceToken} /> was included on the source chain at a height inside the open
           window. Admissibility keys off the proven height, never the submission time.
         </>
       ),
@@ -102,7 +103,7 @@ function buildDocket(o: ObligationDetail): DocketEntry[] {
         totalSlashed > 0n ? (
           <>
             First-loss capital was slashed to the creditor in the same transaction:{' '}
-            {units(totalSlashed.toString())} across {live.length} bond{live.length === 1 ? '' : 's'}.
+            <Amt raw={totalSlashed.toString()} token={live[0]?.collateral} /> across {live.length} bond{live.length === 1 ? '' : 's'}.
           </>
         ) : (
           <>
@@ -191,14 +192,18 @@ export default function Obligation({ id }: { id: string }) {
 
       <div className="page">
         <Figures>
-          <Figure label="Outstanding" value={units(o.outstanding)} sub={`of ${units(o.principal)} principal`} />
-          <Figure label="Repaid" value={units(repaid.toString())} sub="proven on the source chain" />
+          <Figure
+            label="Outstanding"
+            value={<Amt raw={o.outstanding} token={o.sourceToken} />}
+            sub={<>of <Amt raw={o.principal} token={o.sourceToken} /> principal</>}
+          />
+          <Figure label="Repaid" value={<Amt raw={repaid.toString()} token={o.sourceToken} />} sub="proven on the source chain" />
           <Figure
             label="First-loss coverage"
-            value={units(o.coverage)}
+            value={<Amt raw={o.coverage} token={liveBonds[0]?.collateral} />}
             sub={liveBonds.length ? 'staked against this obligor' : 'creditor fully exposed'}
           />
-          <Figure label="Period amount" value={units(o.periodAmount)} sub="minimum qualifying payment" />
+          <Figure label="Period amount" value={<Amt raw={o.periodAmount} token={o.sourceToken} />} sub="minimum qualifying payment" />
         </Figures>
 
         <Section
@@ -340,9 +345,9 @@ export default function Obligation({ id }: { id: string }) {
                             {b.underwriter.slice(0, 6)}…{b.underwriter.slice(-4)}
                           </a>
                         </td>
-                        <td className="num">{units(b.amount)}</td>
+                        <td className="num"><Amt raw={b.amount} token={b.collateral} /></td>
                         <td className="num" style={{ color: slashed ? 'var(--st-default)' : undefined }}>
-                          {units(b.slashed)}
+                          <Amt raw={b.slashed} token={b.collateral} />
                         </td>
                         <td className="num">{bps(b.spreadBps)}</td>
                         <td>
