@@ -71,8 +71,25 @@ For the first time, the performance of a loan is something a contract can **chec
 
 ## What inspired this
 
-Not a chain, and not a hackathon theme. A pattern in how on-chain credit kept
-dying.
+Not a chain, and not a hackathon theme. A wall I hit building something else.
+
+Before Dokett I built [**OmniFuse**](https://omnifuse.vercel.app), a
+cross-chain lending protocol on ZetaChain, written while contributing
+upstream to it — supply collateral on one chain, borrow against it on another
+through universal apps, with automated liquidation when a position goes
+underwater. The cross-chain half worked. The *lending* half had a hole in it I
+could not close from inside the protocol.
+
+You can move collateral across chains. You can liquidate a position you can
+see. What you cannot do is find out what that same borrower already owes on a
+chain your protocol has never spoken to. So a cross-chain lender underwrites
+against a partial picture and calls it a complete one — not through
+carelessness, but because there is nowhere to send the question. I could add
+another chain to OmniFuse and the blind spot would move; I could not remove
+it. It was not a missing feature. It was a missing layer.
+
+That gap turned out not to be mine alone. It is what the previous generation
+died of.
 
 Goldfinch had real underwriters and real borrowers. Maple had real capital.
 Aave shipped credit delegation years ago. None of them failed because the
@@ -81,9 +98,10 @@ borrowers reported performance in PDFs. Maple's pool delegates could not
 observe exposure at other venues. Every post-mortem was attacked with a better
 model; not one was attacked with better evidence.
 
-That reframing is the whole origin. The industry kept asking *"how do we
-underwrite better?"* when the unanswered question was *"how does a contract
-find out what actually happened?"*
+That reframing is the whole thesis. The industry kept asking *"how do we
+underwrite better?"* when the unanswered question — the one I had just spent
+months failing to answer inside a lender — was *"how does a contract find out
+what actually happened?"*
 
 Two things then made an answer possible, and both are recent enough that this
 was not buildable before:
@@ -97,8 +115,9 @@ anyone has to accept anymore.
 contract can verify that Ethereum event itself, in one transaction, with no
 bridge and no oracle operator in the path.
 
-The last turn — the one that made this a registry instead of a proof demo —
-was realising the primitive runs **backwards**. Everyone uses inclusion proofs
+The last turn — the one that made this a registry instead of a proof demo, and
+the reason Dokett is not simply OmniFuse with more chains bolted on — was
+realising the primitive runs **backwards**. Everyone uses inclusion proofs
 to show something happened. But the hardest question in credit is not *"did
 they pay?"* It is *"did they not pay?"* — and in every existing system,
 somebody has to volunteer that bad news. `SilenceAdapter` came from asking
