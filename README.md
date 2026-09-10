@@ -73,7 +73,8 @@ For the first time, the performance of a loan is something a contract can **chec
 
 Not a chain, and not a hackathon theme. A wall I hit building something else.
 
-Before Dokett I built [**OmniFuse**](https://omnifuse.vercel.app), a
+Before Dokett I built [**OmniFuse**](https://omnifuse.vercel.app)
+([source](https://github.com/successaje/OmniFuse)), a
 cross-chain lending protocol on ZetaChain, written while contributing
 upstream to it — supply collateral on one chain, borrow against it on another
 through universal apps, with automated liquidation when a position goes
