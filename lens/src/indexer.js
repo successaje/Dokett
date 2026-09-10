@@ -293,6 +293,34 @@ class Index {
     const adverse = bonded.filter((o) => ['Default', 'ChargedOff'].includes(o.status));
 
     const sum = (list, k) => list.reduce((a, o) => a + BigInt(o[k]), 0n).toString();
+
+    /*
+     * Totals broken out by the asset they are denominated in.
+     *
+     * `sum` above adds raw integers across a subject's claims, which is one
+     * correct number only while they are all in the same token — and the flat
+     * total carries no indication of which. A PAXG-only subject's outstanding
+     * came back as an 18-decimal integer that every consumer then rendered at
+     * six, reading 16 troy ounces of gold as 16 trillion.
+     *
+     * The flat fields stay for compatibility, but this lets a consumer render
+     * each denomination correctly, and refuse to add them — which is right,
+     * since converting between them needs a price and this registry has none.
+     */
+    const byDenomination = () => {
+      const acc = {};
+      for (const o of bonded) {
+        const t = (o.sourceToken || '').toLowerCase();
+        acc[t] ??= { sourceToken: o.sourceToken, outstanding: 0n, lifetimePrincipal: 0n };
+        acc[t].outstanding += BigInt(o.outstanding);
+        acc[t].lifetimePrincipal += BigInt(o.principal);
+      }
+      return Object.values(acc).map((d) => ({
+        sourceToken: d.sourceToken,
+        outstanding: d.outstanding.toString(),
+        lifetimePrincipal: d.lifetimePrincipal.toString(),
+      }));
+    };
     const count = (list, k) => list.reduce((a, o) => a + Number(o[k] || 0), 0);
 
     const heights = bonded.map((o) => BigInt(o.startHeight || 0)).filter((h) => h > 0n);
@@ -316,6 +344,7 @@ class Index {
         : null,
 
       proven: {
+        byDenomination: byDenomination(),
         obligationsRegistered: bonded.length,
         paymentsProven: count(bonded, 'periodsSatisfied'),
         paymentsScheduled: count(bonded, 'periodsTotal'),

@@ -1,6 +1,6 @@
 import { lens, useLens } from '../lib/lens';
-import { units, truncate } from '../lib/format';
-import { Figures, Figure, Section, Loading, Failed, Empty } from '../components/primitives';
+import { units, truncate, tokenSymbol } from '../lib/format';
+import { Figures, Figure, Section, Loading, Failed, Empty, Amt } from '../components/primitives';
 import type { Attestation } from '../lib/types';
 
 /**
@@ -81,6 +81,15 @@ export default function Profile({ subject }: { subject: string }) {
   if (res.state !== 'ok') return null;
 
   const { identity, proven, attested, unbondedClaims, notIndexed } = res.data;
+
+  /*
+   * Per denomination. The flat proven.outstanding is a sum across a subject's
+   * claims, correct only while they are all one asset and carrying no
+   * indication of which — so a PAXG-only subject read 16 troy ounces as 16
+   * trillion at the Console's fixed six decimals.
+   */
+  const denoms = proven.byDenomination ?? [];
+
   const onTime =
     proven.paymentsScheduled > 0
       ? Math.round((proven.paymentsProven / proven.paymentsScheduled) * 100)
@@ -145,8 +154,28 @@ export default function Profile({ subject }: { subject: string }) {
         />
         <Figure
           label="Outstanding"
-          value={units(proven.outstanding)}
-          sub={`${units(proven.lifetimePrincipal)} lifetime`}
+          value={
+            denoms.length === 0 ? (
+              units('0')
+            ) : (
+              denoms.map((d) => (
+                <span key={d.sourceToken} className="denom" style={{ display: 'block' }}>
+                  <Amt raw={d.outstanding} token={d.sourceToken} />
+                  <span className="denom-sym">{tokenSymbol(d.sourceToken) ?? ''}</span>
+                </span>
+              ))
+            )
+          }
+          sub={(() => {
+            if (denoms.length > 1) return `${denoms.length} denominations · never summed`;
+            const only = denoms[0];
+            if (!only) return 'nothing registered';
+            return (
+              <>
+                <Amt raw={only.lifetimePrincipal} token={only.sourceToken} /> lifetime
+              </>
+            );
+          })()}
         />
       </Figures>
 
@@ -166,7 +195,16 @@ export default function Profile({ subject }: { subject: string }) {
           <dt>Defaults</dt>
           <dd>{proven.defaults}</dd>
           <dt>Lifetime principal</dt>
-          <dd>{units(proven.lifetimePrincipal)}</dd>
+          <dd>
+            {denoms.length === 0
+              ? '—'
+              : denoms.map((d) => (
+                  <span key={d.sourceToken} style={{ display: 'block' }}>
+                    <Amt raw={d.lifetimePrincipal} token={d.sourceToken} />{' '}
+                    <span className="denom-sym">{tokenSymbol(d.sourceToken) ?? ''}</span>
+                  </span>
+                ))}
+          </dd>
         </dl>
 
         {unbondedClaims > 0 ? (

@@ -133,6 +133,18 @@ export interface Attestation {
 
 /** Derived from the register. Recomputable by any stranger; adjustable by nobody. */
 export interface ProvenRecord {
+  /**
+   * Totals split by the asset they are denominated in.
+   *
+   * The flat `outstanding` and `lifetimePrincipal` below are sums across a
+   * subject's claims — one correct number only while every claim is in the
+   * same token, and carrying no indication of which. Prefer this.
+   */
+  byDenomination?: {
+    sourceToken: string;
+    outstanding: string;
+    lifetimePrincipal: string;
+  }[];
   obligationsRegistered: number;
   paymentsProven: number;
   paymentsScheduled: number;
