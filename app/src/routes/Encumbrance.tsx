@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { lens, useLens } from '../lib/lens';
-import { isAddress, isBytes32, units } from '../lib/format';
+import { isAddress, isBytes32 } from '../lib/format';
 import {
   Addr,
+  Amt,
   Empty,
   Failed,
   Loading,
@@ -62,7 +63,7 @@ function Result({ asset }: { asset: string }) {
                 <td>
                   <StatusPill status={c.status} />
                 </td>
-                <td className="num">{units(c.outstanding)}</td>
+                <td className="num"><Amt raw={c.outstanding} token={c.sourceToken} /></td>
                 <td>
                   <span className="row" style={{ gap: 7 }}>
                     <Addr value={c.registrar} />

@@ -84,6 +84,8 @@ export interface Encumbrance {
     id: string;
     status: Status;
     outstanding: string;
+    /** What `outstanding` is denominated in — required to render it correctly. */
+    sourceToken: string;
     registrar: string;
     bonded: boolean;
   }[];

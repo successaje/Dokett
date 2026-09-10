@@ -248,6 +248,12 @@ class Index {
         id: o.id,
         status: o.status,
         outstanding: o.outstanding,
+        // Without this the consumer cannot know what `outstanding` is
+        // DENOMINATED IN, and every claim renders at whatever decimals the
+        // caller guesses. That guess was 6 everywhere, so an 18-decimal
+        // claim read as a trillion-fold overstatement of the encumbrance.
+        // A registry that reports a lien has to say in what.
+        sourceToken: o.sourceToken,
         registrar: o.registrar,
         bonded: o.bonded,
       })),

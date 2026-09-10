@@ -87,6 +87,8 @@ export default function Registry() {
     a[0].localeCompare(b[0]),
   );
 
+  const bondedLive = all.filter((o) => o.bonded && !TERMINAL.has(o.status));
+
   const coverage = all.reduce((a, o) => a + big(o.coverage), 0n);
 
   // A column that repeats the same value on every row carries no information —
@@ -104,19 +106,10 @@ export default function Registry() {
         <Figures>
           <Figure label="Registered" value={all.length} sub={`${live.length} live`} />
           <Figure
-            label="Bonded outstanding"
-            value={
-              <span className="denoms">
-                {denominations.map(([sym, { total, decimals }]) => (
-                  <span key={sym} className="denom" title={`${units(total.toString(), decimals)} ${sym}`}>
-                    {compact(total.toString(), decimals)}
-                    <span className="denom-sym">{sym}</span>
-                  </span>
-                ))}
-              </span>
-            }
-            sub={`${denominations.length} denominations · not summed`}
-            title="Only claims whose registrar posted a bond. Shown per denomination and never added together — converting between them needs a price, and this registry has no price oracle by design."
+            label="Bonded claims"
+            value={bondedLive.length}
+            sub="outstanding by denomination below"
+            title="Claims whose registrar posted a bond. Unbonded claims are never counted here — registration is permissionless, so combining them would make defamation free."
           />
           <Figure
             label="First-loss coverage"
@@ -130,6 +123,28 @@ export default function Registry() {
             sub="delinquent, default or charged off"
           />
         </Figures>
+
+        {denominations.length > 0 && (
+          <div className="denom-strip">
+            <span className="denom-strip-k">Bonded outstanding</span>
+            <span className="denom-strip-list">
+              {denominations.map(([sym, { total, decimals }]) => (
+                <span
+                  key={sym}
+                  className="denom"
+                  title={`${units(total.toString(), decimals)} ${sym}`}
+                >
+                  {compact(total.toString(), decimals)}
+                  <span className="denom-sym">{sym}</span>
+                </span>
+              ))}
+            </span>
+            <span className="denom-strip-note">
+              never summed — converting between them needs a price, and this registry has no
+              price oracle
+            </span>
+          </div>
+        )}
 
         <Section
           title="Obligations"
