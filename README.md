@@ -331,7 +331,37 @@ whose it is, the same posture the obligor commitment uses.
 
 ## How ASCs are used
 
+We did not only build on the Attestcoin Protocol. We found a way to misuse it that **silently accepts a failed payment as a successful one**, fixed it, and published the fix under MIT for every other integrator.
+
 Full detail in [`docs/ASC-INTEGRATION.md`](docs/ASC-INTEGRATION.md).
+
+### The footgun — and [`AscVerify.sol`](src/lib/AscVerify.sol), the guard layer
+
+`BlockProver` proves a transaction was **included** in a block. It does not check whether that transaction **succeeded** — and a reverted ERC-20 transfer is still validly included, carrying real-looking `Transfer` logs.
+
+So an integrator who proves inclusion and then reads the logs will accept a payment that never moved a cent, and *the proof will verify correctly while they do it*. There is no error to notice. Our own test says it plainly:
+
+```solidity
+assertTrue(prover.accept(), "precompile mock accepts the proof, as the real one would");
+
+vm.expectRevert(abi.encodeWithSelector(AscVerify.TransactionReverted.selector, uint8(0)));
+harness.verify(_proof(reverted, 0, bytes32(uint256(2))));
+```
+
+The precompile accepts it. `AscVerify` is what rejects it.
+
+It is the single door to the outside world in this codebase, and it does four things every ASC integrator has to get right:
+
+| | |
+|---|---|
+| **Receipt status** | asserts `status == 0x1` before any log is touched |
+| **Replay** | guards every proof on `(chainKey, height, txIndex, logIndex)`, so one real payment cannot satisfy two obligations |
+| **Confirmation depth** | enforced against the **attested** head, not an assumed one |
+| **Chainkeys** | resolved from `ChainInfo` at runtime — Ethereum mainnet is chainkey 3 on CC3 testnet and 1 on mainnet, and hardcoding that is a bug waiting for a deployment |
+
+None of those are credit-specific. They are what anyone reading another chain's events has to get right, and getting them wrong fails quietly rather than loudly — which is why it is [published standalone under MIT](src/lib/AscVerify.sol) rather than left inside this repo.
+
+### What we exercise on top of it
 
 1. **Real Ethereum mainnet evidence, from testnet.** CC3 testnet attests Ethereum mainnet at chainkey 3. Every proof is against a real mainnet transaction.
 2. **Presence** — `PaymentAdapter` verifies inclusion of a qualifying ERC-20 `Transfer` and advances the obligation.
@@ -339,12 +369,6 @@ Full detail in [`docs/ASC-INTEGRATION.md`](docs/ASC-INTEGRATION.md).
 4. **Deep history** — proofs against transactions over two years old, exercising the continuity-proof cost curve that makes a permanent registry economic.
 5. **Batching** — up to 10 queries share one continuity proof.
 6. **Liveness gate** — penalties require an unbroken observation record. A stalled oracle must never manufacture defaults.
-
-### `AscVerify.sol` — published standalone, MIT
-
-The `BlockProver` precompile **does not validate whether the proven transaction succeeded**. A reverted ERC-20 transfer is still a validly-included transaction.
-
-`AscVerify.sol` is the single door to the outside world in this codebase, and it handles what every ASC integrator has to get right: asserts receipt `status == 0x1` before any log is touched, replay-guards every proof on `(chainKey, height, txIndex, logIndex)`, enforces confirmation depth against the attested head, gates penalties on observation continuity, and resolves chainkeys from `ChainInfo` rather than hardcoding them.
 
 ---
 
