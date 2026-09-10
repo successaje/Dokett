@@ -1,4 +1,4 @@
-import { big, bps, tokenSymbol, tokenUnit } from '../lib/format';
+import { big, bps, tokenSymbol, tokenUnit, tokenDecimals } from '../lib/format';
 import { Amt } from './primitives';
 import type { ObligationDetail } from '../lib/types';
 
@@ -65,13 +65,32 @@ export default function UnderwritingFile({ o }: { o: ObligationDetail }) {
   const approximate =
     commensurable && live.length > 0 && tokenSymbol(o.sourceToken) !== tokenSymbol(collateralToken);
 
+  /*
+   * Normalise to a common scale BEFORE any arithmetic.
+   *
+   * Sharing a unit of account is not the same as sharing a decimal precision,
+   * and conflating them is how this broke a second time: USDY (18dp) and the
+   * mUSDC bond (6dp) are both dollars and correctly net, but subtracting their
+   * raw integers left the coverage twelve orders of magnitude too small to
+   * register. Obligation 16 then reported its FULL balance as uncovered while
+   * carrying 1,100 mUSDC — a wrong number that looked entirely plausible,
+   * which is the dangerous kind.
+   */
+  const srcDecimals = tokenDecimals(o.sourceToken);
+  const colDecimals = tokenDecimals(collateralToken);
+  const common = Math.max(srcDecimals, colDecimals);
+  const outstandingN = outstanding * 10n ** BigInt(common - srcDecimals);
+  const coverageN = coverage * 10n ** BigInt(common - colDecimals);
+
   const uncovered = !commensurable
     ? null
-    : outstanding > coverage
-      ? outstanding - coverage
+    : outstandingN > coverageN
+      ? (outstandingN - coverageN) / 10n ** BigInt(common - srcDecimals)
       : 0n;
   const coveredPct =
-    commensurable && outstanding > 0n ? Number((coverage * 10000n) / outstanding) / 100 : null;
+    commensurable && outstandingN > 0n
+      ? Number((coverageN * 10000n) / outstandingN) / 100
+      : null;
 
   const proven = o.periodsSatisfied;
   const total = o.periodsTotal;
