@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { lens, useLens } from '../lib/lens';
-import { isAddress, isBytes32, units } from '../lib/format';
+import { isAddress, isBytes32, units, compact, big, tokenSymbol, tokenDecimals } from '../lib/format';
 import {
   Addr,
   Empty,
@@ -22,6 +22,27 @@ function BucketColumn({
   kind: 'bonded' | 'unbonded';
   caption: string;
 }) {
+  /*
+   * Per denomination, derived from the bucket's own obligations rather than
+   * from bucket.outstanding.
+   *
+   * The Lens sums outstanding across a subject's claims, which is a single
+   * correct number only while they are all in one asset — and it arrives with
+   * no indication of which. Rendered at a fixed 6 decimals it read 16 troy
+   * ounces of gold as 16,000,000,000,000. Grouping here also means a subject
+   * who later holds both USDC and PAXG is shown two figures instead of one
+   * meaningless total.
+   */
+  const byDenom = (bucket.obligations ?? []).reduce<
+    Record<string, { total: bigint; decimals: number }>
+  >((acc, o) => {
+    const sym = tokenSymbol(o.sourceToken) ?? 'other';
+    const prev = acc[sym] ?? { total: 0n, decimals: tokenDecimals(o.sourceToken) };
+    acc[sym] = { total: prev.total + big(o.outstanding), decimals: prev.decimals };
+    return acc;
+  }, {});
+  const denoms = Object.entries(byDenom).sort((a, b) => a[0].localeCompare(b[0]));
+
   return (
     <div>
       <div className="row between" style={{ alignItems: 'baseline', marginBottom: 4 }}>
@@ -40,7 +61,16 @@ function BucketColumn({
           fontVariantNumeric: 'tabular-nums',
         }}
       >
-        {units(bucket.outstanding)}
+        {denoms.length === 0 ? (
+          units('0')
+        ) : (
+          denoms.map(([sym, { total, decimals }]) => (
+            <span key={sym} className="denom" style={{ display: 'block' }} title={`${units(total.toString(), decimals)} ${sym}`}>
+              {compact(total.toString(), decimals)}
+              <span className="denom-sym">{sym}</span>
+            </span>
+          ))
+        )}
       </div>
       <p className="note" style={{ marginTop: 6 }}>
         {caption}
