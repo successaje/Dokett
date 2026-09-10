@@ -286,6 +286,37 @@ governance surface and a price to defend, on a project whose entire argument is
 that state should move on proof rather than on anyone's discretion — including
 ours.
 
+## The asset is real
+
+A registry that only ever records claims against invented assets is a mechanism
+demo. So the register carries an obligation denominated in **[PAX Gold
+(PAXG)](https://etherscan.io/token/0x45804880De22913dAFE09f4980848ECE6EcbAf78)** —
+each token backed by one fine troy ounce of London Good Delivery gold, vaulted
+with Brink's, redeemable for the bar, serial numbers published by Paxos.
+
+[Obligation #14](https://dokett-console.vercel.app/#/obligation/14) is 24 PAXG
+over three periods. It advanced `Active → Current` because a **real 8.0 PAXG
+transfer on Ethereum mainnet** was cryptographically proven on Creditcoin —
+eight troy ounces of gold moving between two real addresses, at mainnet height
+25,948,972, verified through Attestcoin at chainKey 3. Nobody reported it.
+
+```
+source tx   0xc9d04b4398d9bba0821ea6e510a2528a503fc42a6bbb28b364e051f305a78925
+proof tx    0x2cda9e7cff9b5832a5f6e292842230418a6809299052bdab47eef6f5644f940d
+gas         612,766      status  Active -> Current      periods  1/3
+```
+
+**Why tokenized gold is the stronger demonstration, not the weaker one.**
+Gold-backed lending normally needs someone to appraise the metal and take
+custody of it, and that someone has to be trusted. Tokenized gold is already
+appraised, already custodied, already audited — so proving a gold-backed
+repayment needs no appraiser in the loop at all. The trusted intermediary is
+removed rather than digitised.
+
+Dokett does not tokenize the asset. **It records what is owed against one** —
+and the collateral reference commits to a real PAXG position without disclosing
+whose it is, the same privacy posture the obligor commitment uses.
+
 ## How ASCs are used
 
 Full detail in [`docs/ASC-INTEGRATION.md`](docs/ASC-INTEGRATION.md).
