@@ -32,6 +32,96 @@ export function units(raw: string, decimals = 6, maxFrac = 2): string {
   return `${neg ? '-' : ''}${groups}${fracStr ? `.${fracStr}` : ''}`;
 }
 
+/**
+ * Source-token decimals and symbols, read from mainnet and pinned here.
+ *
+ * ─── WHY THIS EXISTS ───────────────────────────────────────────────────────
+ *
+ * Every amount in this app was rendered at 6 decimals, which was correct while
+ * every obligation was denominated in USDC. It stopped being correct the moment
+ * the register carried real RWA collateral: PAXG and USDY are 18-decimal
+ * tokens, so 24 troy ounces of allocated gold rendered as `24,000,000,000,000`
+ * — off by eight decimal places, and stated as fact on a page whose entire
+ * argument is that its numbers can be checked.
+ *
+ * That is also why abbreviating alone would have been the wrong fix: `24T` is
+ * more readable AND more dangerous than the overflow, because it looks
+ * deliberate.
+ *
+ * Decimals below were read from each contract on Ethereum mainnet, not assumed
+ * from the ticker — BUIDL is 6 where PAXG and USDY are 18, and guessing by
+ * asset class would have got it wrong.
+ */
+const TOKENS: Record<string, { decimals: number; symbol: string }> = {
+  '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': { decimals: 6, symbol: 'USDC' },
+  '0x45804880de22913dafe09f4980848ece6ecbaf78': { decimals: 18, symbol: 'PAXG' },
+  '0x7712c34205737192402172409a8f7ccef8aa2aec': { decimals: 6, symbol: 'BUIDL' },
+  '0x96f6ef951840721adbf46ac996b59e0235cb985c': { decimals: 18, symbol: 'USDY' },
+};
+
+/**
+ * Decimals for a source token.
+ *
+ * Falls back to 18 — the ERC-20 default — rather than to 6. An unknown token
+ * shown with too FEW decimals inflates the figure, which is the failure mode
+ * that produced the gold bug; too many understates it. Understating an
+ * obligation is the safer error on a register a lender might read.
+ */
+export function tokenDecimals(token?: string): number {
+  if (!token) return 18;
+  return TOKENS[token.toLowerCase()]?.decimals ?? 18;
+}
+
+/** Ticker for a source token, or null if we cannot name it honestly. */
+export function tokenSymbol(token?: string): string | null {
+  if (!token) return null;
+  return TOKENS[token.toLowerCase()]?.symbol ?? null;
+}
+
+/**
+ * Compact form for fixed-width cells: `5.5B`, `1.2T`.
+ *
+ * Large obligations overflow their columns and push the table sideways, which
+ * on a register is worse than it sounds — a number you cannot read is not a
+ * disclosure. This abbreviates only above a million; below that the exact
+ * figure fits and is shown in full, because rounding a $4,500 balance to
+ * `4.5K` loses information a lender actually needs.
+ *
+ * Computed entirely in BigInt, per the rule at the top of this file. Callers
+ * MUST pair it with `units()` in a `title` attribute — the exact value is never
+ * destroyed, only folded, and hovering always recovers it.
+ */
+export function compact(raw: string, decimals = 6): string {
+  let v: bigint;
+  try {
+    v = BigInt(raw);
+  } catch {
+    return '—';
+  }
+
+  const neg = v < 0n;
+  if (neg) v = -v;
+
+  const whole = v / 10n ** BigInt(decimals);
+
+  const TIERS: [bigint, string][] = [
+    [10n ** 12n, 'T'],
+    [10n ** 9n, 'B'],
+    [10n ** 6n, 'M'],
+  ];
+
+  for (const [div, suffix] of TIERS) {
+    if (whole < div) continue;
+    // One decimal place, without touching a float: scale up, divide, split.
+    const tenths = (whole * 10n) / div;
+    const w = (tenths / 10n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const f = tenths % 10n;
+    return `${neg ? '-' : ''}${w}${f > 0n ? `.${f}` : ''}${suffix}`;
+  }
+
+  return units(raw, decimals);
+}
+
 /** Native CTC / 18-decimal values. */
 export function ether(raw: string, maxFrac = 4): string {
   return units(raw, 18, maxFrac);

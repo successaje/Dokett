@@ -2881,3 +2881,36 @@ table.data tbody tr,
 
 .reg-problems li { padding: 3px 0 3px 18px; position: relative; }
 .reg-problems li::before { content: "!"; position: absolute; left: 0; font-weight: 700; }
+
+/* ── per-denomination figure ──────────────────────────────────────────── */
+
+/*
+ * The Bonded outstanding tile shows one line per denomination and never a
+ * total. Obligations denominated in different assets are not commensurable
+ * without a price, and this registry has no price oracle on purpose — so the
+ * layout refuses to add them, the same way .split refuses to sum bonded and
+ * unbonded claims.
+ */
+.denoms {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.denom {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 17px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.denom-sym {
+  font-family: var(--sans);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  font-weight: 500;
+}

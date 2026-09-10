@@ -1,5 +1,5 @@
 import { lens, useLens } from '../lib/lens';
-import { big, height, units, truncate } from '../lib/format';
+import { big, height, units, compact, truncate, tokenDecimals, tokenSymbol } from '../lib/format';
 import {
   Addr,
   Empty,
@@ -58,12 +58,34 @@ export default function Registry() {
   const live = all.filter((o) => !TERMINAL.has(o.status));
   const adverse = all.filter((o) => ADVERSE.has(o.status));
 
-  // Bonded only, and terminal states excluded. The unbonded figure is
-  // deliberately absent rather than shown alongside: registration is
-  // permissionless, so a combined outstanding would make defamation free.
-  const outstandingBonded = all
+  /*
+   * Bonded only, terminal states excluded, and — the part that matters —
+   * grouped BY DENOMINATION rather than summed into one figure.
+   *
+   * This used to be a single reduce over raw integers. That was correct while
+   * every obligation was USDC, and silently wrong the moment the register
+   * carried real RWA collateral: it added 18-decimal PAXG to 6-decimal USDC,
+   * producing 4.5 quadrillion for a book that is really ~86k USDC, 16 troy
+   * ounces of gold, 4,494 USDY and 482 BUIDL.
+   *
+   * The honest fix is not a better sum, it is refusing to sum. Converting
+   * troy ounces to dollars needs a price, Dokett has no price oracle, and
+   * adding one to tidy a stat tile would trade away the entire argument this
+   * registry makes. Same principle already applied one line up to bonded vs
+   * unbonded: figures that are not commensurable are shown apart.
+   */
+  const byDenomination = all
     .filter((o) => o.bonded && !TERMINAL.has(o.status))
-    .reduce((a, o) => a + big(o.outstanding), 0n);
+    .reduce<Record<string, { total: bigint; decimals: number }>>((acc, o) => {
+      const sym = tokenSymbol(o.sourceToken) ?? 'other';
+      const prev = acc[sym] ?? { total: 0n, decimals: tokenDecimals(o.sourceToken) };
+      acc[sym] = { total: prev.total + big(o.outstanding), decimals: prev.decimals };
+      return acc;
+    }, {});
+
+  const denominations = Object.entries(byDenomination).sort((a, b) =>
+    a[0].localeCompare(b[0]),
+  );
 
   const coverage = all.reduce((a, o) => a + big(o.coverage), 0n);
 
@@ -83,14 +105,24 @@ export default function Registry() {
           <Figure label="Registered" value={all.length} sub={`${live.length} live`} />
           <Figure
             label="Bonded outstanding"
-            value={units(outstandingBonded.toString())}
-            sub="unbonded claims excluded"
-            title="Only claims whose registrar posted a bond. Unbonded claims are never summed into this figure."
+            value={
+              <span className="denoms">
+                {denominations.map(([sym, { total, decimals }]) => (
+                  <span key={sym} className="denom" title={`${units(total.toString(), decimals)} ${sym}`}>
+                    {compact(total.toString(), decimals)}
+                    <span className="denom-sym">{sym}</span>
+                  </span>
+                ))}
+              </span>
+            }
+            sub={`${denominations.length} denominations · not summed`}
+            title="Only claims whose registrar posted a bond. Shown per denomination and never added together — converting between them needs a price, and this registry has no price oracle by design."
           />
           <Figure
             label="First-loss coverage"
-            value={units(coverage.toString())}
+            value={compact(coverage.toString())}
             sub="staked against named obligors"
+            title={`Exactly ${units(coverage.toString())}`}
           />
           <Figure
             label="Adverse"
@@ -163,11 +195,20 @@ export default function Registry() {
                           {truncate(o.obligor, 8, 6)}
                         </a>
                       </td>
-                      <td className="num">{units(o.outstanding)}</td>
+                      <td
+                        className="num"
+                        title={`${units(o.outstanding, tokenDecimals(o.sourceToken))} ${
+                          tokenSymbol(o.sourceToken) ?? ''
+                        }`.trim()}
+                      >
+                        {compact(o.outstanding, tokenDecimals(o.sourceToken))}
+                      </td>
                       <td className="num" style={{ color: 'var(--ink-3)' }}>
                         {o.periodsSatisfied}/{o.periodsTotal}
                       </td>
-                      <td className="num">{units(o.coverage)}</td>
+                      <td className="num" title={units(o.coverage)}>
+                        {compact(o.coverage)}
+                      </td>
                       <td className="num" style={{ color: 'var(--ink-3)' }}>
                         {height(o.windowEndHeight)}
                       </td>
