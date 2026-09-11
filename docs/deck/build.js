@@ -535,7 +535,7 @@ async function main() {
       ['Keeper', 'Running unattended on Fly.io — poke / prove / sweep on independent timers'],
       ['Lens', 'Always-on read API on Fly.io, free, no auth'],
       ['Console', 'Live on Vercel, wired to the live Lens'],
-      ['Tests', '67 contract + 7 Lens projection + 16 relay tests, all passing'],
+      ['Tests', '76 contract + 7 Lens projection + 16 relay tests, all passing'],
     ];
     let y = 2.15;
     stack.forEach(([h, b]) => {

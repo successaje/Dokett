@@ -510,7 +510,7 @@ something that was not a door.
 ```bash
 git clone https://github.com/successaje/Dokett && cd Dokett
 npm install
-npm test            # 67 contract + 7 projection + 16 relay tests
+npm test            # 76 contract + 7 projection + 16 relay tests
 npm run demo        # seeded Lens + Console on :5173 — no chain required
 ```
 

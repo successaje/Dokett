@@ -91,6 +91,40 @@ contract AscVerifier is AscVerify {
         height = p.height;
     }
 
+    /**
+     * @notice Prove any log emitted by a named contract, and hand back its topics.
+     *
+     * @dev The generic form of {proveErc20Transfer}. Same guards, no assumption
+     *      about what the event means: receipt status, confirmation depth, replay,
+     *      merkle and continuity are all enforced by {_verify} before this returns.
+     *      The two things asserted here are the ones a caller must not be trusted
+     *      with — that the log came from the emitter it claims, and that its first
+     *      topic is the signature it claims.
+     *
+     *      This exists so an adapter can witness an event defined by a protocol
+     *      that has never heard of Dokett. {proveErc20Transfer} decodes a shape we
+     *      know; this returns the raw topics and lets the adapter decide, which is
+     *      the difference between a registry that must be told about a lien and one
+     *      that can observe it.
+     *
+     *      Returning `topics` rather than decoding here is deliberate. Every
+     *      protocol spells a pledge differently, and a decoder in this contract
+     *      would be a standing invitation to add a special case per venue — in the
+     *      one contract where a mistake spends evidence for everybody.
+     */
+    function proveEvent(Proof calldata p, address emitter, bytes32 topic0)
+        external
+        onlyAdapter
+        returns (bytes32[] memory topics, bytes memory data, uint64 height)
+    {
+        EvmV1Decoder.LogEntry memory log = _verify(p);
+        if (log.address_ != emitter) revert WrongEmitter(emitter, log.address_);
+        if (log.topics.length == 0 || log.topics[0] != topic0) {
+            revert WrongEventSignature(topic0, log.topics.length == 0 ? bytes32(0) : log.topics[0]);
+        }
+        return (log.topics, log.data, p.height);
+    }
+
     /// @notice Batch form: up to MAX_BATCH transfers sharing one continuity proof.
     function proveErc20TransferBatch(
         BatchProof calldata p,
