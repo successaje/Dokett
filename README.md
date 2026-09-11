@@ -161,6 +161,31 @@ Not another lending protocol. Not another credit score. Not another oracle.
 
 ---
 
+## What this registry refuses to do
+
+The easiest way to understand Dokett is not the list of things it can prove. It
+is the list of things it **declines to tell you**, each of which would make the
+product look more capable and make the record worth less.
+
+| | It refuses to… | Because | Enforced in |
+|---|---|---|---|
+| **1** | penalise anything while the attested head is stalled | a stalled oracle must never manufacture defaults. Withholding observation can only *delay* penalties, never accelerate them — the correct direction to fail | [`AscVerify.penaltiesEnabled`](src/lib/AscVerify.sol) — in the contract, not the keeper |
+| **2** | sum bonded and unbonded claims into one number | registration is permissionless by design, so a naive total is trivially poisoned by an adversary registering fictional debts against a competitor | [`lens/src/indexer.js`](lens/src/indexer.js) — *"the one editorial decision it makes"* |
+| **3** | add obligations denominated in different assets | 16 troy ounces of gold plus 85,991 dollars is not a quantity. Converting needs a price | [`Registry.tsx`](app/src/routes/Registry.tsx) — shown per denomination, never totalled |
+| **4** | net collateral against debt across units | coverage in dollars against a debt in gold needs a gold price, and **this registry has no price oracle, deliberately** | [`UnderwritingFile.tsx`](app/src/components/UnderwritingFile.tsx) |
+| **5** | return a score, a rating, or a recommendation | the moment a registry ships a verdict it has become a credit bureau with extra steps — the exact thing the last generation failed as | the read API returns facts; [DemoBank](https://demobank-credit.vercel.app) computes its own decision |
+
+Every one of these costs something. Refusing to total the book means the
+headline figure is four numbers instead of one. Refusing to net means the
+underwriting screen shows a dash where a percentage would look better. Refusing
+to score means the API is harder to consume than a number between 300 and 850.
+
+That is the trade. **A registry is only worth what its worst-case answer is
+worth** — and an answer that is confidently wrong is worth less than no answer,
+because someone will lend against it.
+
+---
+
 ## The primitive
 
 An **Obligation** — a promise to pay, on-chain:
