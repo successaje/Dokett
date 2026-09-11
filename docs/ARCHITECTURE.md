@@ -333,7 +333,7 @@ Never hardcode. `AscVerify.assertChainId(chainKey, expectedChainId)` resolves vi
 
 | Days | Deliverable | Done when |
 |---|---|---|
-| ✅ | `AscVerify` + real mainnet fixtures + 15 tests | Passing, and mutation-tested |
+| ✅ | `AscVerify` + real mainnet fixtures + 20 tests | Passing, and mutation-tested |
 | 13–16 Aug | Same, verified against **live CC3 testnet** with a real Proof Builder proof | One real mainnet tx verified on-chain |
 | 17–20 Aug | `Register` + status machine + `PaymentAdapter` | Happy path green |
 | ✅ | `AscVerifier` + `PaymentAdapter` + `SilenceAdapter` + I7 liveness gate + cure | 14 integration tests green, incl. stall-recovery |
