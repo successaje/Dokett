@@ -494,14 +494,14 @@ async function main() {
   // ── 9. ASC integration depth ─────────────────────────────────────────
   {
     const s = baseSlide(p);
-    eyebrow(s, 'Technical depth');
-    title(s, 'The guarded path around a raw precompile', { size: 30 });
+    eyebrow(s, 'Contributed back');
+    title(s, 'We found a footgun in Attestcoin — and published the fix', { size: 28 });
 
     const items = [
-      ['Real mainnet evidence, from testnet', 'CC3 testnet attests Ethereum mainnet at chainkey 3. Every proof in this build is against a real mainnet transaction.'],
-      ['BlockProver does not validate success', 'A reverted ERC-20 transfer is still a validly-included transaction. AscVerify.sol asserts receipt status == 0x1 before any log is touched — published standalone, MIT.'],
-      ['Replay-guarded, confirmation-gated', 'Every proof keys on (chainKey, height, txIndex, logIndex). Confirmation depth is enforced against the attested head, not assumed.'],
-      ['Liveness circuit breaker', 'penaltiesEnabled() requires an unbroken observation record. A stalled oracle must never manufacture defaults across every obligation at once.'],
+      ['BlockProver proves inclusion. Not success.', 'A reverted ERC-20 transfer is still validly included, carrying real-looking Transfer logs. Prove inclusion, read the logs, and you accept a payment that never moved a cent — while the proof verifies correctly.'],
+      ['AscVerify.sol is the guard layer — MIT, standalone', 'Asserts receipt status == 0x1 before any log is touched. Replay-guards every proof on (chainKey, height, txIndex, logIndex). Enforces confirmation depth against the attested head. Resolves chainkeys at runtime.'],
+      ['None of it is credit-specific', 'These are what anyone reading another chain\u2019s events has to get right, and getting them wrong fails quietly. Published for every integrator, not kept in our repo.'],
+      ['Real mainnet evidence, and a liveness circuit breaker', 'CC3 attests Ethereum mainnet at chainkey 3 — every proof here is a real mainnet transaction. penaltiesEnabled() requires unbroken observation, so a stalled oracle can never manufacture defaults.'],
     ];
     let y = 2.15;
     items.forEach(([h, b], i) => {

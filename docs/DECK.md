@@ -105,7 +105,9 @@ Live or recorded. Seven beats, no narration over the mechanics — let the state
 > **Real Ethereum mainnet evidence, from testnet.** CC3 testnet attests mainnet at chainkey 3 — this demo reads reality, not a Sepolia transaction we sent ourselves five minutes ago.
 > **Absence as a primitive.** `SilenceAdapter` uses the oracle to detect what *didn't* happen.
 > **Deep history at fractions of a cent.** `2.3e-5 + 2.9e-7 × continuityHashes` CTC — the cost curve that makes a permanent registry economic.
-> **We fixed the footgun.** `BlockProver` does not validate transaction success. `AscVerify.sol` asserts `status == 0x1` and replay-guards every proof — **published standalone, MIT, for the whole ecosystem.**
+> **We did not only build on Attestcoin — we found a footgun in it and published the fix.** `BlockProver` proves a transaction was *included*, not that it *succeeded*. A reverted ERC-20 transfer is still validly included, carrying real-looking `Transfer` logs, so an integrator who proves inclusion and reads the logs accepts a payment that never moved a cent — and the proof verifies correctly while they do.
+>
+> `AscVerify.sol` is the guard layer: asserts `status == 0x1` before any log is touched, replay-guards every proof on `(chainKey, height, txIndex, logIndex)`, enforces confirmation depth against the attested head, and resolves chainkeys at runtime. None of it is credit-specific — **published standalone, MIT, for the whole ecosystem.**
 > **Liveness circuit breaker.** If attestation stalls, degradation pauses. A stalled oracle must never manufacture defaults.
 
 **Say:** Four of these five are things you can only do if you read the docs adversarially. The fifth is a bug half this hackathon is going to ship.
