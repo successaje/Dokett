@@ -176,13 +176,13 @@ Status advances **only** when an ASC proof of the corresponding Ethereum event i
 
 Most cross-chain verification proves that something *happened*. Dokett's `SilenceAdapter` acts on the case where nothing did: an obligation **degrades unless proof of payment arrives**. No reporter, no committee, no oracle operator. Default is the default.
 
-What we do *with* the absence is the part worth arguing about. Freezing undrawn capital is one answer; ours is that the obligation itself degrades to delinquent and then default, and named first-loss capital is slashed to the creditor in the same transaction — with a cure path that reverses it if a late proof arrives.
+What we do *with* the absence is the part worth arguing about. Freezing undrawn capital is one answer; ours is that the obligation itself degrades to delinquent and then default, and named first-loss capital is slashed to the creditor in the same transaction. The cure window is the safety margin: while it is open, a late proof reverses the delinquency. Once it expires, the default and the slash are **final** — an underwriter who could be un-slashed by a proof arriving at any future date could never price the risk.
 
 To be precise, because it matters: *you cannot prove a negative with an inclusion proof.* Dokett does **not** claim to prove that no payment occurred on Ethereum. It proves an on-chain fact about Creditcoin state —
 
 > no admissible proof of payment for this window was presented before the attested head passed `windowEndHeight + minConfirmations`
 
-— which is economically equivalent to non-payment, because submission is permissionless, costs ~$0.000024, and the borrower is the party most motivated to submit. And if it is ever wrong, **the proof still cures it**: a payment proof whose *source-chain height* falls inside the missed window restores `Current` even when submitted late.
+— which is economically equivalent to non-payment, because submission is permissionless, costs ~$0.000024, and the borrower is the party most motivated to submit. And if it is ever wrong, **the proof still cures it, while the cure window is open**: a payment proof whose *source-chain height* falls inside the missed window restores `Current` even when the proof itself is submitted afterwards. What matters is when the payment happened, not when someone got around to proving it.
 
 Nobody has to volunteer bad news, and nobody can suppress it.
 
