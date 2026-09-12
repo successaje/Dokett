@@ -417,20 +417,26 @@ CC3 testnet Ethereum mainnet is chainKey 3, on mainnet it is 1).
 | Demo video | [youtu.be/JbFceGWRdt8](https://youtu.be/JbFceGWRdt8) |
 | X | [@dokettlabs](https://x.com/dokettlabs) |
 
-## Ecosystem validation
+## External integration validation
 
-Dokett has opened exploratory technical integration inquiries with
-**Centrifuge** and **Huma** through their community ticket channels:
+Dokett is moving from an internal protocol demonstration toward external
+integration validation. Targeted technical outreach has begun with credit and
+RWA protocols whose workflows map directly to the registry, starting with
+**Centrifuge** and **Huma**:
 
-- **Centrifuge:** evaluating whether Solvency and Encumbrance queries could
-  support pre-investment checks for tokenized funds and on-chain credit.
-- **Huma:** evaluating Huma Institutional EVM workflows for pre-credit borrower
-  exposure, receivable encumbrance and portable USC-verified repayment history.
+- **Centrifuge:** a potential use of Solvency and Encumbrance queries for
+  pre-investment checks across tokenized funds and on-chain credit.
+- **Huma:** a potential use in Huma Institutional EVM workflows for borrower
+  exposure checks, receivable encumbrance and portable USC-verified repayment
+  history.
 
-These are integration requests, not announced partnerships, endorsements or
-production integrations. The immediate ask is deliberately small: review the
-public API against one credit decision and identify the schema or adapter work
-required for a pilot.
+Outreach is expanding to a focused set of lending, PayFi and RWA protocols. The
+success criterion is concrete: one independent team tests Dokett's public API
+against a real underwriting or collateral decision and defines the schema or
+adapter work required for a pilot.
+
+These are exploratory integration requests. No partnership, endorsement or
+production integration is claimed until one is confirmed.
 
 ## Research
 
