@@ -417,6 +417,21 @@ CC3 testnet Ethereum mainnet is chainKey 3, on mainnet it is 1).
 | Demo video | [youtu.be/JbFceGWRdt8](https://youtu.be/JbFceGWRdt8) |
 | X | [@dokettlabs](https://x.com/dokettlabs) |
 
+## Ecosystem validation
+
+Dokett has opened exploratory technical integration inquiries with
+**Centrifuge** and **Huma** through their community ticket channels:
+
+- **Centrifuge:** evaluating whether Solvency and Encumbrance queries could
+  support pre-investment checks for tokenized funds and on-chain credit.
+- **Huma:** evaluating Huma Institutional EVM workflows for pre-credit borrower
+  exposure, receivable encumbrance and portable USC-verified repayment history.
+
+These are integration requests, not announced partnerships, endorsements or
+production integrations. The immediate ask is deliberately small: review the
+public API against one credit decision and identify the schema or adapter work
+required for a pilot.
+
 ## Research
 
 Findings from operating the protocol against live chains, not marketing copy —
