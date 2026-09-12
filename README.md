@@ -454,26 +454,27 @@ API, and a standalone MIT guard library for safer USC verification.
 
 [Read the full team background and prior-work notes](docs/TEAM.md).
 
-## External integration validation
+## Integration outreach
 
-Dokett is moving from an internal protocol demonstration toward external
-integration validation. Targeted technical outreach has begun with credit and
-RWA protocols whose workflows map directly to the registry, starting with
-**Centrifuge** and **Huma**:
+Dokett has opened exploratory technical integration inquiries with
+**Centrifuge** and **Huma**, through their public community ticket channels:
 
-- **Centrifuge:** a potential use of Solvency and Encumbrance queries for
+- **Centrifuge:** whether Solvency and Encumbrance queries could support
   pre-investment checks across tokenized funds and on-chain credit.
-- **Huma:** a potential use in Huma Institutional EVM workflows for borrower
+- **Huma:** whether Huma Institutional EVM workflows could use borrower
   exposure checks, receivable encumbrance and portable USC-verified repayment
   history.
 
-Outreach is expanding to a focused set of lending, PayFi and RWA protocols. The
-success criterion is concrete: one independent team tests Dokett's public API
-against a real underwriting or collateral decision and defines the schema or
-adapter work required for a pilot.
+**Nothing has been agreed, and no one has replied yet.** These are support
+tickets, not partnerships, endorsements or production integrations — and the
+heading says *outreach* rather than *validation* because nothing has been
+validated by anyone outside this team.
 
-These are exploratory integration requests. No partnership, endorsement or
-production integration is claimed until one is confirmed.
+The ask is deliberately small: review the public API against one credit
+decision and name the schema or adapter work a pilot would need. The success
+criterion is equally concrete, and it is the honest measure of whether this is
+infrastructure — **one independent team queries the register before making a
+real underwriting or collateral decision.** That has not happened yet.
 
 ## Research
 

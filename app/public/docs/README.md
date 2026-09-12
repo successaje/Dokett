@@ -1,73 +1,49 @@
 # Dokett
 
-**The obligation layer for the open economy.**
+**Know what a borrower already owes before you lend.**
 
-A registry where a promise to pay is a first-class on-chain object, and its state advances only on cryptographically verified evidence — never on anyone's word.
+Dokett is a shared obligation registry on Creditcoin. It uses Attestcoin proofs
+of Ethereum payments and attested block height to maintain a record that
+lenders and RWA platforms can query before taking risk.
 
-Built on **Attestcoin Smart Contracts (ASCs)** · Creditcoin CC3
+**Testnet infrastructure · real Ethereum mainnet evidence · synthetic borrowers**
 
-[Console](https://dokett-console.vercel.app) · [X](https://x.com/dokettlabs)
+[Run the lender demo](https://demobank-credit.vercel.app) ·
+[Inspect a populated borrower](https://dokett-console.vercel.app/#/solvency?q=0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a) ·
+[Browse the register](https://dokett-console.vercel.app/#/registry) ·
+[Read the protocol paper](https://dokett-console.vercel.app/#/paper) ·
+[Watch the demo](https://youtu.be/JbFceGWRdt8) ·
+[DoraHacks submission](https://dorahacks.io/buidl/48597)
 
-> Creditcoin knows how to record credit. Attestcoin lets it see across chains.
-> **Dokett turns what it can see into a shared, verifiable record of obligations.**
+## Protocol quick view
 
----
-
-## Start with a question every lender asks
-
-A business wants to borrow $1,000,000. Before approving it, the lender asks the oldest question in finance:
-
-> **"What do you already owe?"**
-
-In traditional finance an entire apparatus exists to answer that — credit bureaus, lien registries, filing systems, auditors, courts. The answer is imperfect, but it exists.
-
-Now move that borrower on-chain. They might hold:
-
-- a loan on Ethereum
-- collateral locked on a second chain
-- a tokenized RWA position on a third
-- a credit facility with a protocol that has never spoken to any of the others
-- repayments settling in stablecoins across all of them
-
-Every one of those systems can see its own slice of reality perfectly. **None of them can see the others.** The next lender asks the oldest question in finance and there is nowhere to send it.
-
-That is the problem. Not fraud nobody could punish — leverage nobody could *see*.
-
-## Why this gets worse, not better
-
-The instinct is to treat this as an early-market gap that scale will close. It's the opposite: **every new chain, every new venue, and every newly tokenized asset adds another silo of obligations that no other participant can observe.** Fragmentation compounds with adoption.
-
-As real-world assets move on-chain — and the direction of travel there is not in question — the ecosystem inherits questions that tokenization alone does not answer:
-
-- Who has a claim on this asset?
-- What obligations are still outstanding against it?
-- Has the borrower actually paid, or did someone just say so?
-- What happens, mechanically, when they don't?
-
-Issuing an asset on-chain is solved. **Knowing what is owed against it is not.**
-
-## Why the previous attempts didn't fix it
-
-| | Why it died |
+| Question | Dokett's answer |
 |---|---|
-| On-chain credit scores | A number with no recourse and no sybil cost. Nobody lends against an opinion. |
-| Aave credit delegation | The delegator got no upside and no enforcement. |
-| Goldfinch | **Not an underwriting failure — an observability failure.** Borrowers reported performance in PDFs. |
-| Maple v1 | Pool delegates with no cross-venue visibility → correlated blowups. |
+| What is the product? | A queryable record of obligations and collateral claims for lenders and RWA platforms. |
+| Why Creditcoin? | Creditcoin holds the durable credit record; Attestcoin lets its contracts verify Ethereum payment events and the attested Ethereum height. |
+| What is unusual? | The contract can degrade an obligation when no qualifying proof was recorded before an attested-height deadline, without letting a reporter choose the result. |
+| What is live? | 16 CC3 obligations, real Ethereum mainnet evidence, every lifecycle state, a public read API, and an executed default plus first-loss slash. |
+| What can I try immediately? | [DemoBank](https://demobank-credit.vercel.app) runs a lender decision from public Dokett data; the [Solvency query](https://dokett-console.vercel.app/#/solvency?q=0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a) opens with a populated example. |
 
-Every one of these was attacked with a better *model*. None was attacked with better *evidence*.
+```text
+Ethereum payment ──Attestcoin proof──▶ Creditcoin obligation record
+                                               │
+                                               ├──▶ lender solvency check
+                                               └──▶ RWA encumbrance check
+```
 
-That distinction is the whole thesis. A score is an opinion about a borrower. A self-report is a claim by a borrower. Neither is a fact, and you cannot build settlement infrastructure on either one.
+The “absence” claim is deliberately narrow: Dokett proves that no admissible
+payment proof was recorded before the attested height passed a deadline. It
+does not prove that no payment occurred. Registration is permissionless, so a
+registered claim is also not proof that a debt was legally agreed. Bonded and
+unbonded claims stay separate, and applications make their own policy decisions.
 
-## What changed
+[Inspect the atomic default and 250 mUSDC slash](https://creditcoin-testnet.blockscout.com/tx/0x952c03ffa363ce8f0fe4eab397636f5aebc1b139380cfabd756ead678e2d480d) ·
+[Read the architecture](docs/ARCHITECTURE.md) ·
+[Read the threat model](docs/THREAT-MODEL.md) ·
+[Review `AscVerify.sol`](src/lib/AscVerify.sol)
 
-Two things, and both are recent enough that this was not buildable before.
-
-**Repayment became an event.** When loans settle in stablecoins, a repayment stops being something a borrower *reports* at the end of a quarter and becomes something that provably *happened* at a specific block height. Goldfinch's fatal flaw — performance arriving as a PDF — is not a flaw anyone has to accept anymore.
-
-**And a contract gained the ability to check it.** ASC readability means a Creditcoin contract can verify that Ethereum event itself, in one block, for a fraction of a cent, with no trusted intermediary anywhere in the path.
-
-For the first time, the performance of a loan is something a contract can **check** rather than something a human tells you. Dokett is what you build once that's true.
+## The full thesis
 
 ## What inspired this
 
@@ -438,10 +414,67 @@ CC3 testnet Ethereum mainnet is chainKey 3, on mainnet it is 1).
 |---|---|
 | Console | [dokett-console.vercel.app](https://dokett-console.vercel.app) |
 | Read API | [dokett-lens.fly.dev](https://dokett-lens.fly.dev) — free, unauthenticated, CORS-open |
-| DemoBank | [demobank-credit.vercel.app](https://demobank-credit.vercel.app) — a third party reading the register |
+| DemoBank | [demobank-credit.vercel.app](https://demobank-credit.vercel.app) — a separate reference lender, built by the Dokett team, reading only the public API |
 | Cure relay | `dokett-relay.fly.dev` — pays a borrower's gas so curing needs no CTC |
 | Demo video | [youtu.be/JbFceGWRdt8](https://youtu.be/JbFceGWRdt8) |
 | X | [@dokettlabs](https://x.com/dokettlabs) |
+
+## Team and execution history
+
+Dokett is built full time by one founder and one core collaborator. Protocol
+engineering and ecosystem work have explicit owners.
+
+| Team member | Role and responsibility |
+|---|---|
+| [**Success Aje**](https://github.com/successaje) | **Founder, protocol.** Designed and built the contracts, keeper, Lens indexer and API, cure relay and Console end to end. His previous work spans cross-chain lending, Internet Computer applications, NFT fractionalization and open-source contributions to ZetaChain. |
+| **Emmanuel Kehinde** | **Core collaborator, research and growth.** Leads technical and market research, ecosystem positioning, content, social media, community operations and distribution. His previous work includes MarsinSight, GUIversity on Aptos, Flint in the Flare ecosystem and PoRprotocol at the Turing Hackathon. |
+
+The team's prior execution includes:
+
+- [**OmniFuse**](https://omnifuse.vercel.app) — a cross-chain lending protocol
+  on ZetaChain: supply collateral on one chain, borrow on another through
+  universal apps, with automated liquidation and per-asset risk parameters.
+  [Application source](https://github.com/successaje/OmniFuse) ·
+  [protocol source](https://github.com/successaje/OmniFuse-Zeta)
+- [**GameBloc**](https://github.com/Game-Bloc/Gamebloc-ICP) — competitive
+  gaming infrastructure co-founded on the Internet Computer; approximately
+  1,500 users and more than 100 tournaments run.
+- [**KawaK**](https://3ysab-rqaaa-aaaan-qaewq-cai.ic0.app) — a decentralized
+  writing platform co-founded to allocate rewards by merit rather than reach.
+- [**ic-puzzle**](https://entrepot.app/marketplace/puzzle) — NFT
+  fractionalization on ICP, with Success contributing as a smart contract
+  developer.
+- [**ZetaChain contributions**](https://github.com/search?q=org%3Azeta-chain+author%3Asuccessaje+is%3Apr&type=pullrequests)
+  — pull requests across documentation, node, toolkit and example-contract
+  repositories.
+
+Dokett is the team's latest inspectable execution record: five source-verified
+contracts on CC3, 99 passing tests, an unattended keeper, a free public read
+API, and a standalone MIT guard library for safer USC verification.
+
+[Read the full team background and prior-work notes](docs/TEAM.md).
+
+## Integration outreach
+
+Dokett has opened exploratory technical integration inquiries with
+**Centrifuge** and **Huma**, through their public community ticket channels:
+
+- **Centrifuge:** whether Solvency and Encumbrance queries could support
+  pre-investment checks across tokenized funds and on-chain credit.
+- **Huma:** whether Huma Institutional EVM workflows could use borrower
+  exposure checks, receivable encumbrance and portable USC-verified repayment
+  history.
+
+**Nothing has been agreed, and no one has replied yet.** These are support
+tickets, not partnerships, endorsements or production integrations — and the
+heading says *outreach* rather than *validation* because nothing has been
+validated by anyone outside this team.
+
+The ask is deliberately small: review the public API against one credit
+decision and name the schema or adapter work a pilot would need. The success
+criterion is equally concrete, and it is the honest measure of whether this is
+infrastructure — **one independent team queries the register before making a
+real underwriting or collateral decision.** That has not happened yet.
 
 ## Research
 
@@ -509,8 +542,8 @@ something that was not a door.
 
 ```bash
 git clone https://github.com/successaje/Dokett && cd Dokett
-npm install
-npm test            # 76 contract + 7 projection + 16 relay tests
+npm run setup        # installs the root and Console from both lockfiles
+npm run judge:verify # 76 contract + 7 projection + 16 relay tests, then Console build
 npm run demo        # seeded Lens + Console on :5173 — no chain required
 ```
 
