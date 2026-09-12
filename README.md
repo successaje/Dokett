@@ -11,11 +11,13 @@ lenders and RWA platforms can query before taking risk.
 [Run the lender demo](https://demobank-credit.vercel.app) ·
 [Inspect a populated borrower](https://dokett-console.vercel.app/#/solvency?q=0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a) ·
 [Browse the register](https://dokett-console.vercel.app/#/registry) ·
-[Watch the demo](https://youtu.be/JbFceGWRdt8)
+[Read the protocol paper](https://dokett-console.vercel.app/#/paper) ·
+[Watch the demo](https://youtu.be/JbFceGWRdt8) ·
+[DoraHacks submission](https://dorahacks.io/buidl/48597)
 
-## Judge quick view
+## Protocol quick view
 
-| Judge question | Dokett's answer |
+| Question | Dokett's answer |
 |---|---|
 | What is the product? | A queryable record of obligations and collateral claims for lenders and RWA platforms. |
 | Why Creditcoin? | Creditcoin holds the durable credit record; Attestcoin lets its contracts verify Ethereum payment events and the attested Ethereum height. |
@@ -416,6 +418,41 @@ CC3 testnet Ethereum mainnet is chainKey 3, on mainnet it is 1).
 | Cure relay | `dokett-relay.fly.dev` — pays a borrower's gas so curing needs no CTC |
 | Demo video | [youtu.be/JbFceGWRdt8](https://youtu.be/JbFceGWRdt8) |
 | X | [@dokettlabs](https://x.com/dokettlabs) |
+
+## Team and execution history
+
+Dokett is built full time by one founder and one core collaborator. Protocol
+engineering and ecosystem work have explicit owners.
+
+| Team member | Role and responsibility |
+|---|---|
+| [**Success Aje**](https://github.com/successaje) | **Founder, protocol.** Designed and built the contracts, keeper, Lens indexer and API, cure relay and Console end to end. His previous work spans cross-chain lending, Internet Computer applications, NFT fractionalization and open-source contributions to ZetaChain. |
+| **Emmanuel Kehinde** | **Core collaborator, research and growth.** Leads technical and market research, ecosystem positioning, content, social media, community operations and distribution. His previous work includes MarsinSight, GUIversity on Aptos, Flint in the Flare ecosystem and PoRprotocol at the Turing Hackathon. |
+
+The team's prior execution includes:
+
+- [**OmniFuse**](https://omnifuse.vercel.app) — a cross-chain lending protocol
+  on ZetaChain: supply collateral on one chain, borrow on another through
+  universal apps, with automated liquidation and per-asset risk parameters.
+  [Application source](https://github.com/successaje/OmniFuse) ·
+  [protocol source](https://github.com/successaje/OmniFuse-Zeta)
+- [**GameBloc**](https://github.com/Game-Bloc/Gamebloc-ICP) — competitive
+  gaming infrastructure co-founded on the Internet Computer; approximately
+  1,500 users and more than 100 tournaments run.
+- [**KawaK**](https://3ysab-rqaaa-aaaan-qaewq-cai.ic0.app) — a decentralized
+  writing platform co-founded to allocate rewards by merit rather than reach.
+- [**ic-puzzle**](https://entrepot.app/marketplace/puzzle) — NFT
+  fractionalization on ICP, with Success contributing as a smart contract
+  developer.
+- [**ZetaChain contributions**](https://github.com/search?q=org%3Azeta-chain+author%3Asuccessaje+is%3Apr&type=pullrequests)
+  — pull requests across documentation, node, toolkit and example-contract
+  repositories.
+
+Dokett is the team's latest inspectable execution record: five source-verified
+contracts on CC3, 99 passing tests, an unattended keeper, a free public read
+API, and a standalone MIT guard library for safer USC verification.
+
+[Read the full team background and prior-work notes](docs/TEAM.md).
 
 ## External integration validation
 
