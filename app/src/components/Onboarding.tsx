@@ -21,8 +21,8 @@ const KEY = 'dokett.onboarded.v1';
 
 const POINTS: [string, string][] = [
   [
-    'Every status was reached by evidence',
-    'Nothing here was reported, voted on, or supplied by an oracle operator. A status moves only when an ASC proof of a real Ethereum event is verified on-chain, or when a deadline measured in attested block height passes.',
+    'Post-registration transitions follow evidence and deadlines',
+    'An application-controlled reporter cannot choose a status. A transition follows a verified ASC proof of an Ethereum event or a deadline measured against the attested Ethereum height. The attestor set is permissioned today.',
   ],
   [
     'Anyone may register a claim against anyone',

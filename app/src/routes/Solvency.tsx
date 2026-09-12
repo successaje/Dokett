@@ -183,8 +183,8 @@ function Result({ entity }: { entity: string }) {
             ))}
           </div>
           <p className="note" style={{ marginTop: 14 }}>
-            Each of these was reached by evidence — a window that closed with no admissible proof, or
-            a cure that expired. None was reported by a person.
+            Each follows the protocol rules — a window closed with no admissible proof, or a cure
+            expired. A caller triggered evaluation but could not choose the result.
           </p>
         </Section>
       )}
@@ -211,6 +211,9 @@ function seededEntity(): string {
   return new URLSearchParams(q).get('q')?.trim() ?? '';
 }
 
+const EXAMPLE_ENTITY =
+  '0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a';
+
 export default function Solvency() {
   const seeded = seededEntity();
   const seededValid = isAddress(seeded) || isBytes32(seeded);
@@ -219,6 +222,12 @@ export default function Solvency() {
 
   const trimmed = input.trim();
   const valid = isAddress(trimmed) || isBytes32(trimmed);
+
+  function loadExample() {
+    setInput(EXAMPLE_ENTITY);
+    setEntity(EXAMPLE_ENTITY);
+    window.history.replaceState(null, '', `#/solvency?q=${EXAMPLE_ENTITY}`);
+  }
 
   return (
     <>
@@ -255,23 +264,28 @@ export default function Solvency() {
             Not a 20-byte address or 32-byte commitment.
           </p>
         )}
+
+        <div className="query-example">
+          <span>New here? Open a borrower with bonded claims and adverse history.</span>
+          <button type="button" className="query-example-btn" onClick={loadExample}>
+            Load judge example →
+          </button>
+        </div>
       </div>
 
       <div className="page">
         {entity ? (
           <Result entity={entity} />
         ) : (
-          <Section title="Why two buckets">
+          <Section title="What the result will show">
             <p className="note" style={{ marginTop: 0 }}>
-              Anyone may register an obligation against any address. That is deliberate — a registry
-              that gatekeeps registration is just a private database. The cost is that anyone can
-              also register a fiction.
+              The result separates bonded claims from unbonded claims and shows adverse history.
+              Bonding makes a registrar's assertion costly, but it does not prove that the original
+              debt was validly agreed.
             </p>
             <p className="note">
-              So the Lens reports bonded and unbonded claims separately and refuses to add them
-              together. Weighting by registrar bond is what makes the number mean anything; a single
-              “total owed” would throw that away and hand an adversary a free way to poison a
-              competitor's record.
+              Registration is permissionless, so Dokett never combines both buckets into a single
+              “total owed” that a bad actor could poison for free.
             </p>
           </Section>
         )}

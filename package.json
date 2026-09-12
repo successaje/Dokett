@@ -8,6 +8,8 @@
     "test": "test"
   },
   "scripts": {
+    "setup": "npm ci && npm ci --prefix app",
+    "judge:verify": "npm test && npm run app:build",
     "test": "forge test && npm run test:lens && npm run test:relay",
     "test:lens": "node --test \"lens/test/*.test.js\"",
     "keeper": "node --env-file-if-exists=.env worker/src/index.js",
@@ -40,6 +42,9 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "type": "commonjs",
   "dependencies": {
     "@gluwa/usc-contracts": "^0.1.2",

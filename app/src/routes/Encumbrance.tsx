@@ -89,11 +89,23 @@ function Result({ asset }: { asset: string }) {
  * self-interest, which is the only way a registry has ever bootstrapped.
  */
 export default function Encumbrance() {
-  const [input, setInput] = useState('');
-  const [asset, setAsset] = useState<string | null>(null);
+  const query = window.location.hash.split('?')[1];
+  const seeded = query ? new URLSearchParams(query).get('q')?.trim() ?? '' : '';
+  const seededValid = isAddress(seeded) || isBytes32(seeded);
+  const [input, setInput] = useState(seeded);
+  const [asset, setAsset] = useState<string | null>(seededValid ? seeded : null);
 
   const trimmed = input.trim();
   const valid = isAddress(trimmed) || isBytes32(trimmed);
+
+  const exampleAsset =
+    '0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f';
+
+  function loadExample() {
+    setInput(exampleAsset);
+    setAsset(exampleAsset);
+    window.history.replaceState(null, '', `#/encumbrance?q=${exampleAsset}`);
+  }
 
   return (
     <>
@@ -129,21 +141,27 @@ export default function Encumbrance() {
             Not a 20-byte address or 32-byte reference.
           </p>
         )}
+
+        <div className="query-example">
+          <span>New here? Open a warehouse receipt with a live registered claim.</span>
+          <button type="button" className="query-example-btn" onClick={loadExample}>
+            Load judge example →
+          </button>
+        </div>
       </div>
 
       <div className="page">
         {asset ? (
           <Result asset={asset} />
         ) : (
-          <Section title="Why this query first">
+          <Section title="What the result will show">
             <p className="note" style={{ marginTop: 0 }}>
-              A registry is worth what its coverage is worth, and coverage has to come from
-              somewhere. Asking lenders to file claims for the good of the commons does not work.
+              The result lists every live obligation that names this asset reference as collateral,
+              with its status, outstanding amount and registrar.
             </p>
             <p className="note">
-              Asking them to file a claim so that nobody else lends against their collateral does.
-              The encumbrance check is free, and it makes registering an act of self-interest — the
-              only way a registry has ever bootstrapped.
+              An empty result means that Dokett has no live claim for the asset. It is not proof of
+              clean legal title, because registry coverage is incomplete and permissionless.
             </p>
           </Section>
         )}

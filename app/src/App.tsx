@@ -330,10 +330,10 @@ export default function App() {
       <footer className="page">
         <div className="colophon">
           <p>
-            <strong>Every status in this register was reached by evidence.</strong> A
-            cryptographically verified ASC proof of an Ethereum event, or a comparison against the
-            attested source-chain height. Nothing here was asserted by a reporter, voted on by a
-            committee, or supplied by an oracle operator.
+            <strong>Post-registration transitions follow evidence and attested deadlines.</strong> A
+            verified ASC proof of an Ethereum event or a comparison against the attested source-chain
+            height determines the result. An application-controlled reporter cannot choose a status;
+            the Attestcoin attestor set is permissioned today.
           </p>
           <p>
             Deadlines are denominated in <strong>attested block height</strong>, never wall time.
