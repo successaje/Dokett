@@ -205,6 +205,7 @@ export default function Landing() {
             </div>
             <div className="lp-col">
               <h4>Evidence</h4>
+              <a href="#/paper">Protocol paper</a>
               <a href="#/developers">Developers</a>
               <a href="#/posts">Research</a>
               <a href="#/developers/architecture">Architecture</a>

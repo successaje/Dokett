@@ -160,6 +160,8 @@ function View({ route }: { route: string }) {
   const doc = route.match(/^\/developers\/([a-z0-9-]+)$/);
   if (doc?.[1]) return <Doc slug={doc[1]} />;
 
+  if (route === '/paper') return <Doc slug="protocol-paper" />;
+
   switch (route) {
     case '/solvency':
       return <Solvency />;
@@ -343,6 +345,13 @@ export default function App() {
           <p>
             Testnet, synthetic data. Identity is a commitment, but payment addresses and amounts are
             public by construction — do not put real borrower data in this registry.
+          </p>
+          <p className="colophon-links">
+            <a href="#/paper">Protocol paper</a>
+            <span aria-hidden="true">·</span>
+            <a href="#/developers/architecture">Architecture</a>
+            <span aria-hidden="true">·</span>
+            <a href="#/developers/threat-model">Threat model</a>
           </p>
         </div>
       </footer>

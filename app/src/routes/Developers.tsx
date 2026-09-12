@@ -256,6 +256,11 @@ export default function Developers() {
             aside="The actual specification, not a summary of it — corrected in the open when we got it wrong."
           >
             <DocLink
+              href="#/paper"
+              title="Protocol paper"
+              desc="The protocol thesis, USC evidence model, obligation lifecycle, trust boundaries and path to independent integration."
+            />
+            <DocLink
               href="#/developers/architecture"
               title="Architecture"
               desc="System diagram, data model, contract responsibilities, ASC reference, build order. Carries its own corrections log (C1–C4) for where the first draft was wrong."

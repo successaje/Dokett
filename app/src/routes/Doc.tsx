@@ -14,6 +14,13 @@ interface DocDef {
 
 export const DOCS: DocDef[] = [
   {
+    slug: 'protocol-paper',
+    file: 'PROTOCOL-PAPER.md',
+    eyebrow: 'Protocol paper · Version 0.1',
+    title: 'A Verifiable Credit Coordination Layer for On-Chain Lending',
+    dek: "Dokett's scope, USC evidence model, obligation lifecycle, trust boundaries and path to independent integration.",
+  },
+  {
     slug: 'architecture',
     file: 'ARCHITECTURE.md',
     eyebrow: 'Design & threat model',
@@ -103,8 +110,8 @@ export default function Doc({ slug }: { slug: string }) {
   return (
     <>
       <div className="page page-head">
-        <a href="#/developers" className="post-back">
-          ← Developers
+        <a href={slug === 'protocol-paper' ? '#/' : '#/developers'} className="post-back">
+          ← {slug === 'protocol-paper' ? 'Dokett' : 'Developers'}
         </a>
         <div className="eyebrow">{def.eyebrow}</div>
         <h1 className="page-title" style={{ marginTop: 6 }}>

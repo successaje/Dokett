@@ -2453,6 +2453,22 @@ table.data tbody tr,
   font-weight: 600;
 }
 
+.colophon-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding-top: 5px;
+}
+
+.colophon-links a {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.colophon-links span {
+  color: var(--ink-4);
+}
+
 /* ────────────────────────── rendered markdown docs ──────────────────── */
 
 /*
