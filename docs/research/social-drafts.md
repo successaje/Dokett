@@ -98,11 +98,11 @@ the first reply:
 
 > Dokett v0.2.0 is live on Creditcoin CC3.
 >
-> Credit obligations can now enter through subject-signed EIP-712 or EIP-1271
-> authorization. Terms provenance survives settlement, and only the recorded
+> Obligations can now enter through subject-signed EIP-712 or EIP-1271
+> authorization. Provenance survives settlement, and only the recorded
 > subject can file an authenticated dispute.
 >
-> Six source-verified contracts. Two inspectable testnet records.
+> 6 verified contracts. 2 inspectable testnet records.
 
 First reply:
 
