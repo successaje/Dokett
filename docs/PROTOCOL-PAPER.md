@@ -163,8 +163,8 @@ The protocol therefore separates existence from weight:
 
 - A **registered claim** proves that a registrar created the on-chain object.
 - A **registrar bond** puts capital behind that claim.
-- An **unbonded claim** remains visible but is never summed with bonded exposure.
-- A **dispute** quarantines a contested record for consumers to handle explicitly.
+- An **unbonded claim** remains visible but is never summed with bonded exposure. *(v1 has no path that creates one: `register()` reverts below the minimum registrar bond. The separation exists so the projection is already correct when an unbonded path is added.)*
+- A **dispute** is intended to quarantine a contested record for consumers to handle explicitly. *Not implemented in v1:* `dispute()` is currently unauthenticated and the projection does not index it, so no quarantine happens today.
 - A **verified payment** proves that the configured event passed USC and Dokett's
   admission rules; it does not validate the original legal agreement.
 

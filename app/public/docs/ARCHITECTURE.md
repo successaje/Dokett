@@ -181,7 +181,7 @@ Configuration surface: `minConfirmations`, `maxSampleGap`, `recoveryGrace` (all 
 - `register(ObligationInit)` — payable, requires `MIN_REGISTRAR_BOND` in CTC, escrows a `keeperFund` for §4.4 bounties, asserts the source chain's id matches its chainKey.
 - `provePayment(id, Proof)` → `PaymentAdapter`.
 - `markDelinquent(id)` / `finalizeDefault(id)` → `SilenceAdapter`.
-- `dispute(id, reasonCode)` — obligor-side flag; does not change status, surfaces in the Lens. The beginning of the consumer-rights layer.
+- `dispute(id, reasonCode)` — writes a contested flag on-chain; does not change status. **Not yet authenticated and not yet surfaced in the Lens:** the call is permissionless, the event does not record who made it, and the projection does not index it. The intended shape is an EIP-712 signature from the obligation's subject, so the flag means something. Until then it is a placeholder for the consumer-rights layer, not a working part of it.
 - Adapter allowlist behind a 48h timelock — the only privileged surface.
 
 ### 4.3 `adapters/PaymentAdapter.sol`

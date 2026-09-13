@@ -131,3 +131,54 @@ test('underwriter reputation is derived from history, not stored', () => {
 test('unknown obligation returns null rather than an empty shell', () => {
   assert.equal(stubIndex([]).obligation('99'), null);
 });
+
+/**
+ * THE REGRESSION THAT MATTERS MOST.
+ *
+ * `bonded` used to be computed as `registrarBond > 0n` — the current escrow
+ * balance. `Register._refundEscrow` is called on exactly one event, settlement,
+ * so paying a loan off in full zeroed the field and the projection reclassified
+ * the claim as UNBONDED.
+ *
+ * The result was the precise inverse of the product: a borrower who repaid
+ * everything had `obligationsRegistered: 0` and `paymentsProven: 0`, and their
+ * settled loan sat in the bucket this API's own note describes as carrying no
+ * weight. Verified live on obligation #8 before the fix.
+ *
+ * Registration is the only path that creates an obligation and it reverts below
+ * MIN_REGISTRAR_BOND, so bonded-at-registration is a historical fact that
+ * settlement cannot revoke.
+ */
+test('settling an obligation does not erase that it was bonded', () => {
+  const settled = obligation({
+    id: '1',
+    status: 'Settled',
+    outstanding: '0',
+    periodsSatisfied: 3,
+    registrarBond: '0', // refunded by _refundEscrow on settlement
+    bonded: true, // …but it was bonded when it was registered, and still was
+    escrowReleased: true,
+  });
+
+  const r = stubIndex([settled]).solvency(ALICE);
+
+  assert.equal(r.bonded.count, 1, 'a repaid loan stays in the bonded bucket');
+  assert.equal(r.unbonded.count, 0, 'and never lands beside weightless claims');
+});
+
+test('a borrower who repaid in full has a provable history', () => {
+  const settled = obligation({
+    id: '1',
+    status: 'Settled',
+    outstanding: '0',
+    periodsSatisfied: 3,
+    registrarBond: '0',
+    bonded: true,
+    escrowReleased: true,
+  });
+
+  const p = stubIndex([settled]).profile(ALICE);
+
+  assert.equal(p.proven.obligationsRegistered, 1, 'the loan is still on the record');
+  assert.equal(p.proven.paymentsProven, 3, 'and so are the payments that closed it');
+});

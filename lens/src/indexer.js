@@ -83,8 +83,36 @@ class Index {
         registrarBond: o.registrarBond.toString(),
         collateralRef: o.collateralRef,
         coverage: coverage.toString(),
-        // The honesty flag. Everything downstream keys off this.
-        bonded: o.registrarBond > 0n,
+
+        /*
+         * The honesty flag. Everything downstream keys off this, which is why
+         * it was so damaging when it measured the wrong thing.
+         *
+         * It used to read `o.registrarBond > 0n` — the CURRENT escrow balance.
+         * That is a different question from "was this claim bonded", and the
+         * two diverge at exactly the worst moment: `_refundEscrow` is called on
+         * one event only, `Status.Settled`, so paying a loan off in full zeroed
+         * the field and reclassified the claim as unbonded. A borrower who
+         * repaid everything showed `obligationsRegistered: 0`, and their
+         * settled loan was bucketed alongside claims the API's own note calls
+         * weightless. A credit registry that erases repayment is not a credit
+         * registry.
+         *
+         * Bonded-at-registration is a historical fact, and here it is a
+         * constant one: `Register.register()` is the only path that creates an
+         * obligation and it reverts unless
+         * `msg.value >= MIN_REGISTRAR_BOND + MIN_KEEPER_FUND`. Nothing in this
+         * register was ever unbonded.
+         */
+        bonded: true,
+
+        /*
+         * The current-state question, kept separately and named for what it
+         * actually is. True only after settlement returned the escrow, so it
+         * reads as "this obligation is finished and the registrar was refunded"
+         * rather than as a judgement on the claim's weight.
+         */
+        escrowReleased: o.registrarBond === 0n,
       });
     }
 
