@@ -1,6 +1,6 @@
 # Dokett: A Verifiable Credit Coordination Layer for On-Chain Lending
 
-**Protocol paper · Version 0.1 · September 2026**  
+**Protocol paper · Version 0.2 · September 2026**
 **Implementation:** Creditcoin CC3 testnet · **Source:** [github.com/successaje/Dokett](https://github.com/successaje/Dokett)
 
 ---
@@ -169,9 +169,10 @@ The protocol therefore separates existence from weight:
 - A **verified payment** proves that the configured event passed USC and Dokett's
   admission rules; it does not validate the original legal agreement.
 
-The current source implements subject authorization for EOAs and EIP-1271 smart
-accounts. The immutable CC3 v1 deployment predates that revision, so its dispute
-function remains unauthenticated until the new Register and Lens are deployed.
+The v0.2.0 CC3 deployment implements subject authorization for EOAs and EIP-1271
+smart accounts, with an inspectable active authorization and authenticated relayed
+dispute. The public Console remains on the populated immutable v1 deployment while
+the v0.2 index is brought online.
 Domain-specific registrar policies and adjudication of bad-faith registration
 remain future work. Integrations should treat Dokett as an evidence registry
 with disclosed provenance, not as a legal judgment engine.

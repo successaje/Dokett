@@ -161,6 +161,7 @@ function View({ route }: { route: string }) {
   if (doc?.[1]) return <Doc slug={doc[1]} />;
 
   if (route === '/paper') return <Doc slug="protocol-paper" />;
+  if (route === '/releases') return <Doc slug="releases" />;
 
   switch (route) {
     case '/solvency':
@@ -348,6 +349,8 @@ export default function App() {
           </p>
           <p className="colophon-links">
             <a href="#/paper">Protocol paper</a>
+            <span aria-hidden="true">·</span>
+            <a href="#/releases">Releases</a>
             <span aria-hidden="true">·</span>
             <a href="#/developers/architecture">Architecture</a>
             <span aria-hidden="true">·</span>

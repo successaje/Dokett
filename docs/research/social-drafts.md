@@ -88,3 +88,26 @@ figures without re-verifying against the source (`npm run prove:one <tx>`).
   follow-up. (See Research #002's "slashed: 0" section — that's the model.)
 - No "🚀 introducing" energy. The brand is "we investigated this," not
   "believe us."
+
+---
+
+## 5. v0.2.0 release
+
+Post with a screenshot of the v0.2 release page and place the release link in
+the first reply:
+
+> Dokett v0.2.0 is live on Creditcoin CC3.
+>
+> Credit obligations can now enter through subject-signed EIP-712 or EIP-1271
+> authorization. Terms provenance survives settlement, and only the recorded
+> subject can file an authenticated dispute.
+>
+> Six source-verified contracts. Two inspectable testnet records.
+
+First reply:
+
+> One record is active. A second was registered with a different subject signer,
+> then quarantined through that subject's relayed one-shot dispute.
+>
+> Release, contracts and transactions:
+> https://dokett-console.vercel.app/#/releases

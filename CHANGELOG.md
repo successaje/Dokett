@@ -25,8 +25,8 @@ needed to reproduce it.
 
 ### Deployment status
 
-Release source is complete and tested. CC3 addresses are recorded in
-`docs/RELEASES.md` after deployment and source verification.
+Deployed, bootstrapped and source verified on Creditcoin CC3 testnet. Addresses,
+configuration and transaction receipts are recorded in `docs/RELEASES.md`.
 
 ## [0.1.0] - 2026-08-17
 

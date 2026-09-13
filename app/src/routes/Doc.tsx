@@ -16,9 +16,16 @@ export const DOCS: DocDef[] = [
   {
     slug: 'protocol-paper',
     file: 'PROTOCOL-PAPER.md',
-    eyebrow: 'Protocol paper · Version 0.1',
+    eyebrow: 'Protocol paper · Version 0.2',
     title: 'A Verifiable Credit Coordination Layer for On-Chain Lending',
     dek: "Dokett's scope, USC evidence model, obligation lifecycle, trust boundaries and path to independent integration.",
+  },
+  {
+    slug: 'releases',
+    file: 'RELEASES.md',
+    eyebrow: 'Protocol history',
+    title: 'Protocol releases',
+    dek: 'Immutable deployments, exact source commits, verified contract addresses, bootstrap transactions and migration boundaries.',
   },
   {
     slug: 'architecture',
@@ -110,8 +117,8 @@ export default function Doc({ slug }: { slug: string }) {
   return (
     <>
       <div className="page page-head">
-        <a href={slug === 'protocol-paper' ? '#/' : '#/developers'} className="post-back">
-          ← {slug === 'protocol-paper' ? 'Dokett' : 'Developers'}
+        <a href={slug === 'protocol-paper' || slug === 'releases' ? '#/' : '#/developers'} className="post-back">
+          ← {slug === 'protocol-paper' || slug === 'releases' ? 'Dokett' : 'Developers'}
         </a>
         <div className="eyebrow">{def.eyebrow}</div>
         <h1 className="page-title" style={{ marginTop: 6 }}>

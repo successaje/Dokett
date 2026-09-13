@@ -1,0 +1,25 @@
+{
+  "releaseVersion": "v0.2.0",
+  "register": "0xdcCF757C996Ee36E7f40B81a583B4B3692956281",
+  "attestedEthereumHead": "25970960",
+  "active": {
+    "id": "1",
+    "obligor": "0x173ebe9df3963ed6fa11765b64da2f6d21e8e7ae88b885046406d44210c1ddbe",
+    "subjectSigner": "0xFD5b2522331D23f8a0233562814E9bCBDc561e03",
+    "termsHash": "0xa78247e8fb0722072f118400ef7de96a610e95c7c739d3dda24f706da919955c",
+    "registrationTransaction": "0x2fbe3e11f09b61c9f89462ce699f1b9d4424a354f03c6ade33f2fe5dd0c64180",
+    "block": 5482739
+  },
+  "disputed": {
+    "id": "2",
+    "obligor": "0xfeaf1f1d0259be1cd89df13cbc748cc21e44bbcd0c286e0cd6d6fb67b17f4f63",
+    "subjectSigner": "0xB691E3C9ed7D60aD34EE3E79d4156ad6b3F8ae7f",
+    "termsHash": "0x4f7b86d0154a90e87c945eec8c5fdbdb34ed10f4e59031424baecf12e288bb25",
+    "registrationTransaction": "0x6cde56eb900d6fb484db99b93a1640acb1e919b27fd4652165c3bb22c3ce1e54",
+    "registrationBlock": 5482740,
+    "reasonCode": "0x5445524d535f434f4e5445535445440000000000000000000000000000000000",
+    "evidenceHash": "0xc0a150a7a37cb6d5c341f9ea05787714a969f376c7ceeaa25e4471dd4132d99f",
+    "disputeTransaction": "0x469eca2ccf238972ba806449d37f56bd416f8421eb1a50ae2c557db7eb3c1d9e",
+    "disputeBlock": 5482741
+  }
+}

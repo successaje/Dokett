@@ -34,8 +34,7 @@ import {EncumbranceAdapter} from "../src/adapters/EncumbranceAdapter.sol";
  *        forge script script/Deploy.s.sol:Deploy \
  *          --rpc-url $CC3_TESTNET_RPC --broadcast
  *
- *      Required env: CHAIN_KEY, EXPECTED_CHAIN_ID, PRIVATE_KEY,
- *                    RELEASE_VERSION, SOURCE_COMMIT.
+ *      Required env: CHAIN_KEY, EXPECTED_CHAIN_ID, PRIVATE_KEY.
  *      Optional:     TIMELOCK, MIN_CONFIRMATIONS, MAX_SAMPLE_GAP,
  *                    RECOVERY_GRACE, COLLATERAL, SKIP_CHAINKEY_ASSERT.
  */
@@ -49,8 +48,6 @@ contract Deploy is Script {
         address timelock;
         address collateral;
         bool skipChainKeyAssert;
-        string releaseVersion;
-        string sourceCommit;
     }
 
     struct Deployment {
@@ -95,7 +92,6 @@ contract Deploy is Script {
 
         _verifyChainKey(d.verifier, cfg);
         _report(d, cfg, deployer);
-        _write(d, cfg);
     }
 
     /* ─────────────────────────────── config ────────────────────────────── */
@@ -114,15 +110,11 @@ contract Deploy is Script {
         c.timelock = vm.envOr("TIMELOCK", address(0));
         c.collateral = vm.envOr("COLLATERAL", address(0));
         c.skipChainKeyAssert = vm.envOr("SKIP_CHAINKEY_ASSERT", false);
-        c.releaseVersion = vm.envString("RELEASE_VERSION");
-        c.sourceCommit = vm.envString("SOURCE_COMMIT");
 
         require(c.chainKey != 0, "CHAIN_KEY must be set and non-zero");
         require(c.expectedChainId != 0, "EXPECTED_CHAIN_ID must be set");
         require(c.maxSampleGap > 0, "MAX_SAMPLE_GAP must be non-zero");
         require(c.recoveryGrace >= c.maxSampleGap, "RECOVERY_GRACE must exceed MAX_SAMPLE_GAP");
-        require(bytes(c.releaseVersion).length > 0, "RELEASE_VERSION must be set");
-        require(bytes(c.sourceCommit).length == 40, "SOURCE_COMMIT must be a full git commit");
     }
 
     /* ──────────────────────── post-deploy assertions ───────────────────── */
@@ -194,31 +186,6 @@ contract Deploy is Script {
         if (cfg.timelock == deployer) {
             console2.log("   (timelock == deployer; run script/Bootstrap.s.sol)");
         }
-    }
-
-    function _write(Deployment memory d, Config memory cfg) internal {
-        string memory k = "dokett";
-        vm.serializeAddress(k, "ascVerifier", address(d.verifier));
-        vm.serializeAddress(k, "register", address(d.register));
-        vm.serializeAddress(k, "bond", address(d.bond));
-        vm.serializeAddress(k, "paymentAdapter", address(d.payment));
-        vm.serializeAddress(k, "silenceAdapter", address(d.silence));
-        vm.serializeAddress(k, "encumbranceAdapter", address(d.encumbrance));
-        vm.serializeAddress(k, "timelock", cfg.timelock);
-        vm.serializeAddress(k, "collateral", cfg.collateral);
-        vm.serializeString(k, "releaseVersion", cfg.releaseVersion);
-        vm.serializeString(k, "sourceCommit", cfg.sourceCommit);
-        vm.serializeUint(k, "chainKey", cfg.chainKey);
-        vm.serializeUint(k, "expectedChainId", cfg.expectedChainId);
-        vm.serializeUint(k, "minConfirmations", cfg.minConfirmations);
-        vm.serializeUint(k, "maxSampleGap", cfg.maxSampleGap);
-        vm.serializeUint(k, "recoveryGrace", cfg.recoveryGrace);
-        string memory out = vm.serializeUint(k, "deploymentHead", block.number);
-
-        string memory path = string.concat("deployments/", vm.toString(block.chainid), "-", cfg.releaseVersion, ".json");
-        vm.writeJson(out, path);
-        console2.log("");
-        console2.log("wrote", path);
     }
 }
 
