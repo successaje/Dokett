@@ -1,7 +1,7 @@
 # Dokett — Threat Model
 
-**Version** 0.1 · 29 Jul 2026 · pre-build
-**Scope** CC3 testnet hackathon build, written so it stays valid for mainnet
+**Version** 0.2 · 13 Sep 2026 · reconciled with the shipped implementation
+**Scope** CC3 testnet protocol and the next Register revision in this repository
 **Companion** [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 ---
@@ -24,14 +24,14 @@
 | Creditcoin validators | Liveness + BLS aggregate verification + finality | Nothing beyond consensus |
 | Proof Builder service | Producing correct proofs (verifiable, so it can only censor, not forge) | Availability, censorship-resistance |
 | Keepers | Nothing — permissionless, bounty-driven, adversarially replaceable | Everything |
-| Registrars / creditors | Nothing. Bonded, weighted, disputable | Truthfulness |
+| Registrars / creditors | Nothing. Bonded and weighted | Truthfulness; validity of registrar-asserted terms |
 | Underwriters | Their own capital | Independence from the obligor |
 | Obligors | Nothing | — |
 | Protocol admin | Adapter allowlist behind a 48h timelock | Anything unilateral or fast |
 
 **Stated trust assumption, verbatim for the README:** *Dokett inherits the trust model of the ASC attestor set. As of July 2026 that set is permissioned (`AuthorizedOnly`), with a mainnet minimum bond of 0 CTC and no publicly documented slashing regime. Dokett is therefore, today, a system with a curated federation at its evidence root — materially stronger than a multisig bridge, materially weaker than a ZK light client. We cap per-obligation exposure accordingly and treat attestor decentralisation as the protocol's most important external dependency.*
 
-Say this before a judge finds it. Volunteering your weakest assumption is the strongest credibility move available to you.
+State this before an integrator relies on the registry. The trust boundary belongs in the product contract, not in fine print.
 
 ---
 
@@ -52,13 +52,13 @@ Say this before a judge finds it. Volunteering your weakest assumption is the st
 ### T-03 — Proof replay
 **Vector.** One legitimate payment proof reused to satisfy multiple windows, multiple obligations, or the same window after a cure.
 **Severity.** High · **Likelihood.** High if unguarded
-**Mitigation.** `consumed[keccak256(chainKey, txHash, logIndex, loId)]`. Keyed with `loId` so the *same* transaction cannot satisfy two obligations, and with `logIndex` so a multi-transfer transaction is decomposed correctly. Window-boundary check on `sourceTimestamp` prevents a single payment sliding forward across periods beyond `value / periodAmount`.
+**Mitigation.** `consumedProofs[keccak256(chainKey, height, txIndex, logIndex)]`. The global source position means one proven log cannot satisfy two obligations or be replayed into a later window. `logIndex` keeps distinct events in one receipt independently addressable. `PaymentAdapter` checks the proof-bound source height against the current window and caps periods covered at `value / periodAmount`.
 
 ### T-04 — Griefing by false delinquency
 **Vector.** An adversary calls `markDelinquent()` on a healthy obligation to damage a borrower's record or trigger a slash.
 **Severity.** Medium · **Likelihood.** Medium
-**Mitigation.** Delinquency is not an assertion — it requires the on-chain fact that no admissible proof was presented before `windowEndsAt + attestationBuffer`. If a payment did occur, **anyone** can cure it during the cure window with the proof (I4), and the record shows *cured-late*, not default. Keeper bounties are paid from the obligation's own `keeperFund`, so griefing has no profit and the marker gains nothing by being early — they cannot be early.
-**Residual.** A borrower who paid but whose proof nobody submits within `window + buffer + cure` is wrongly defaulted. Mitigated by: permissionless submission, cost of ~$0.000024, a 7-day cure, borrower self-service in the UI, and keepers economically motivated to find payments. **This residual risk is the honest price of having no trusted reporter, and should be stated as such.**
+**Mitigation.** Delinquency is not a caller assertion. It requires `attestedHead >= windowEndHeight + minConfirmations`, an enabled liveness gate, and no proof recorded for the window. If a qualifying in-window payment occurred, anyone can cure the delinquency before `windowEndHeight + cureBlocks`. Keeper bounties come from the obligation's own fund, and no caller can mark early.
+**Residual.** A borrower who paid but whose proof nobody submits before cure expiry is wrongly defaulted, and default is terminal. Permissionless submission, low proof cost, a long cure window, borrower self-service and keeper incentives reduce this risk without eliminating it.
 
 ### T-05 — Proof-submission censorship
 **Vector.** The hosted Proof Builder is down or refuses to serve a proof, so a real payment cannot be evidenced and the obligation defaults.
@@ -68,8 +68,8 @@ Say this before a judge finds it. Volunteering your weakest assumption is the st
 ### T-06 — Attestation stall → mass false defaults ⚠️ *most dangerous systemic failure*
 **Vector.** The attestor set halts or falls behind. No payment proofs can be produced for anyone. Every live obligation blows through its window simultaneously and the keeper network mass-defaults the entire book.
 **Severity.** **Critical** · **Likelihood.** Medium (permissioned set, small operator count)
-**Mitigation.** Global circuit breaker in `AscVerify` (invariant I6): read the attested head from `ChainInfo`; if it is staler than `STALE_THRESHOLD` (2h), **`markDelinquent()` and `finalizeDefault()` revert**, and live windows extend by the stall duration once the head recovers. Payment proving is never paused — a stall must never manufacture a default, and must never block a cure.
-**Test.** Explicit fork test: freeze the attested head, assert every degradation path reverts, unfreeze, assert windows extended and no obligation defaulted.
+**Mitigation.** `AscVerify.penaltiesEnabled` requires a continuously observed and advancing attested head. A stale observation, stalled head or recently recovered head makes `markDelinquent()` and `finalizeDefault()` revert. Deadlines remain source heights; they are not rewritten. After recovery, penalties stay disabled for `recoveryGrace`, while payment proving remains available.
+**Test.** Freeze the attested head, assert every degradation path reverts, resume it, assert that repeated pokes cannot bypass the recovery grace, and verify that payment proving remains available.
 
 ### T-07 — Source-chain reorg
 **Vector.** A proven payment is reorged out of Ethereum after being consumed on Creditcoin.
@@ -79,13 +79,13 @@ Say this before a judge finds it. Volunteering your weakest assumption is the st
 ### T-08 — Registry defamation / spam
 **Vector.** Anyone can register an obligation against any address. An adversary registers fake debts against a competitor to poison their solvency reading, or floods the registry to make the Lens useless.
 **Severity.** Medium–High (this is the classic registry attack, and the reason most registries end up permissioned)
-**Mitigation.** Invariant I7 — registration is permissionless, *weight* is bonded. `MIN_REGISTRAR_BOND` in CTC prices spam. The Lens returns bonded and unbonded claims in **separate buckets** and never sums them into one number. Registrar track record (settled vs. disputed vs. abandoned) is a derived, public view. `dispute()` writes a contested flag cheaply — but it is **not** a mitigation today and must not be counted as one: the call is unauthenticated, so anyone can dispute anything and overwrite the previous reason, the event does not record the caller, and the Lens does not index it. Quarantine is unimplemented. The live mitigations for this row are the mandatory registrar bond and the bonded/unbonded separation above. Long-term: forfeiture of registrar bond on adjudicated bad-faith registration.
-**Honest limitation for v1:** the hackathon build prices spam but does not adjudicate defamation. Say so.
+**Mitigation.** Registration remains permissionless and every current path requires `MIN_REGISTRAR_BOND`. The next Register revision adds EIP-712/EIP-1271 subject-authorized origination, immutable terms and registration-bond commitments, authenticated direct or relayed disputes, and one-shot authorization digests. The Lens quarantines only disputes signed by the subject controller recorded at origination. Registrar-asserted claims remain a separate provenance class and are not transformed into subject-approved debt.
+**Deployment boundary.** The published CC3 v1 Register still contains the unauthenticated placeholder dispute function. The source revision fixes it, but the mitigation is not live until new contracts and the updated Lens are deployed. Bad-faith registration still requires a production adjudication and registrar-penalty process.
 
 ### T-09 — Wash underwriting
 **Vector.** An obligor bonds themselves through a sock puppet to manufacture a creditworthy track record, or a registrar/creditor/underwriter tri-collusion fabricates a clean repayment history.
 **Severity.** Medium · **Likelihood.** Medium
-**Mitigation.** Fabricating history requires **real on-chain payments through real ERC-20 transfers**, so a wash history costs its face value in capital movement and gas — it is not free the way a self-reported score is. The Lens exposes counterparty-graph concentration (what share of an obligor's history involves a single registrar/underwriter cluster) so consumers can discount it. Independent-capital weighting in reputation.
+**Mitigation.** Fabricating history requires real on-chain ERC-20 transfers, so it requires capital movement and gas rather than a free database write. Subject authorization makes the agreed terms attributable, but does not establish independent counterparties. Counterparty clustering and independent-capital weighting remain roadmap work and are named as unindexed by the Lens.
 **Residual.** Cannot be eliminated without identity. Dokett's position is that it does not solve identity — it makes identity someone's *priced* problem.
 
 ### T-10 — Reentrancy / accounting bugs in slashing
@@ -101,7 +101,7 @@ Say this before a judge finds it. Volunteering your weakest assumption is the st
 ### T-12 — Privacy: commitment reversal
 **Vector.** `obligor = keccak256(identityRef, salt)`. If `identityRef` is low-entropy (a phone number, a national ID) and `salt` is weak or reused, the commitment is trivially brute-forced. Separately, `sourcePayer`, `sourcePayee` and all amounts are public by construction.
 **Severity.** High for real borrowers · **Likelihood.** High if unmanaged
-**Mitigation.** Enforce ≥128-bit salt, generated client-side, never reused across obligations, never transmitted to the registrar. Amounts and payment addresses are **public in v1 and this is documented, not hidden** — the roadmap answer is a source-chain payment router giving each obligation an ephemeral payer address, plus ZK selective disclosure over the schedule tree.
+**Mitigation.** The Console generates a high-entropy salt client-side and treats non-reuse as an operational requirement; the contract receives only the resulting commitment and cannot measure salt entropy. Amounts and payment addresses are public in v1. The roadmap answer is a source-chain payment router with per-obligation addresses plus selective disclosure over committed terms.
 **Rule.** Never demo with a real person's data, even fabricated-looking data. Use obviously synthetic identities.
 
 ### T-13 — Admin key compromise
@@ -129,14 +129,17 @@ INV-1  Σ slashed + Σ released ≤ Σ posted                      (no bond infl
 INV-2  outstanding is monotonically non-increasing
 INV-3  periodsSatisfied ≤ periodsTotal
 INV-4  every status transition is preceded by either a verified proof
-       or a timestamp comparison — never by a caller's argument
-INV-5  no proof key (chainKey, txHash, logIndex, loId) is consumed twice
-INV-6  chainLive(chainKey) == false ⟹ no LO can reach Delinquent or Default
-INV-7  status == Default ⟹ cureEndsAt < block.timestamp
-INV-8  a proof whose sourceTimestamp ∈ missed window always cures,
-       regardless of submission time, while cureEndsAt has not passed
+       or an attested source-height comparison — never a caller's argument
+INV-5  no proof key (chainKey, height, txIndex, logIndex) is consumed twice
+INV-6  penaltiesEnabled(chainKey) == false ⟹ no transition to Delinquent or Default
+INV-7  Default can be entered only from Delinquent after attestedHead reaches
+       windowEndHeight + cureBlocks while penalties remain enabled
+INV-8  an in-window provenHeight cures Delinquent before cure expiry
 INV-9  no privileged role can transition an LO's status directly
 INV-10 no privileged role can prevent a cure
+INV-11 one EIP-712 authorization digest can be consumed at most once
+INV-12 settlement cannot erase registration provenance
+INV-13 only the subject signer recorded at authorized origination can dispute
 ```
 
 INV-4, INV-9 and INV-10 are the thesis expressed as testable properties. If a reviewer reads only one section of this document, make it this one.
@@ -145,12 +148,11 @@ INV-4, INV-9 and INV-10 are the thesis expressed as testable properties. If a re
 
 ## 5. Audit posture
 
-All three winning teams receive **8k CertiK credits toward a repository audit + 3 months Skynet Boost**. Build for that from day one so the credits land on a codebase that can actually use them:
+The repository should remain ready for independent review:
 
 - NatSpec on every external function, including a `@custom:security` note on each privileged path
 - `slither` + `forge test --fuzz-runs 10000` in CI from the first commit
 - A `SECURITY.md` with the trust statement from §2 verbatim
 - Every threat in this document mapped to the test that covers it
 - Known-limitations section in the README covering T-08 (defamation), T-09 (wash underwriting), T-12 (v1 privacy) and the T-04 residual
-
-A submission that ships its own threat model, names its residual risks, and hands the auditor a mapped test suite reads like a company. That is the difference between third place and the CEIP fast-track.
+- Explicit deployment boundaries whenever source code contains a mitigation that the live contracts do not yet contain

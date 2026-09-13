@@ -178,10 +178,11 @@ Configuration surface: `minConfirmations`, `maxSampleGap`, `recoveryGrace` (all 
 
 ### 4.2 `Register.sol`
 
-- `register(ObligationInit)` — payable, requires `MIN_REGISTRAR_BOND` in CTC, escrows a `keeperFund` for §4.4 bounties, asserts the source chain's id matches its chainKey.
+- `register(ObligationInit)` — registrar-asserted path; payable, requires `MIN_REGISTRAR_BOND` in CTC, escrows a `keeperFund` for §4.4 bounties, asserts the source chain's id matches its chainKey.
+- `registerAuthorized(...)` — subject-authorized path; binds the exact terms, registrar, chain identity, nonce and deadline through EIP-712, with EIP-1271 support for smart accounts.
 - `provePayment(id, Proof)` → `PaymentAdapter`.
 - `markDelinquent(id)` / `finalizeDefault(id)` → `SilenceAdapter`.
-- `dispute(id, reasonCode)` — writes a contested flag on-chain; does not change status. **Not yet authenticated and not yet surfaced in the Lens:** the call is permissionless, the event does not record who made it, and the projection does not index it. The intended shape is an EIP-712 signature from the obligation's subject, so the flag means something. Until then it is a placeholder for the consumer-rights layer, not a working part of it.
+- `dispute(id, reasonCode)` / `disputeBySig(...)` — only the subject controller recorded by `registerAuthorized` can file, directly or through a relayer. The first dispute is immutable and commits optional evidence. The Lens quarantines authenticated disputes from exposure totals. The published CC3 v1 deployment predates these controls and retains its unauthenticated placeholder until redeployment.
 - Adapter allowlist behind a 48h timelock — the only privileged surface.
 
 ### 4.3 `adapters/PaymentAdapter.sol`
@@ -322,7 +323,7 @@ Never hardcode. `AscVerify.assertChainId(chainKey, expectedChainId)` resolves vi
 ## 7. Out of scope for the hackathon
 
 - ZK selective disclosure. v1 identity is a commitment, but `sourcePayer`, `sourcePayee` and amounts are **public by construction**. Documented, not hidden; the v2 answer is a source-chain payment router giving each obligation an ephemeral payer address.
-- `EncumbranceAdapter` (stretch; ship encumbrance as a Lens read over `collateralRef` if time runs short).
+- `EncumbranceAdapter` deployment and event indexing. The adapter is implemented and tested in source; the live Lens currently derives encumbrance from active obligations sharing a `collateralRef`.
 - Multi-source-chain support — blocked on ASC, not on us.
 - Native-value (non-ERC-20) repayment adapters. Note this is where the `receiptStatus` guard does real work (§10, C4).
 - Legal lien perfection; cohort bonds; tranching; secondary trading of capacity; mainnet.
@@ -339,7 +340,7 @@ Never hardcode. `AscVerify.assertChainId(chainKey, expectedChainId)` resolves vi
 | ✅ | `AscVerifier` + `PaymentAdapter` + `SilenceAdapter` + I7 liveness gate + cure | 14 integration tests green, incl. stall-recovery |
 | ✅ | `Bond` + pro-rata slashing + premium escrow | 13 tests green, INV-1 fuzzed at 1025 runs |
 | 21–28 Aug | Re-verify the whole path against live CC3 testnet | Real proof, real head, real slash |
-| ✅ | Keeper (poke/prove/sweep) + Lens (projection + API) | 7 projection tests green; both smoke-tested |
+| ✅ | Keeper (poke/prove/sweep) + Lens (projection + API) | 11 projection tests green; both smoke-tested |
 | 29 Aug–1 Sep | Unattended end-to-end run against live CC3 testnet | Keeper proves and defaults with no human in the loop |
 | 2–3 Sep | Demo UI | §6 runs start to finish |
 | 4–6 Sep | Video, README, technical doc, deck | Submitted ≥24h early |

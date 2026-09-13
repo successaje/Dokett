@@ -60,6 +60,57 @@ class Index {
       const o = await this.register.getObligation(id);
       const coverage = this.bond ? await this.bond.coverageOf(id) : 0n;
 
+      // Provenance was added after the first CC3 deployment. Query it when the
+      // contract supports it and fall back to the only creation path in v1:
+      // every obligation was registrar-asserted with the mandatory bond.
+      let provenance = 'RegistrarAsserted';
+      let subjectSigner = ethers.ZeroAddress;
+      let committedTerms = ethers.ZeroHash;
+      let registrationBond = o.registrarBond;
+      let provenanceNative = false;
+      try {
+        const p = await this.register.provenanceOf(id);
+        provenance = ['RegistrarAsserted', 'SubjectAuthorized'][Number(p.kind)] || 'Unknown';
+        subjectSigner = p.signer;
+        committedTerms = p.committedTerms;
+        registrationBond = p.registrationBond;
+        provenanceNative = true;
+      } catch (_) {
+        // Expected against the immutable v1 deployment.
+        registrationBond = ethers.parseEther('1');
+      }
+
+      let dispute = null;
+      try {
+        const d = await this.register.disputeOf(id);
+        if (d.reasonCode !== ethers.ZeroHash) {
+          dispute = {
+            reasonCode: d.reasonCode,
+            evidenceHash: d.evidenceHash,
+            signer: d.signer,
+            filedAt: d.filedAt.toString(),
+            authenticated: d.signer !== ethers.ZeroAddress && d.signer.toLowerCase() === subjectSigner.toLowerCase(),
+          };
+        }
+      } catch (_) {
+        // A v1 dispute is deliberately surfaced as unauthenticated. It must not
+        // quarantine a claim because anybody could have filed or overwritten it.
+        try {
+          const reasonCode = await this.register.disputeReason(id);
+          if (reasonCode !== ethers.ZeroHash) {
+            dispute = {
+              reasonCode,
+              evidenceHash: ethers.ZeroHash,
+              signer: ethers.ZeroAddress,
+              filedAt: null,
+              authenticated: false,
+            };
+          }
+        } catch (_) {
+          // Earliest projections did not expose disputeReason in their ABI.
+        }
+      }
+
       this.obligations.set(id.toString(), {
         id: id.toString(),
         obligor: o.obligor,
@@ -83,6 +134,12 @@ class Index {
         registrarBond: o.registrarBond.toString(),
         collateralRef: o.collateralRef,
         coverage: coverage.toString(),
+        provenance,
+        provenanceNative,
+        subjectSigner,
+        termsHash: committedTerms,
+        registrationBond: registrationBond.toString(),
+        dispute,
 
         /*
          * The honesty flag. Everything downstream keys off this, which is why
@@ -104,7 +161,7 @@ class Index {
          * `msg.value >= MIN_REGISTRAR_BOND + MIN_KEEPER_FUND`. Nothing in this
          * register was ever unbonded.
          */
-        bonded: true,
+        bonded: registrationBond > 0n,
 
         /*
          * The current-state question, kept separately and named for what it
@@ -246,19 +303,22 @@ class Index {
       obligations: list,
     });
 
-    const bonded = matches.filter((o) => o.bonded);
-    const unbonded = matches.filter((o) => !o.bonded);
-    const bad = matches.filter((o) => ['Delinquent', 'Default', 'ChargedOff'].includes(o.status));
+    const quarantined = matches.filter((o) => o.dispute?.authenticated);
+    const admitted = matches.filter((o) => !o.dispute?.authenticated);
+    const bonded = admitted.filter((o) => o.bonded);
+    const unbonded = admitted.filter((o) => !o.bonded);
+    const bad = admitted.filter((o) => ['Delinquent', 'Default', 'ChargedOff'].includes(o.status));
 
     return {
       entity,
       asOfBlock: this.lastBlock,
       bonded: bucket(bonded),
       unbonded: bucket(unbonded),
+      disputed: bucket(quarantined),
       adverse: { count: bad.length, statuses: bad.map((o) => ({ id: o.id, status: o.status })) },
       note:
-        'Bonded and unbonded claims are reported separately and must not be summed. ' +
-        'Registration is permissionless; a registrar bond is what gives a claim weight.',
+        'Bonded, unbonded and subject-disputed claims are reported separately and must not be summed. ' +
+        'Only a dispute authenticated by the signer who authorized the obligation is quarantined.',
     };
   }
 
@@ -284,6 +344,7 @@ class Index {
         sourceToken: o.sourceToken,
         registrar: o.registrar,
         bonded: o.bonded,
+        dispute: o.dispute,
       })),
     };
   }
@@ -317,7 +378,8 @@ class Index {
     // Only bonded claims count toward a subject's proven record. An unbonded
     // claim is unpriced and anyone can register one, so letting it into these
     // figures would let a griefer author someone else's credit history.
-    const bonded = mine.filter((o) => o.bonded);
+    const quarantined = mine.filter((o) => o.dispute?.authenticated);
+    const bonded = mine.filter((o) => o.bonded && !o.dispute?.authenticated);
     const adverse = bonded.filter((o) => ['Default', 'ChargedOff'].includes(o.status));
 
     const sum = (list, k) => list.reduce((a, o) => a + BigInt(o[k]), 0n).toString();
@@ -393,6 +455,7 @@ class Index {
       // so the subject can see what is being claimed about them, and never mixed
       // into `proven`.
       unbondedClaims: mine.filter((o) => !o.bonded).length,
+      disputedClaims: quarantined.length,
 
       /**
        * Facts a credit file would normally carry that this projection cannot
@@ -408,7 +471,8 @@ class Index {
       note:
         'PROVEN figures are derived from the register and recomputable by anyone. ' +
         'ATTESTED claims are statements by named issuers and are not proof. ' +
-        'Only bonded claims contribute to proven figures.',
+        'Only bonded, undisputed claims contribute to proven figures. ' +
+        'A dispute is quarantined only when authenticated by the subject signer recorded at origination.',
     };
   }
 

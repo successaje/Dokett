@@ -164,14 +164,17 @@ The protocol therefore separates existence from weight:
 - A **registered claim** proves that a registrar created the on-chain object.
 - A **registrar bond** puts capital behind that claim.
 - An **unbonded claim** remains visible but is never summed with bonded exposure. *(v1 has no path that creates one: `register()` reverts below the minimum registrar bond. The separation exists so the projection is already correct when an unbonded path is added.)*
-- A **dispute** is intended to quarantine a contested record for consumers to handle explicitly. *Not implemented in v1:* `dispute()` is currently unauthenticated and the projection does not index it, so no quarantine happens today.
+- A **provenance class** distinguishes registrar-asserted claims from terms signed by a recorded subject controller.
+- An **authenticated dispute** can be filed directly by that controller or relayed from its one-shot EIP-712 authorization. The Lens quarantines the claim instead of silently counting it as exposure.
 - A **verified payment** proves that the configured event passed USC and Dokett's
   admission rules; it does not validate the original legal agreement.
 
-A future production version should support subject-signed origination terms,
-domain-specific registrar policies and an adjudication process for bad-faith
-registration. Until then, integrations should treat Dokett as an evidence
-registry with disclosed provenance, not as a legal judgment engine.
+The current source implements subject authorization for EOAs and EIP-1271 smart
+accounts. The immutable CC3 v1 deployment predates that revision, so its dispute
+function remains unauthenticated until the new Register and Lens are deployed.
+Domain-specific registrar policies and adjudication of bad-faith registration
+remain future work. Integrations should treat Dokett as an evidence registry
+with disclosed provenance, not as a legal judgment engine.
 
 ## 7. Named first-loss underwriting
 
@@ -246,7 +249,7 @@ a keeper, a public Lens API, the Dokett Console and DemoBank reference lender.
 The current public demonstration covers every lifecycle state, real Ethereum
 mainnet payment evidence, permissionless proof submission, an autonomous default
 and an executed first-loss slash. Contract, projection and relay behavior is
-covered by 99 tests.
+covered by 112 tests.
 
 ## 11. Development path
 
@@ -255,7 +258,7 @@ value:
 
 1. Complete one integration review against a real underwriting or collateral
    workflow.
-2. Add subject-signed origination evidence and a production dispute framework.
+2. Deploy and independently review subject-signed origination and authenticated dispute quarantine.
 3. Pilot named first-loss capital with an independent credit venue.
 4. Standardize the obligation interface and add a second evidence backend.
 5. Extend selective disclosure before any use with real borrower data.

@@ -50,9 +50,11 @@ function buildDocket(o: ObligationDetail): DocketEntry[] {
         <>
           Registered by <Addr value={o.registrar} /> against obligor commitment{' '}
           <Addr value={o.obligor} lead={10} tail={6} />.{' '}
-          {o.bonded
-            ? 'A registrar bond was posted, so the claim carries weight in the Lens.'
-            : 'No registrar bond was posted, so this claim carries no weight and is never summed with bonded claims.'}
+          {o.provenance === 'SubjectAuthorized'
+            ? 'The subject authorized the exact committed terms before registration.'
+            : o.bonded
+              ? 'A registrar bond was posted, so the claim carries weight in the Lens.'
+              : 'No registrar bond was posted, so this claim carries no weight and is never summed with bonded claims.'}
         </>
       ),
     },
@@ -65,7 +67,7 @@ function buildDocket(o: ObligationDetail): DocketEntry[] {
       emphasis: true,
       body: (
         <>
-          Each advance required an ASC proof that a qualifying transfer of at least{' '}
+          Each advance required a USC proof that a qualifying transfer of at least{' '}
           <Amt raw={o.periodAmount} token={o.sourceToken} /> was included on the source chain at a height inside the open
           window. Admissibility keys off the proven height, never the submission time.
         </>
@@ -213,11 +215,33 @@ export default function Obligation({ id }: { id: string }) {
           <LifecycleRail status={o.status} />
         </Section>
 
+        {o.dispute?.authenticated && (
+          <Section
+            title="Subject-disputed record"
+            aside="This claim is quarantined from admitted solvency totals. Its lifecycle remains unchanged because a dispute is not source-chain evidence."
+          >
+            <DL>
+              <Row k="Filed by" v={<Addr value={o.dispute.signer} />} />
+              <Row k="Reason code" v={<Addr value={o.dispute.reasonCode} lead={10} tail={6} />} />
+              <Row
+                k="Evidence commitment"
+                v={
+                  /^0x0+$/i.test(o.dispute.evidenceHash) ? (
+                    '— none'
+                  ) : (
+                    <Addr value={o.dispute.evidenceHash} lead={10} tail={6} />
+                  )
+                }
+              />
+            </DL>
+          </Section>
+        )}
+
         <Section
           title="Deadlines, in attested block height"
           aside={
             <>
-              No timestamp exists in anything an ASC proof binds, so height is the only clock the
+              No timestamp exists in anything a USC proof binds, so height is the only clock the
               contract can verify. It also makes stall protection structural: a frozen attested head
               expires nothing.
             </>
@@ -283,6 +307,13 @@ export default function Obligation({ id }: { id: string }) {
                   </span>
                 }
               />
+              <Row k="Provenance" v={o.provenance ?? 'RegistrarAsserted · legacy deployment'} />
+              {o.subjectSigner && !/^0x0+$/i.test(o.subjectSigner) ? (
+                <Row k="Subject signer" v={<Addr value={o.subjectSigner} />} />
+              ) : null}
+              {o.termsHash && !/^0x0+$/i.test(o.termsHash) ? (
+                <Row k="Terms commitment" v={<Addr value={o.termsHash} lead={10} tail={6} />} />
+              ) : null}
               <Row
                 k="Collateral"
                 v={

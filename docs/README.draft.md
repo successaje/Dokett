@@ -160,7 +160,7 @@ Honest, and deliberately not buried:
 
 - **Privacy is v1.** Identity is a commitment (≥128-bit salt, client-side, never reused), but `sourcePayer`, `sourcePayee` and all amounts are **public by construction**. The roadmap answer is a source-chain payment router giving each obligation an ephemeral payer address, plus ZK selective disclosure over the schedule tree. Do not put real people's data in this registry today.
 - **One source chain.** Ethereum mainnet only, because that is what ASC attests today.
-- **Registry spam is priced, not adjudicated.** Every registration costs a 1 CTC registrar bond — there is no unbonded path. `dispute()` is a placeholder: unauthenticated, and not surfaced in the Lens. v1 does not adjudicate bad-faith registration.
+- **Registration provenance is explicit; validity is not adjudicated.** The current source supports subject-signed origination and authenticated dispute quarantine; the published CC3 v1 deployment predates those controls. Registrar-asserted claims still prove only that a bonded registrar made an assertion.
 - **Wash underwriting is priced, not prevented.** Fabricating a repayment history costs its face value in real on-chain transfers — unlike a self-reported score — but Dokett does not solve identity. It makes identity someone's *priced* problem.
 - **False-default residual.** A borrower who paid but whose proof nobody submits within window + buffer + cure is wrongly defaulted. Mitigated by permissionless submission, near-zero cost, a 7-day cure, borrower self-service in the UI, and keeper incentives. This residual is the honest price of having no trusted reporter.
 - **On-chain registration is not legal lien perfection** in any jurisdiction.

@@ -167,7 +167,7 @@ export default function Landing() {
             <li>Permissionless proof submission and evaluation</li>
             <li>Bonded underwriting with an executed first-loss slash</li>
             <li>Free, unauthenticated read API</li>
-            <li>99 contract, projection and relay tests</li>
+            <li>112 contract, projection and relay tests</li>
           </ul>
           <p className="lp-body lp-caveat">
             Registration is permissionless, so a claim is not proof that the underlying debt was

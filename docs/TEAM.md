@@ -82,7 +82,7 @@ part that matters to its audience, and communicating it clearly.
 Dokett is the team's most recent body of work and the most directly inspectable:
 
 - five source-verified contracts deployed on Creditcoin CC3;
-- 99 passing contract, projection and relay tests;
+- 112 passing contract, projection and relay tests;
 - an unattended keeper that evaluates obligations without a privileged reporter;
 - a free, unauthenticated public read API;
 - a gas-sponsored cure relay;

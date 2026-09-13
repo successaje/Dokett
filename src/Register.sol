@@ -2,6 +2,8 @@
 pragma solidity ^0.8.23;
 
 import {AscVerify} from "./lib/AscVerify.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 
 /**
  * @title Register
@@ -41,6 +43,11 @@ contract Register {
         Settled, // 5  schedule fully satisfied
         ChargedOff // 6  defaulted and written off
 
+    }
+
+    enum Provenance {
+        RegistrarAsserted,
+        SubjectAuthorized
     }
 
     struct Obligation {
@@ -111,6 +118,17 @@ contract Register {
     /// @notice Delay on every change to the adapter allowlist.
     uint64 public constant ADAPTER_TIMELOCK = 48 hours;
 
+    bytes32 public constant OBLIGATION_AUTHORIZATION_TYPEHASH = keccak256(
+        "ObligationAuthorization(bytes32 termsHash,address registrar,address subjectSigner,uint64 expectedChainId,uint256 nonce,uint256 deadline)"
+    );
+    bytes32 public constant DISPUTE_AUTHORIZATION_TYPEHASH = keccak256(
+        "DisputeAuthorization(uint256 obligationId,bytes32 reasonCode,bytes32 evidenceHash,uint256 nonce,uint256 deadline)"
+    );
+    bytes32 public constant EIP712_DOMAIN_TYPEHASH =
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    bytes32 public constant EIP712_NAME_HASH = keccak256("Dokett Register");
+    bytes32 public constant EIP712_VERSION_HASH = keccak256("1");
+
     /* ─────────────────────────────── storage ───────────────────────────── */
 
     AscVerify public immutable ascVerify;
@@ -135,6 +153,19 @@ contract Register {
 
     /// @notice Obligor-filed flags. Advisory: surfaced by the Lens, never status-changing.
     mapping(uint256 => bytes32) public disputeReason;
+    mapping(uint256 => address) public disputedBy;
+    mapping(uint256 => bytes32) public disputeEvidence;
+    mapping(uint256 => uint64) public disputedAt;
+
+    /// @notice Immutable registration provenance. Kept separately from the
+    ///         refundable escrow so settlement cannot erase how a claim entered.
+    mapping(uint256 => Provenance) public provenance;
+    mapping(uint256 => address) public subjectSigner;
+    mapping(uint256 => bytes32) public termsHash;
+    mapping(uint256 => uint128) public registrationBondPosted;
+
+    /// @notice EIP-712 authorizations are one-shot, including unordered nonces.
+    mapping(bytes32 => bool) public consumedAuthorizations;
 
     /// @notice Escrow credited back on settlement, claimable via {withdraw}.
     mapping(address => uint256) public withdrawable;
@@ -154,6 +185,14 @@ contract Register {
     event PaymentRecorded(uint256 indexed id, uint64 provenHeight, uint128 value, uint8 periodsCovered);
     event ScheduleAdvanced(uint256 indexed id, uint64 windowEndHeight, uint8 periodsSatisfied);
     event Disputed(uint256 indexed id, bytes32 reasonCode);
+    event SubjectDisputed(uint256 indexed id, address indexed subjectSigner, bytes32 reasonCode, bytes32 evidenceHash);
+    event ProvenanceRecorded(
+        uint256 indexed id,
+        Provenance provenance,
+        bytes32 termsHash,
+        address indexed subjectSigner,
+        uint128 registrationBond
+    );
     event BountyPaid(uint256 indexed id, address indexed keeper, uint128 amount);
     event AdapterChangeQueued(address indexed adapter, bool enabled, uint64 eta);
     event AdapterChanged(address indexed adapter, bool enabled);
@@ -175,6 +214,13 @@ contract Register {
     error AlreadyBootstrapped();
     error RegistryNotEmpty(uint256 nextId);
     error BountyTransferFailed(address to);
+    error AuthorizationExpired(uint256 deadline);
+    error InvalidAuthorization(address signer);
+    error AuthorizationAlreadyUsed(bytes32 digest);
+    error SubjectAuthorizationRequired(uint256 id);
+    error UnauthorizedDisputer(address caller, address expected);
+    error AlreadyDisputed(uint256 id);
+    error InvalidDisputeReason();
 
     /* ──────────────────────────── construction ─────────────────────────── */
 
@@ -196,9 +242,9 @@ contract Register {
      * @dev Anyone may register any claim against any address, which is the classic
      *      registry attack and the reason most registries end up permissioned. The
      *      answer here is economic rather than gatekept: the bond prices spam, and
-     *      the Lens never sums bonded and unbonded claims into one number. An
-     *      obligor can always {dispute} a claim, and a disputed claim is visibly
-     *      quarantined rather than silently trusted.
+     *      the Lens never sums bonded and unbonded claims into one number. This
+     *      registrar-asserted path does not imply subject consent. For authenticated
+     *      disputes, use {registerAuthorized} so the subject controller is recorded.
      *
      *      What this function does NOT do is decide whether the claim is true. That
      *      is what the adapters are for.
@@ -210,9 +256,31 @@ contract Register {
      *        and 1 on CC3 mainnet. A hardcoded key silently verifies proofs against
      *        the wrong chain; this makes that failure loud and immediate.
      */
-    function register(ObligationInit calldata init, uint64 expectedChainId)
-        external
-        payable
+    function register(ObligationInit calldata init, uint64 expectedChainId) external payable returns (uint256 id) {
+        return _register(init, expectedChainId, Provenance.RegistrarAsserted, address(0));
+    }
+
+    /**
+     * @notice Register terms authorized by the subject through EIP-712.
+     * @dev The signature binds the exact terms, registrar, source-chain identity,
+     *      nonce, deadline, settlement chain and this Register. Validation supports
+     *      EOAs and EIP-1271 smart accounts.
+     */
+    function registerAuthorized(
+        ObligationInit calldata init,
+        uint64 expectedChainId,
+        address signer,
+        uint256 nonce,
+        uint256 deadline,
+        bytes calldata signature
+    ) external payable returns (uint256 id) {
+        bytes32 digest = obligationAuthorizationDigest(init, msg.sender, signer, expectedChainId, nonce, deadline);
+        _consumeAuthorization(signer, digest, deadline, signature);
+        return _register(init, expectedChainId, Provenance.SubjectAuthorized, signer);
+    }
+
+    function _register(ObligationInit calldata init, uint64 expectedChainId, Provenance provenance_, address signer)
+        internal
         returns (uint256 id)
     {
         if (msg.value < MIN_REGISTRAR_BOND + MIN_KEEPER_FUND) {
@@ -263,10 +331,15 @@ contract Register {
         o.registrarBond = MIN_REGISTRAR_BOND;
         o.keeperFund = uint128(msg.value) - MIN_REGISTRAR_BOND;
 
-        emit Registered(
-            id, init.obligor, init.creditor, msg.sender, init.chainKey, init.principal, o.windowEndHeight
-        );
+        bytes32 committedTerms = hashTerms(init);
+        provenance[id] = provenance_;
+        subjectSigner[id] = signer;
+        termsHash[id] = committedTerms;
+        registrationBondPosted[id] = MIN_REGISTRAR_BOND;
+
+        emit Registered(id, init.obligor, init.creditor, msg.sender, init.chainKey, init.principal, o.windowEndHeight);
         emit StatusChanged(id, Status.None, Status.Active, address(0));
+        emit ProvenanceRecorded(id, provenance_, committedTerms, signer, MIN_REGISTRAR_BOND);
     }
 
     /* ─────────────────────── adapter-driven mutation ───────────────────── */
@@ -281,10 +354,7 @@ contract Register {
      *      merkle proof ties the transaction to the block, and the continuity proof
      *      ties the block to an attested checkpoint. It is not a caller assertion.
      */
-    function recordPayment(uint256 id, uint64 provenHeight, uint128 value, uint8 periodsCovered)
-        external
-        onlyAdapter
-    {
+    function recordPayment(uint256 id, uint64 provenHeight, uint128 value, uint8 periodsCovered) external onlyAdapter {
         Obligation storage o = _mustExist(id);
         Status from = o.status;
         if (from != Status.Active && from != Status.Current && from != Status.Delinquent) {
@@ -317,8 +387,7 @@ contract Register {
         Status from = o.status;
 
         bool legal = (to == Status.Delinquent && (from == Status.Active || from == Status.Current))
-            || (to == Status.Default && from == Status.Delinquent)
-            || (to == Status.ChargedOff && from == Status.Default);
+            || (to == Status.Default && from == Status.Delinquent) || (to == Status.ChargedOff && from == Status.Default);
         if (!legal) revert IllegalTransition(from, to);
 
         _setStatus(id, o, to);
@@ -352,14 +421,31 @@ contract Register {
      *      dispute does is make the contest visible: the Lens quarantines disputed
      *      claims rather than reporting them as clean.
      *
-     *      Permissionless because requiring proof-of-obligor would mean revealing
-     *      the commitment preimage on-chain, which is exactly what I5 forbids.
-     *      Cheap to file, cheap to ignore, and weighted by the filer's own record.
+     *      The subject uses an obligation-specific or institution-controlled
+     *      signing address. That address authorized the exact terms at registration,
+     *      so a dispute does not require revealing the obligor commitment preimage.
      */
     function dispute(uint256 id, bytes32 reasonCode) external {
+        _fileDispute(id, msg.sender, reasonCode, bytes32(0));
+    }
+
+    /// @notice Gas-sponsored dispute path. Anyone may relay; only the subject's
+    ///         EIP-712/EIP-1271 authorization gives the record meaning.
+    function disputeBySig(
+        uint256 id,
+        bytes32 reasonCode,
+        bytes32 evidenceHash,
+        uint256 nonce,
+        uint256 deadline,
+        bytes calldata signature
+    ) external {
         _mustExist(id);
-        disputeReason[id] = reasonCode;
-        emit Disputed(id, reasonCode);
+        address signer = subjectSigner[id];
+        if (signer == address(0)) revert SubjectAuthorizationRequired(id);
+
+        bytes32 digest = disputeAuthorizationDigest(id, reasonCode, evidenceHash, nonce, deadline);
+        _consumeAuthorization(signer, digest, deadline, signature);
+        _fileDispute(id, signer, reasonCode, evidenceHash);
     }
 
     /* ───────────────────────────── governance ──────────────────────────── */
@@ -435,6 +521,63 @@ contract Register {
         return _obligations[id].status;
     }
 
+    function provenanceOf(uint256 id)
+        external
+        view
+        returns (Provenance kind, address signer, bytes32 committedTerms, uint128 registrationBond)
+    {
+        _mustExist(id);
+        return (provenance[id], subjectSigner[id], termsHash[id], registrationBondPosted[id]);
+    }
+
+    function disputeOf(uint256 id)
+        external
+        view
+        returns (address signer, bytes32 reasonCode, bytes32 evidenceHash, uint64 filedAt)
+    {
+        _mustExist(id);
+        return (disputedBy[id], disputeReason[id], disputeEvidence[id], disputedAt[id]);
+    }
+
+    function hashTerms(ObligationInit calldata init) public pure returns (bytes32) {
+        return keccak256(abi.encode(init));
+    }
+
+    function obligationAuthorizationDigest(
+        ObligationInit calldata init,
+        address registrar,
+        address signer,
+        uint64 expectedChainId,
+        uint256 nonce,
+        uint256 deadline
+    ) public view returns (bytes32) {
+        return _hashTypedData(
+            keccak256(
+                abi.encode(
+                    OBLIGATION_AUTHORIZATION_TYPEHASH,
+                    hashTerms(init),
+                    registrar,
+                    signer,
+                    expectedChainId,
+                    nonce,
+                    deadline
+                )
+            )
+        );
+    }
+
+    function disputeAuthorizationDigest(
+        uint256 id,
+        bytes32 reasonCode,
+        bytes32 evidenceHash,
+        uint256 nonce,
+        uint256 deadline
+    ) public view returns (bytes32) {
+        return _hashTypedData(
+            keccak256(abi.encode(DISPUTE_AUTHORIZATION_TYPEHASH, id, reasonCode, evidenceHash, nonce, deadline))
+        );
+    }
+
     /// @notice Height at which the current window closes, and the cure deadline.
     /// @dev Both in source-chain blocks. The adapters compare these against the
     ///      attested head; nothing here consults `block.timestamp`.
@@ -454,6 +597,53 @@ contract Register {
     function _mustExist(uint256 id) internal view returns (Obligation storage o) {
         o = _obligations[id];
         if (o.status == Status.None) revert UnknownObligation(id);
+    }
+
+    function domainSeparator() public view returns (bytes32) {
+        return keccak256(
+            abi.encode(EIP712_DOMAIN_TYPEHASH, EIP712_NAME_HASH, EIP712_VERSION_HASH, block.chainid, address(this))
+        );
+    }
+
+    function _hashTypedData(bytes32 structHash) internal view returns (bytes32) {
+        return keccak256(abi.encodePacked(hex"1901", domainSeparator(), structHash));
+    }
+
+    function _consumeAuthorization(address signer, bytes32 digest, uint256 deadline, bytes calldata signature)
+        internal
+    {
+        if (signer == address(0)) revert InvalidAuthorization(signer);
+        if (block.timestamp > deadline) revert AuthorizationExpired(deadline);
+        if (consumedAuthorizations[digest]) revert AuthorizationAlreadyUsed(digest);
+        consumedAuthorizations[digest] = true;
+        bool valid;
+        if (signer.code.length == 0) {
+            (address recovered, ECDSA.RecoverError err,) = ECDSA.tryRecoverCalldata(digest, signature);
+            valid = err == ECDSA.RecoverError.NoError && recovered == signer;
+        } else {
+            try IERC1271(signer).isValidSignature(digest, signature) returns (bytes4 result) {
+                valid = result == IERC1271.isValidSignature.selector;
+            } catch {
+                valid = false;
+            }
+        }
+        if (!valid) revert InvalidAuthorization(signer);
+    }
+
+    function _fileDispute(uint256 id, address signer, bytes32 reasonCode, bytes32 evidenceHash) internal {
+        _mustExist(id);
+        address expected = subjectSigner[id];
+        if (expected == address(0)) revert SubjectAuthorizationRequired(id);
+        if (signer != expected) revert UnauthorizedDisputer(signer, expected);
+        if (reasonCode == bytes32(0)) revert InvalidDisputeReason();
+        if (disputeReason[id] != bytes32(0)) revert AlreadyDisputed(id);
+
+        disputeReason[id] = reasonCode;
+        disputedBy[id] = signer;
+        disputeEvidence[id] = evidenceHash;
+        disputedAt[id] = uint64(block.timestamp);
+        emit Disputed(id, reasonCode);
+        emit SubjectDisputed(id, signer, reasonCode, evidenceHash);
     }
 
     function _setStatus(uint256 id, Obligation storage o, Status to) internal {

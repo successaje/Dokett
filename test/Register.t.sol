@@ -2,6 +2,8 @@
 pragma solidity ^0.8.23;
 
 import {Test} from "forge-std/Test.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 
 import {Register} from "../src/Register.sol";
 import {AscVerify} from "../src/lib/AscVerify.sol";
@@ -27,6 +29,18 @@ contract HostileRegistrar {
 
     receive() external payable {
         revert("no");
+    }
+}
+
+contract SubjectSmartAccount is IERC1271 {
+    address immutable owner;
+
+    constructor(address owner_) {
+        owner = owner_;
+    }
+
+    function isValidSignature(bytes32 digest, bytes calldata signature) external view returns (bytes4) {
+        return ECDSA.recover(digest, signature) == owner ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
     }
 }
 
@@ -91,6 +105,22 @@ contract RegisterTest is Test {
     function _register() internal returns (uint256 id) {
         vm.prank(registrar);
         id = register.register{value: 2 ether}(_init(), ETH_CHAIN_ID);
+    }
+
+    function _sign(uint256 privateKey, bytes32 digest) internal pure returns (bytes memory) {
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
+        return abi.encodePacked(r, s, v);
+    }
+
+    function _registerAuthorized(uint256 subjectKey) internal returns (uint256 id, address signer) {
+        Register.ObligationInit memory init = _init();
+        signer = vm.addr(subjectKey);
+        uint256 deadline = block.timestamp + 1 days;
+        bytes32 digest = register.obligationAuthorizationDigest(init, registrar, signer, ETH_CHAIN_ID, 1, deadline);
+        bytes memory signature = _sign(subjectKey, digest);
+
+        vm.prank(registrar);
+        id = register.registerAuthorized{value: 2 ether}(init, ETH_CHAIN_ID, signer, 1, deadline, signature);
     }
 
     /* ─────────────────────── genesis bootstrap ────────────────────── */
@@ -235,9 +265,7 @@ contract RegisterTest is Test {
         // Active → Default skips delinquency and its cure window.
         vm.prank(adapter);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Register.IllegalTransition.selector, Register.Status.Active, Register.Status.Default
-            )
+            abi.encodeWithSelector(Register.IllegalTransition.selector, Register.Status.Active, Register.Status.Default)
         );
         register.markStatus(id, Register.Status.Default);
     }
@@ -373,14 +401,157 @@ contract RegisterTest is Test {
 
     /* ───────────────────────────── dispute ────────────────────────── */
 
-    /// @notice A dispute is visible but never status-changing (I2 applies to obligors too).
-    function test_Dispute_IsAdvisoryOnly() public {
-        uint256 id = _register();
+    function test_RegisterAuthorized_RecordsSubjectAndImmutableProvenance() public {
+        (uint256 id, address signer) = _registerAuthorized(0xA11CE);
 
+        (Register.Provenance kind, address recordedSigner, bytes32 committedTerms, uint128 registrationBond) =
+            register.provenanceOf(id);
+        assertEq(uint8(kind), uint8(Register.Provenance.SubjectAuthorized));
+        assertEq(recordedSigner, signer);
+        assertEq(committedTerms, register.hashTerms(_init()));
+        assertEq(registrationBond, register.MIN_REGISTRAR_BOND());
+
+        vm.prank(adapter);
+        register.recordPayment(id, START_HEIGHT + 1000, 5000e6, 3);
+        assertEq(register.registrationBondPosted(id), register.MIN_REGISTRAR_BOND(), "settlement preserves provenance");
+        assertEq(register.getObligation(id).registrarBond, 0, "only refundable escrow is cleared");
+    }
+
+    function test_RegisterAuthorized_RejectsReplay() public {
+        Register.ObligationInit memory init = _init();
+        uint256 subjectKey = 0xA11CE;
+        address signer = vm.addr(subjectKey);
+        uint256 deadline = block.timestamp + 1 days;
+        bytes32 digest = register.obligationAuthorizationDigest(init, registrar, signer, ETH_CHAIN_ID, 9, deadline);
+        bytes memory signature = _sign(subjectKey, digest);
+
+        vm.startPrank(registrar);
+        register.registerAuthorized{value: 2 ether}(init, ETH_CHAIN_ID, signer, 9, deadline, signature);
+        vm.expectRevert(abi.encodeWithSelector(Register.AuthorizationAlreadyUsed.selector, digest));
+        register.registerAuthorized{value: 2 ether}(init, ETH_CHAIN_ID, signer, 9, deadline, signature);
+        vm.stopPrank();
+    }
+
+    function test_RegisterAuthorized_RejectsExpiredSignature() public {
+        Register.ObligationInit memory init = _init();
+        uint256 subjectKey = 0xA11CE;
+        address signer = vm.addr(subjectKey);
+        uint256 deadline = block.timestamp - 1;
+        bytes memory signature = _sign(
+            subjectKey, register.obligationAuthorizationDigest(init, registrar, signer, ETH_CHAIN_ID, 1, deadline)
+        );
+
+        vm.prank(registrar);
+        vm.expectRevert(abi.encodeWithSelector(Register.AuthorizationExpired.selector, deadline));
+        register.registerAuthorized{value: 2 ether}(init, ETH_CHAIN_ID, signer, 1, deadline, signature);
+    }
+
+    function test_RegisterAuthorized_SupportsEip1271Subject() public {
+        Register.ObligationInit memory init = _init();
+        uint256 ownerKey = 0xB0B;
+        SubjectSmartAccount account = new SubjectSmartAccount(vm.addr(ownerKey));
+        uint256 deadline = block.timestamp + 1 days;
+        bytes memory signature = _sign(
+            ownerKey,
+            register.obligationAuthorizationDigest(init, registrar, address(account), ETH_CHAIN_ID, 7, deadline)
+        );
+
+        vm.prank(registrar);
+        uint256 id =
+            register.registerAuthorized{value: 2 ether}(init, ETH_CHAIN_ID, address(account), 7, deadline, signature);
+        assertEq(register.subjectSigner(id), address(account));
+    }
+
+    function test_RegisterAuthorized_BindsTermsRegistrarAndSubjectSigner() public {
+        Register.ObligationInit memory init = _init();
+        uint256 subjectKey = 0xA11CE;
+        address signer = vm.addr(subjectKey);
+        uint256 deadline = block.timestamp + 1 days;
+        bytes memory signature = _sign(
+            subjectKey, register.obligationAuthorizationDigest(init, registrar, signer, ETH_CHAIN_ID, 15, deadline)
+        );
+
+        Register.ObligationInit memory altered = init;
+        altered.principal += 1;
+        vm.prank(registrar);
+        vm.expectRevert(abi.encodeWithSelector(Register.InvalidAuthorization.selector, signer));
+        register.registerAuthorized{value: 2 ether}(altered, ETH_CHAIN_ID, signer, 15, deadline, signature);
+
+        address differentRegistrar = makeAddr("different registrar");
+        vm.deal(differentRegistrar, 10 ether);
+        vm.prank(differentRegistrar);
+        vm.expectRevert(abi.encodeWithSelector(Register.InvalidAuthorization.selector, signer));
+        register.registerAuthorized{value: 2 ether}(init, ETH_CHAIN_ID, signer, 15, deadline, signature);
+
+        address differentSigner = vm.addr(0xB0B);
+        vm.prank(registrar);
+        vm.expectRevert(abi.encodeWithSelector(Register.InvalidAuthorization.selector, differentSigner));
+        register.registerAuthorized{value: 2 ether}(init, ETH_CHAIN_ID, differentSigner, 15, deadline, signature);
+    }
+
+    /// @notice An authenticated dispute is visible but never status-changing.
+    function test_Dispute_IsAuthenticatedAndAdvisoryOnly() public {
+        (uint256 id, address signer) = _registerAuthorized(0xA11CE);
+
+        vm.prank(signer);
         register.dispute(id, bytes32("NEVER_BORROWED"));
 
-        assertEq(register.disputeReason(id), bytes32("NEVER_BORROWED"));
+        (address filedBy, bytes32 reason, bytes32 evidence, uint64 filedAt) = register.disputeOf(id);
+        assertEq(filedBy, signer);
+        assertEq(reason, bytes32("NEVER_BORROWED"));
+        assertEq(evidence, bytes32(0));
+        assertEq(filedAt, block.timestamp);
         assertEq(uint8(register.statusOf(id)), uint8(Register.Status.Active), "status unchanged");
+    }
+
+    function test_Dispute_RejectsStrangerAndRegistrarOnlyClaim() public {
+        (uint256 id, address signer) = _registerAuthorized(0xA11CE);
+        vm.expectRevert(abi.encodeWithSelector(Register.UnauthorizedDisputer.selector, address(this), signer));
+        register.dispute(id, bytes32("FALSE_TERMS"));
+
+        uint256 registrarOnly = _register();
+        vm.expectRevert(abi.encodeWithSelector(Register.SubjectAuthorizationRequired.selector, registrarOnly));
+        register.dispute(registrarOnly, bytes32("FALSE_TERMS"));
+    }
+
+    function test_Dispute_RelayerCanSubmitSubjectSignature() public {
+        uint256 subjectKey = 0xA11CE;
+        (uint256 id, address signer) = _registerAuthorized(subjectKey);
+        bytes32 reason = bytes32("WRONG_AMOUNT");
+        bytes32 evidence = keccak256("ipfs evidence commitment");
+        uint256 deadline = block.timestamp + 1 days;
+        bytes32 digest = register.disputeAuthorizationDigest(id, reason, evidence, 41, deadline);
+
+        vm.prank(makeAddr("relayer"));
+        register.disputeBySig(id, reason, evidence, 41, deadline, _sign(subjectKey, digest));
+
+        assertEq(register.disputedBy(id), signer);
+        assertEq(register.disputeEvidence(id), evidence);
+    }
+
+    function test_Dispute_CannotBeOverwritten() public {
+        (uint256 id, address signer) = _registerAuthorized(0xA11CE);
+        vm.startPrank(signer);
+        register.dispute(id, bytes32("NEVER_BORROWED"));
+        vm.expectRevert(abi.encodeWithSelector(Register.AlreadyDisputed.selector, id));
+        register.dispute(id, bytes32("DIFFERENT_REASON"));
+        vm.stopPrank();
+    }
+
+    function test_Dispute_SignatureBindsReasonAndEvidence() public {
+        uint256 subjectKey = 0xA11CE;
+        (uint256 id, address signer) = _registerAuthorized(subjectKey);
+        bytes32 reason = bytes32("WRONG_AMOUNT");
+        bytes32 evidence = keccak256("evidence commitment");
+        uint256 deadline = block.timestamp + 1 days;
+        bytes memory signature =
+            _sign(subjectKey, register.disputeAuthorizationDigest(id, reason, evidence, 21, deadline));
+
+        vm.expectRevert(abi.encodeWithSelector(Register.InvalidAuthorization.selector, signer));
+        register.disputeBySig(id, bytes32("OTHER_REASON"), evidence, 21, deadline, signature);
+
+        vm.expectRevert(abi.encodeWithSelector(Register.InvalidAuthorization.selector, signer));
+        register.disputeBySig(id, reason, keccak256("other evidence"), 21, deadline, signature);
     }
 
     function test_UnknownObligation_Reverts() public {

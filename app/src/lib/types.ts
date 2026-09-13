@@ -40,6 +40,18 @@ export interface Obligation {
   coverage: string;
   /** True when the registrar posted a bond. The Lens keys its buckets off this. */
   bonded: boolean;
+  provenance?: 'RegistrarAsserted' | 'SubjectAuthorized' | 'Unknown';
+  provenanceNative?: boolean;
+  subjectSigner?: string;
+  termsHash?: string;
+  registrationBond?: string;
+  dispute?: {
+    reasonCode: string;
+    evidenceHash: string;
+    signer: string;
+    filedAt: string | null;
+    authenticated: boolean;
+  } | null;
 }
 
 export interface Bond {
@@ -72,6 +84,7 @@ export interface Solvency {
   asOfBlock: number;
   bonded: Bucket;
   unbonded: Bucket;
+  disputed?: Bucket;
   adverse: { count: number; statuses: { id: string; status: Status }[] };
   note: string;
 }
@@ -88,6 +101,7 @@ export interface Encumbrance {
     sourceToken: string;
     registrar: string;
     bonded: boolean;
+    dispute?: Obligation['dispute'];
   }[];
 }
 
@@ -173,6 +187,7 @@ export interface Profile {
   proven: ProvenRecord;
   attested: Attestation[];
   unbondedClaims: number;
+  disputedClaims?: number;
   /** Facts deliberately NOT reported, rather than defaulted to a flattering zero. */
   notIndexed: string[];
   note: string;

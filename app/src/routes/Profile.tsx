@@ -80,7 +80,7 @@ export default function Profile({ subject }: { subject: string }) {
 
   if (res.state !== 'ok') return null;
 
-  const { identity, proven, attested, unbondedClaims, notIndexed } = res.data;
+  const { identity, proven, attested, unbondedClaims, disputedClaims = 0, notIndexed } = res.data;
 
   /*
    * Per denomination. The flat proven.outstanding is a sum across a subject's
@@ -214,6 +214,14 @@ export default function Profile({ subject }: { subject: string }) {
             every figure above. Registration is permissionless, so anyone may assert a debt against
             anyone; only claims carrying a registrar bond count toward a record.{' '}
             <a href={`#/solvency?q=${subject}`}>See them in solvency →</a>
+          </p>
+        ) : null}
+
+        {disputedClaims > 0 ? (
+          <p className="note" style={{ marginTop: 16 }}>
+            <strong>{disputedClaims} authenticated subject dispute{disputedClaims === 1 ? '' : 's'}</strong>{' '}
+            {disputedClaims === 1 ? 'is' : 'are'} quarantined and excluded from every figure above.{' '}
+            <a href={`#/solvency?q=${subject}`}>Review disputed claims →</a>
           </p>
         ) : null}
       </Section>

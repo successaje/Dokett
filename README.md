@@ -382,6 +382,7 @@ None of those are credit-specific. They are what anyone reading another chain's 
 | `src/Register.sol` | Obligations, the status machine, registration bonds, disputes. |
 | `src/adapters/PaymentAdapter.sol` | Proof present → advance. Also the cure path. |
 | `src/adapters/SilenceAdapter.sol` | Proof absent → delinquency, cure, default. |
+| `src/adapters/EncumbranceAdapter.sol` | Collateral-reference claims and release state; implemented and tested, pending deployment. |
 | `src/Bond.sol` | Named first-loss capital; pro-rata slashing; premium escrow. |
 | `worker/` | Keeper: poke / prove / sweep, on independent timers. |
 | `lens/` | Indexer + free public read API. A pure projection; holds no privileged state. |
@@ -402,6 +403,10 @@ returned `is_verified: true`). Chain id **102031**, deployed at block
 | `PaymentAdapter` | [`0xA68f1CBff869a7f6c7A9BC9313E0B9E135A79a60`](https://creditcoin-testnet.blockscout.com/address/0xA68f1CBff869a7f6c7A9BC9313E0B9E135A79a60) | Proof present → advance. Also the cure path |
 | `SilenceAdapter` | [`0x8e827a12C78dED9459268eb05cce2C5d709FE6AF`](https://creditcoin-testnet.blockscout.com/address/0x8e827a12C78dED9459268eb05cce2C5d709FE6AF) | Proof absent → delinquent → default |
 | `Bond` | [`0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e`](https://creditcoin-testnet.blockscout.com/address/0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e) | Named first-loss capital, pro-rata slashing |
+
+These addresses are the immutable v1 deployment. The current source adds
+subject-signed origination, authenticated disputes and dispute quarantine in the
+Lens. Those controls become live only after a new Register and Lens deployment.
 
 **Attestcoin precompiles this build calls:** `BlockProver` at
 `0x…0FD2` (single + batch verification, batch limit 10) and `ChainInfo` at
@@ -449,7 +454,7 @@ The team's prior execution includes:
   repositories.
 
 Dokett is the team's latest inspectable execution record: five source-verified
-contracts on CC3, 99 passing tests, an unattended keeper, a free public read
+contracts on CC3, 112 passing tests, an unattended keeper, a free public read
 API, and a standalone MIT guard library for safer USC verification.
 
 [Read the full team background and prior-work notes](docs/TEAM.md).
@@ -543,7 +548,7 @@ something that was not a door.
 ```bash
 git clone https://github.com/successaje/Dokett && cd Dokett
 npm run setup        # installs the root and Console from both lockfiles
-npm run judge:verify # 76 contract + 7 projection + 16 relay tests, then Console build
+npm run judge:verify # 85 contract + 11 projection + 16 relay tests, then Console build
 npm run demo        # seeded Lens + Console on :5173 — no chain required
 ```
 
@@ -585,7 +590,7 @@ Deliberately not buried:
 
 - **Privacy is v1.** Identity is a commitment (≥128-bit salt, client-side, never reused), but `sourcePayer`, `sourcePayee` and all amounts are **public by construction**. The roadmap answer is a source-chain payment router giving each obligation an ephemeral payer address, plus ZK selective disclosure. Do not put real people's data in this registry today.
 - **One source chain.** Ethereum mainnet only, because that is what ASC attests today.
-- **Registry spam is priced, not adjudicated.** Anyone can register an obligation against any address, and every registration costs a 1 CTC registrar bond — there is no unbonded path, so spam is priced rather than free. `dispute()` records a contested flag on-chain, but **it is currently unauthenticated and the Lens does not yet surface it**: any address can dispute any obligation and overwrite the previous reason. Treat it as a placeholder, not a control. v1 does not adjudicate bad-faith registration.
+- **Registration provenance is explicit; validity is not adjudicated.** The live CC3 v1 deployment accepts registrar-asserted claims and its dispute placeholder is unauthenticated. The current source adds EIP-712/EIP-1271 subject-authorized origination, immutable terms commitments and one-shot authenticated disputes; the Lens quarantines only disputes signed by the recorded subject controller. These controls are pending deployment. Registrar-asserted claims still prove only that a bonded registrar made an assertion, and Dokett does not adjudicate bad-faith registration.
 - **Wash underwriting is priced, not prevented.** Fabricating a history costs its face value in real on-chain transfers — unlike a self-reported score — but Dokett does not solve identity. It makes identity someone's *priced* problem.
 - **False-default residual.** A borrower who paid but whose proof nobody submits within window + cure is wrongly defaulted. Mitigated by permissionless submission, near-zero cost, a 7-day cure, borrower self-service in the Console, and keeper incentives. This residual is the honest price of having no trusted reporter.
 - **On-chain registration is not legal lien perfection** in any jurisdiction.
@@ -600,6 +605,7 @@ Each phase is a capability that the next one depends on, not a feature list.
 | **1 · Evidence** | *Can we prove what happened?* | Ethereum → Creditcoin via Attestcoin. **Done** — measured, [documented](docs/research/001-attestcoin-cost-model.md), reproducible against real mainnet transactions. |
 | **2 · Obligations** | *Can we represent a promise to pay?* | The status machine, the inversion, the liveness gate. **Done** — a live autonomous default with [linked transactions](docs/research/002-autonomous-default.md). |
 | **3 · Visibility** | *Can anything query those obligations?* | Registry, Solvency, Encumbrance, and the free read API. **Live today**; next is the first external caller — one real venue querying before it lends. |
+| **3b · Provenance** | *Who authorized the terms, and who may contest them?* | Subject-signed EIP-712/EIP-1271 origination, immutable terms commitments and authenticated dispute quarantine. **Implemented and tested in source; pending deployment.** |
 | **4 · Capital** | *Can markets price and finance them?* | Bonded underwriting with real first-loss capital, and a first proven mainnet default with a real slash. **First slash demonstrated on testnet** — [linked transactions](docs/research/003-first-slash.md). |
 | **4b · Origination UI** | *Can a person create one without an ABI?* | **Done.** `#/register` turns the 16-field struct into seven inputs with a derived-terms panel, and the cure relay's faucet — the dependency that deferred this — is live, so a registrar bond no longer requires already holding CTC. |
 | **5 · Shared layer** | *Can any credit protocol build on this state?* | An ERC standard for Obligations, a Registrar Council, attested Register mirrors on other chains, and a second evidence backend behind the same `AscVerify` interface. |

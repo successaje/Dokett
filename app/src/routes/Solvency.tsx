@@ -19,7 +19,7 @@ function BucketColumn({
   caption,
 }: {
   bucket: Bucket;
-  kind: 'bonded' | 'unbonded';
+  kind: 'bonded' | 'unbonded' | 'disputed';
   caption: string;
 }) {
   /*
@@ -128,8 +128,9 @@ function Result({ entity }: { entity: string }) {
   if (res.state !== 'ok') return null;
 
   const s = res.data;
+  const disputed = s.disputed ?? { count: 0, outstanding: '0', obligations: [] };
 
-  if (s.bonded.count === 0 && s.unbonded.count === 0) {
+  if (s.bonded.count === 0 && s.unbonded.count === 0 && disputed.count === 0) {
     return (
       <Empty title="No claims registered against this entity">
         That is not the same as “this entity owes nothing”. Coverage is partial by construction — the
@@ -144,9 +145,8 @@ function Result({ entity }: { entity: string }) {
         title="Registered claims"
         aside={
           <>
-            Reported in two buckets and never summed. Registration is permissionless, so anyone can
-            record a claim against anyone — a combined total would make defamation-by-registration
-            free. There is deliberately no figure for “total owed”.
+            Reported by provenance and dispute state, never as one total. Registration is
+            permissionless, so a combined figure would make defamation-by-registration free.
           </>
         }
       >
@@ -164,6 +164,19 @@ function Result({ entity }: { entity: string }) {
           />
         </div>
       </Section>
+
+      {disputed.count > 0 && (
+        <Section
+          title="Subject-disputed claims"
+          aside="Quarantined only when the dispute is authenticated by the signer who authorized the obligation. The claim remains visible and is excluded from admitted exposure."
+        >
+          <BucketColumn
+            bucket={disputed}
+            kind="disputed"
+            caption="The subject contests this record. Consumers must review the reason and evidence separately."
+          />
+        </Section>
+      )}
 
       {s.adverse.count > 0 && (
         <Section title="Adverse history">

@@ -51,6 +51,10 @@ function obligation(over = {}) {
     collateralRef: '0x' + '0'.repeat(64),
     coverage: '0',
     bonded: true,
+    provenance: 'RegistrarAsserted',
+    subjectSigner: '0x' + '0'.repeat(40),
+    termsHash: '0x' + '0'.repeat(64),
+    dispute: null,
     ...over,
   };
 }
@@ -93,6 +97,44 @@ test('adverse history is reported separately from outstanding balance', () => {
   const r = idx.solvency(ALICE);
   assert.equal(r.adverse.count, 1);
   assert.deepEqual(r.adverse.statuses, [{ id: '1', status: 'Default' }]);
+});
+
+test('an authenticated subject dispute is quarantined from solvency totals', () => {
+  const idx = stubIndex([
+    obligation({ id: '1', outstanding: '1000' }),
+    obligation({
+      id: '2',
+      outstanding: '9000',
+      provenance: 'SubjectAuthorized',
+      dispute: {
+        reasonCode: '0x' + '1'.repeat(64),
+        signer: ALICE,
+        authenticated: true,
+      },
+    }),
+  ]);
+
+  const r = idx.solvency(ALICE);
+  assert.equal(r.bonded.outstanding, '1000');
+  assert.equal(r.disputed.outstanding, '9000');
+  assert.equal(r.disputed.count, 1);
+});
+
+test('an unauthenticated legacy dispute cannot quarantine a claim', () => {
+  const idx = stubIndex([
+    obligation({
+      id: '1',
+      dispute: {
+        reasonCode: '0x' + '1'.repeat(64),
+        signer: '0x' + '0'.repeat(40),
+        authenticated: false,
+      },
+    }),
+  ]);
+
+  const r = idx.solvency(ALICE);
+  assert.equal(r.bonded.count, 1);
+  assert.equal(r.disputed.count, 0);
 });
 
 test('encumbrance ignores terminated claims', () => {
