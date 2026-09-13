@@ -388,7 +388,7 @@ None of those are credit-specific. They are what anyone reading another chain's 
 | `lens/` | Indexer + free public read API. A pure projection; holds no privileged state. |
 | `app/` | Dokett Console — the protocol explorer. |
 
-End to end: [`docs/USE-CASES.md`](docs/USE-CASES.md) · Design spec: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Threat model: [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
+End to end: [`docs/USE-CASES.md`](docs/USE-CASES.md) · Design spec: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Threat model: [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md) · [Versioned releases](docs/RELEASES.md)
 
 ## Deployed contracts — CC3 testnet
 

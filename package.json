@@ -23,6 +23,7 @@
     "relay": "node --env-file-if-exists=.env relay/src/index.js",
     "test:relay": "node --test \"relay/test/*.test.js\"",
     "deploy": "npm run preflight && forge script script/Deploy.s.sol:Deploy --rpc-url cc3_testnet --broadcast --gas-estimate-multiplier 300 && npm run verify",
+    "bootstrap": "forge script script/Deploy.s.sol:Bootstrap --rpc-url cc3_testnet --broadcast --gas-estimate-multiplier 300",
     "deploy:probe": "forge script script/ProveOne.s.sol:DeployProbe --rpc-url cc3_testnet --broadcast --gas-estimate-multiplier 300 && npm run verify",
     "verify": "bash script/verify.sh",
     "prove:batch": "node --env-file-if-exists=.env demo/prove-batch.js",

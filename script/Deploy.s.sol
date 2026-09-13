@@ -9,6 +9,7 @@ import {Register} from "../src/Register.sol";
 import {Bond} from "../src/Bond.sol";
 import {PaymentAdapter} from "../src/adapters/PaymentAdapter.sol";
 import {SilenceAdapter, IBond} from "../src/adapters/SilenceAdapter.sol";
+import {EncumbranceAdapter} from "../src/adapters/EncumbranceAdapter.sol";
 
 /**
  * @title Deploy
@@ -33,7 +34,8 @@ import {SilenceAdapter, IBond} from "../src/adapters/SilenceAdapter.sol";
  *        forge script script/Deploy.s.sol:Deploy \
  *          --rpc-url $CC3_TESTNET_RPC --broadcast
  *
- *      Required env: CHAIN_KEY, EXPECTED_CHAIN_ID, PRIVATE_KEY.
+ *      Required env: CHAIN_KEY, EXPECTED_CHAIN_ID, PRIVATE_KEY,
+ *                    RELEASE_VERSION, SOURCE_COMMIT.
  *      Optional:     TIMELOCK, MIN_CONFIRMATIONS, MAX_SAMPLE_GAP,
  *                    RECOVERY_GRACE, COLLATERAL, SKIP_CHAINKEY_ASSERT.
  */
@@ -47,6 +49,8 @@ contract Deploy is Script {
         address timelock;
         address collateral;
         bool skipChainKeyAssert;
+        string releaseVersion;
+        string sourceCommit;
     }
 
     struct Deployment {
@@ -55,6 +59,7 @@ contract Deploy is Script {
         Bond bond;
         PaymentAdapter payment;
         SilenceAdapter silence;
+        EncumbranceAdapter encumbrance;
     }
 
     function run() external returns (Deployment memory d) {
@@ -84,6 +89,7 @@ contract Deploy is Script {
         d.bond = new Bond(d.register, cfg.timelock);
         d.payment = new PaymentAdapter(d.register, d.verifier);
         d.silence = new SilenceAdapter(d.register, d.verifier, IBond(address(d.bond)));
+        d.encumbrance = new EncumbranceAdapter(d.verifier, cfg.timelock);
 
         vm.stopBroadcast();
 
@@ -108,11 +114,15 @@ contract Deploy is Script {
         c.timelock = vm.envOr("TIMELOCK", address(0));
         c.collateral = vm.envOr("COLLATERAL", address(0));
         c.skipChainKeyAssert = vm.envOr("SKIP_CHAINKEY_ASSERT", false);
+        c.releaseVersion = vm.envString("RELEASE_VERSION");
+        c.sourceCommit = vm.envString("SOURCE_COMMIT");
 
         require(c.chainKey != 0, "CHAIN_KEY must be set and non-zero");
         require(c.expectedChainId != 0, "EXPECTED_CHAIN_ID must be set");
         require(c.maxSampleGap > 0, "MAX_SAMPLE_GAP must be non-zero");
         require(c.recoveryGrace >= c.maxSampleGap, "RECOVERY_GRACE must exceed MAX_SAMPLE_GAP");
+        require(bytes(c.releaseVersion).length > 0, "RELEASE_VERSION must be set");
+        require(bytes(c.sourceCommit).length == 40, "SOURCE_COMMIT must be a full git commit");
     }
 
     /* ──────────────────────── post-deploy assertions ───────────────────── */
@@ -167,6 +177,7 @@ contract Deploy is Script {
         console2.log("Bond           ", address(d.bond));
         console2.log("PaymentAdapter ", address(d.payment));
         console2.log("SilenceAdapter ", address(d.silence));
+        console2.log("EncumbranceAdapter", address(d.encumbrance));
         console2.log("");
 
         // The two wiring steps that need the timelock key. Deliberately NOT done
@@ -175,7 +186,7 @@ contract Deploy is Script {
         // script that quietly assumes it holds the timelock key is a deploy script
         // that will one day be run against mainnet.
         console2.log("=== REQUIRED: run as timelock ===");
-        console2.log("1. register.bootstrapAdapters([paymentAdapter, silenceAdapter])");
+        console2.log("1. register.bootstrapAdapters([paymentAdapter, silenceAdapter, encumbranceAdapter])");
         console2.log("   Until this runs, no obligation can advance. One-shot; closes");
         console2.log("   permanently once the first obligation is registered.");
         console2.log("2. bond.setCollateral(<stablecoin>, true)");
@@ -192,14 +203,19 @@ contract Deploy is Script {
         vm.serializeAddress(k, "bond", address(d.bond));
         vm.serializeAddress(k, "paymentAdapter", address(d.payment));
         vm.serializeAddress(k, "silenceAdapter", address(d.silence));
+        vm.serializeAddress(k, "encumbranceAdapter", address(d.encumbrance));
         vm.serializeAddress(k, "timelock", cfg.timelock);
+        vm.serializeAddress(k, "collateral", cfg.collateral);
+        vm.serializeString(k, "releaseVersion", cfg.releaseVersion);
+        vm.serializeString(k, "sourceCommit", cfg.sourceCommit);
         vm.serializeUint(k, "chainKey", cfg.chainKey);
         vm.serializeUint(k, "expectedChainId", cfg.expectedChainId);
         vm.serializeUint(k, "minConfirmations", cfg.minConfirmations);
         vm.serializeUint(k, "maxSampleGap", cfg.maxSampleGap);
-        string memory out = vm.serializeUint(k, "recoveryGrace", cfg.recoveryGrace);
+        vm.serializeUint(k, "recoveryGrace", cfg.recoveryGrace);
+        string memory out = vm.serializeUint(k, "deploymentHead", block.number);
 
-        string memory path = string.concat("deployments/", vm.toString(block.chainid), ".json");
+        string memory path = string.concat("deployments/", vm.toString(block.chainid), "-", cfg.releaseVersion, ".json");
         vm.writeJson(out, path);
         console2.log("");
         console2.log("wrote", path);
@@ -214,18 +230,20 @@ contract Deploy is Script {
  *      deployer holds the timelock this is a formality; on anything real these
  *      are governance actions and must be executed deliberately.
  *
- *   REGISTER=0x… PAYMENT_ADAPTER=0x… SILENCE_ADAPTER=0x… BOND=0x… COLLATERAL=0x… \
+ *   DEPLOYMENT_FILE=deployments/102031-v0.2.0.json \
  *   forge script script/Deploy.s.sol:Bootstrap --rpc-url $CC3_TESTNET_RPC --broadcast
  */
 contract Bootstrap is Script {
     function run() external {
-        Register register = Register(payable(vm.envAddress("REGISTER")));
-        Bond bond = Bond(vm.envAddress("BOND"));
-        address collateral = vm.envOr("COLLATERAL", address(0));
+        string memory manifest = vm.readFile(vm.envString("DEPLOYMENT_FILE"));
+        Register register = Register(payable(vm.parseJsonAddress(manifest, ".register")));
+        Bond bond = Bond(vm.parseJsonAddress(manifest, ".bond"));
+        address collateral = vm.parseJsonAddress(manifest, ".collateral");
 
-        address[] memory adapters = new address[](2);
-        adapters[0] = vm.envAddress("PAYMENT_ADAPTER");
-        adapters[1] = vm.envAddress("SILENCE_ADAPTER");
+        address[] memory adapters = new address[](3);
+        adapters[0] = vm.parseJsonAddress(manifest, ".paymentAdapter");
+        adapters[1] = vm.parseJsonAddress(manifest, ".silenceAdapter");
+        adapters[2] = vm.parseJsonAddress(manifest, ".encumbranceAdapter");
 
         vm.startBroadcast(vm.envUint("TIMELOCK_PRIVATE_KEY"));
 
@@ -243,6 +261,7 @@ contract Bootstrap is Script {
 
         require(register.isAdapter(adapters[0]), "payment adapter not installed");
         require(register.isAdapter(adapters[1]), "silence adapter not installed");
+        require(register.isAdapter(adapters[2]), "encumbrance adapter not installed");
         console2.log("bootstrap verified");
     }
 }
