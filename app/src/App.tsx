@@ -126,21 +126,17 @@ function ThemeToggle() {
 
 function ReleaseSelector() {
   const active = selectedReleaseId();
+  const next: ProtocolRelease = active === 'v2' ? 'v1' : 'v2';
   return (
-    <label className="release-selector" title="Choose which immutable deployment the Console reads">
-      <span className="sr-only">Protocol release</span>
-      <select
-        value={active}
-        onChange={(event) => selectRelease(event.target.value as ProtocolRelease)}
-        aria-label="Protocol release"
-      >
-        {(Object.keys(RELEASES) as ProtocolRelease[]).map((id) => (
-          <option key={id} value={id}>
-            {RELEASES[id].label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <button
+      type="button"
+      className="icon-btn release-switch"
+      onClick={() => selectRelease(next)}
+      title={`Protocol release: ${RELEASES[active].label}. Switch to ${RELEASES[next].label}.`}
+      aria-label={`Protocol release: ${RELEASES[active].label}. Switch to ${RELEASES[next].label}.`}
+    >
+      {active}
+    </button>
   );
 }
 

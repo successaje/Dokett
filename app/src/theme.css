@@ -420,31 +420,6 @@ hr {
   flex-shrink: 0;
 }
 
-.release-selector select {
-  height: 30px;
-  max-width: 190px;
-  padding: 0 28px 0 10px;
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--r);
-  background: var(--paper);
-  color: var(--ink-2);
-  font: 600 10px/1 var(--sans);
-  letter-spacing: 0.04em;
-  cursor: pointer;
-}
-
-.release-selector select:hover,
-.release-selector select:focus-visible {
-  border-color: var(--ink);
-  color: var(--ink);
-}
-
-@media (max-width: 520px) {
-  .release-selector select {
-    max-width: 150px;
-  }
-}
-
 /*
  * A square icon control, sized to its glyph rather than to text-button
  * padding. The theme toggle carries a single character (◑ / ☀ / ☾), and
@@ -468,6 +443,12 @@ hr {
   cursor: pointer;
 }
 
+.release-switch {
+  font: 700 9px/1 var(--sans);
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+}
+
 .icon-btn:hover {
   border-color: var(--ink);
   color: var(--ink);
@@ -487,13 +468,21 @@ hr {
     gap: 6px;
   }
 
+  .masthead-top {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .masthead-actions {
+    gap: 8px;
+  }
+
   .wordmark {
     font-size: 21px;
   }
 
   .wordmark-sub {
-    display: block;
-    padding: 2px 0 0;
+    display: none;
   }
 
   .nav {
