@@ -11,6 +11,7 @@ import {
   StatusPill,
   UnbondedFlag,
 } from '../components/primitives';
+import { selectedReleaseId } from '../lib/releases';
 
 function Result({ asset }: { asset: string }) {
   const res = useLens((s) => lens.encumbrance(asset, s), [asset]);
@@ -22,18 +23,42 @@ function Result({ asset }: { asset: string }) {
 
   const e = res.data;
 
+  const witnessed = e.witnessedLiens ?? [];
+
   if (!e.encumbered) {
     return (
-      <Empty title="No live claims against this asset">
-        No registered obligation currently pledges it. That is an absence of records, not proof of
-        clean title — the register only knows what someone chose to record.
+      <Empty title="No recorded encumbrance for this reference">
+        No live obligation or USC-witnessed external collateral event currently matches it. That is
+        an absence of records, not proof of clean title — coverage remains incomplete.
       </Empty>
     );
   }
 
   return (
-    <Section
-      title={`Encumbered — ${e.claims.length} live claim${e.claims.length === 1 ? '' : 's'}`}
+    <>
+    {witnessed.length > 0 && (
+      <Section
+        title={`USC-witnessed external collateral — ${witnessed.length} event${witnessed.length === 1 ? '' : 's'}`}
+        aside="Each row comes from a successful Ethereum transaction proven on CC3. It is evidence of the venue event, not a complete legal-title opinion."
+      >
+        <div className="table-wrap">
+          <table className="data">
+            <thead><tr><th>Venue</th><th>Holder</th><th className="num">Ethereum height</th><th>Evidence</th></tr></thead>
+            <tbody>{witnessed.map((l) => (
+              <tr key={`${l.cc3Transaction}:${l.venueId}`}>
+                <td><Addr value={l.emitter} /></td>
+                <td><span className="mono">{l.holder}</span></td>
+                <td className="num">{Number(l.height).toLocaleString()}</td>
+                <td><a href={`https://creditcoin-testnet.blockscout.com/tx/${l.cc3Transaction}`} target="_blank" rel="noreferrer">CC3 witness ↗</a></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </Section>
+    )}
+    {e.claims.length > 0 && (
+      <Section
+      title={`Registered claims — ${e.claims.length} live claim${e.claims.length === 1 ? '' : 's'}`}
       aside={
         <>
           A claim leaves this view once it settles or is charged off: a discharged obligation no
@@ -76,6 +101,32 @@ function Result({ asset }: { asset: string }) {
         </table>
       </div>
     </Section>
+    )}
+    </>
+  );
+}
+
+function VenueStatus() {
+  const current = selectedReleaseId() === 'v2';
+  const res = useLens((s) => lens.encumbranceVenues(s), [], current);
+  if (!current || res.state !== 'ok' || res.data.venues.length === 0) return null;
+
+  return (
+    <Section title="External evidence venues" aside="Venue schemas are governed and delayed for 48 hours before activation so emitter or topic mistakes are visible before they affect the record.">
+      <div className="table-wrap">
+        <table className="data">
+          <thead><tr><th>Venue</th><th>Event</th><th>State</th><th>Activates</th></tr></thead>
+          <tbody>{res.data.venues.map((v) => (
+            <tr key={v.venueId}>
+              <td>Aave V3 Ethereum</td>
+              <td><span className="mono" title={v.topic0}>ReserveUsedAsCollateralEnabled</span></td>
+              <td><span className="record-flag" data-kind={v.status === 'active' ? 'authorized' : undefined}>{v.status}</span></td>
+              <td>{v.eta ? new Date(Number(v.eta) * 1000).toLocaleString() : 'Active now'}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+    </Section>
   );
 }
 
@@ -99,7 +150,9 @@ export default function Encumbrance() {
   const valid = isAddress(trimmed) || isBytes32(trimmed);
 
   const exampleAsset =
-    '0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f';
+    selectedReleaseId() === 'v2'
+      ? '0xd0ee30c2dbc93ad826004a05279b63f16891b009472dc8072a684d0a28c19be6'
+      : '0x99bb578da8417b0bb7adb587fb6e31712a4e123d8b1ff520fbb58c13834aad3f';
 
   function loadExample() {
     setInput(exampleAsset);
@@ -143,21 +196,22 @@ export default function Encumbrance() {
         )}
 
         <div className="query-example">
-          <span>New here? Open a warehouse receipt with a live registered claim.</span>
+          <span>{selectedReleaseId() === 'v2' ? 'Open the Aave V3 USDC collateral reference.' : 'Open a warehouse receipt with a live registered claim.'}</span>
           <button type="button" className="query-example-btn" onClick={loadExample}>
-            Load judge example →
+            Open evidence →
           </button>
         </div>
       </div>
 
       <div className="page">
+        <VenueStatus />
         {asset ? (
           <Result asset={asset} />
         ) : (
           <Section title="What the result will show">
             <p className="note" style={{ marginTop: 0 }}>
-              The result lists every live obligation that names this asset reference as collateral,
-              with its status, outstanding amount and registrar.
+              The result separates live obligations from external collateral events proven through
+              USC, with their source venue, indexed holder and Ethereum height.
             </p>
             <p className="note">
               An empty result means that Dokett has no live claim for the asset. It is not proof of

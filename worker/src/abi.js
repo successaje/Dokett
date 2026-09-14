@@ -57,6 +57,17 @@ const BOND = [
   'function coverageOf(uint256 obligationId) view returns (uint128)',
 ];
 
+const ENCUMBRANCE_ADAPTER = [
+  'event VenueQueued(uint256 indexed venueId, address indexed emitter, bytes32 topic0, uint64 eta)',
+  'event VenueSet(uint256 indexed venueId, address indexed emitter, bool enabled)',
+  'event LienWitnessed(bytes32 indexed collateralRef, uint256 indexed venueId, bytes32 indexed holder, uint64 chainKey, uint64 height)',
+  'function nextVenueId() view returns (uint256)',
+  'function venues(uint256 venueId) view returns (address emitter, bytes32 topic0, uint8 assetTopic, uint8 holderTopic, bool enabled)',
+  'function venuePending(uint256 venueId) view returns (address emitter, bytes32 topic0, uint8 assetTopic, uint8 holderTopic, bool enabled)',
+  'function venueEta(uint256 venueId) view returns (uint64)',
+  'function lienAt(bytes32 collateralRef, uint256 index) view returns (uint64 chainKey, uint64 height, uint256 venueId, bytes32 holder, address emitter)',
+];
+
 const ERC20 = ['event Transfer(address indexed from, address indexed to, uint256 value)'];
 
-module.exports = { REGISTER, VERIFIER, PAYMENT_ADAPTER, SILENCE_ADAPTER, BOND, ERC20 };
+module.exports = { REGISTER, VERIFIER, PAYMENT_ADAPTER, SILENCE_ADAPTER, BOND, ENCUMBRANCE_ADAPTER, ERC20 };

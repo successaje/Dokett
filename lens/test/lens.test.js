@@ -154,6 +154,33 @@ test('unpledged asset reads as unencumbered', () => {
   assert.equal(idx.encumbrance(ASSET).encumbered, false);
 });
 
+test('a USC-witnessed external collateral event encumbers its derived reference', () => {
+  const idx = stubIndex([]);
+  idx.witnessedLiens.set('0xproof:5', {
+    collateralRef: ASSET,
+    venueId: '0',
+    holder: '0x' + '0'.repeat(24) + 'a'.repeat(40),
+    chainKey: 3,
+    height: '25970885',
+    emitter: RIVAL,
+    cc3Transaction: '0x' + '1'.repeat(64),
+  });
+
+  const r = idx.encumbrance(ASSET);
+  assert.equal(r.encumbered, true);
+  assert.equal(r.claims.length, 0, 'external evidence is not invented into an obligation');
+  assert.equal(r.witnessedLiens.length, 1);
+  assert.equal(r.witnessedLiens[0].venueId, '0');
+});
+
+test('encumbrance venue schemas are exposed separately from claims', () => {
+  const idx = stubIndex([]);
+  idx.venues.set('0', { venueId: '0', emitter: RIVAL, status: 'queued', eta: '200' });
+  const r = idx.encumbranceVenues();
+  assert.equal(r.asOfBlock, 100);
+  assert.deepEqual(r.venues, [{ venueId: '0', emitter: RIVAL, status: 'queued', eta: '200' }]);
+});
+
 test('underwriter reputation is derived from history, not stored', () => {
   const idx = stubIndex(
     [obligation()],

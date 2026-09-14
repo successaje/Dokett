@@ -1,7 +1,7 @@
 'use strict';
 
 const { ethers } = require('ethers');
-const { REGISTER, BOND } = require('../../worker/src/abi');
+const { REGISTER, BOND, ENCUMBRANCE_ADAPTER } = require('../../worker/src/abi');
 const { identityOf } = require('./directory');
 
 const STATUS = ['None', 'Active', 'Current', 'Delinquent', 'Default', 'Settled', 'ChargedOff'];
@@ -36,13 +36,23 @@ class Index {
     this.chunk = Number(addresses.chunk || 50_000);
     /** First block not yet scanned for bond events. Null until the first pass. */
     this.bondCursor = null;
+    /** First block not yet scanned for external lien evidence. */
+    this.lienCursor = null;
     this.register = new ethers.Contract(addresses.register, REGISTER, provider);
     this.bond = addresses.bond ? new ethers.Contract(addresses.bond, BOND, provider) : null;
+    this.encumbranceAdapter = addresses.encumbrance
+      ? new ethers.Contract(addresses.encumbrance, ENCUMBRANCE_ADAPTER, provider)
+      : null;
+    this.releaseVersion = addresses.releaseVersion || 'v1';
 
     /** @type {Map<string, object>} obligation id → projected record */
     this.obligations = new Map();
     /** @type {Map<string, object>} bond id → projected record */
     this.bonds = new Map();
+    /** @type {Map<string, object>} txHash:logIndex → proven external lien */
+    this.witnessedLiens = new Map();
+    /** @type {Map<string, object>} venue id → active or queued schema */
+    this.venues = new Map();
     this.lastBlock = 0;
   }
 
@@ -174,9 +184,16 @@ class Index {
     }
 
     await this.syncBonds(head);
+    await this.syncEncumbrance(head);
     this.bondCursor = head + 1;
+    this.lienCursor = head + 1;
     this.lastBlock = head;
-    return { head, obligations: this.obligations.size, bonds: this.bonds.size };
+    return {
+      head,
+      obligations: this.obligations.size,
+      bonds: this.bonds.size,
+      witnessedLiens: this.witnessedLiens.size,
+    };
   }
 
   /**
@@ -196,7 +213,7 @@ class Index {
    * advance and change with log density; the only reliable way to find the
    * ceiling is to walk into it and back off.
    */
-  async _logs(filter, head, fromBlock = this.fromBlock) {
+  async _logs(contract, filter, head, fromBlock = this.fromBlock) {
     const out = [];
     let from = fromBlock;
 
@@ -206,7 +223,7 @@ class Index {
 
       while (span >= 1) {
         try {
-          page = await this.bond.queryFilter(filter, from, from + span - 1);
+          page = await contract.queryFilter(filter, from, from + span - 1);
           break;
         } catch (err) {
           if (span === 1) throw err; // a single block it cannot answer is real
@@ -245,9 +262,9 @@ class Index {
     const from = this.bondCursor ?? this.fromBlock;
     if (from > head) return;
 
-    const posted = await this._logs(this.bond.filters.BondPosted(), head, from);
-    const slashed = await this._logs(this.bond.filters.BondSlashed(), head, from);
-    const released = await this._logs(this.bond.filters.BondReleased(), head, from);
+    const posted = await this._logs(this.bond, this.bond.filters.BondPosted(), head, from);
+    const slashed = await this._logs(this.bond, this.bond.filters.BondSlashed(), head, from);
+    const released = await this._logs(this.bond, this.bond.filters.BondReleased(), head, from);
 
     for (const e of posted) {
       this.bonds.set(e.args.bondId.toString(), {
@@ -268,6 +285,63 @@ class Index {
     for (const e of released) {
       const b = this.bonds.get(e.args.bondId.toString());
       if (b) b.released = true;
+    }
+  }
+
+  /** Index governed venue schemas and every USC-proven external collateral event. */
+  async syncEncumbrance(head) {
+    if (!this.encumbranceAdapter) return;
+
+    const nextVenue = await this.encumbranceAdapter.nextVenueId();
+    for (let id = 0n; id < nextVenue; id++) {
+      const [active, pending, eta] = await Promise.all([
+        this.encumbranceAdapter.venues(id),
+        this.encumbranceAdapter.venuePending(id),
+        this.encumbranceAdapter.venueEta(id),
+      ]);
+      const queued = eta > 0n;
+      const v = queued ? pending : active;
+      this.venues.set(id.toString(), {
+        venueId: id.toString(),
+        emitter: v.emitter,
+        topic0: v.topic0,
+        assetTopic: Number(v.assetTopic),
+        holderTopic: Number(v.holderTopic),
+        enabled: active.enabled,
+        status: queued ? (active.enabled ? 'update-queued' : 'queued') : active.enabled ? 'active' : 'disabled',
+        eta: queued ? eta.toString() : null,
+      });
+    }
+
+    const from = this.lienCursor ?? this.fromBlock;
+    if (from > head) return;
+    const liens = await this._logs(
+      this.encumbranceAdapter,
+      this.encumbranceAdapter.filters.LienWitnessed(),
+      head,
+      from,
+    );
+    const seenByReference = new Map();
+    for (const existing of this.witnessedLiens.values()) {
+      const key = existing.collateralRef.toLowerCase();
+      seenByReference.set(key, (seenByReference.get(key) || 0) + 1);
+    }
+    for (const e of liens) {
+      const venueId = e.args.venueId.toString();
+      const referenceKey = e.args.collateralRef.toLowerCase();
+      const ordinal = seenByReference.get(referenceKey) || 0;
+      const stored = await this.encumbranceAdapter.lienAt(e.args.collateralRef, ordinal);
+      seenByReference.set(referenceKey, ordinal + 1);
+      this.witnessedLiens.set(`${e.transactionHash}:${e.index}`, {
+        collateralRef: e.args.collateralRef,
+        venueId,
+        holder: e.args.holder,
+        chainKey: Number(e.args.chainKey),
+        height: e.args.height.toString(),
+        emitter: stored.emitter,
+        cc3Transaction: e.transactionHash,
+        blockNumber: e.blockNumber,
+      });
     }
   }
 
@@ -328,10 +402,14 @@ class Index {
     const claims = [...this.obligations.values()].filter(
       (o) => o.collateralRef.toLowerCase() === needle && !['Settled', 'ChargedOff'].includes(o.status),
     );
+    const witnessedLiens = [...this.witnessedLiens.values()].filter(
+      (l) => l.collateralRef.toLowerCase() === needle,
+    );
     return {
       asset,
       asOfBlock: this.lastBlock,
-      encumbered: claims.length > 0,
+      encumbered: claims.length > 0 || witnessedLiens.length > 0,
+      witnessedLiens,
       claims: claims.map((o) => ({
         id: o.id,
         status: o.status,
@@ -347,6 +425,10 @@ class Index {
         dispute: o.dispute,
       })),
     };
+  }
+
+  encumbranceVenues() {
+    return { asOfBlock: this.lastBlock, venues: [...this.venues.values()] };
   }
 
   obligation(id) {

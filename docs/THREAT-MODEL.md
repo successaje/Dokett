@@ -80,7 +80,7 @@ State this before an integrator relies on the registry. The trust boundary belon
 **Vector.** Anyone can register an obligation against any address. An adversary registers fake debts against a competitor to poison their solvency reading, or floods the registry to make the Lens useless.
 **Severity.** Medium–High (this is the classic registry attack, and the reason most registries end up permissioned)
 **Mitigation.** Registration remains permissionless and every current path requires `MIN_REGISTRAR_BOND`. The v0.2.0 Register adds EIP-712/EIP-1271 subject-authorized origination, immutable terms and registration-bond commitments, authenticated direct or relayed disputes, and one-shot authorization digests. The Lens quarantines only disputes signed by the subject controller recorded at origination. Registrar-asserted claims remain a separate provenance class and are not transformed into subject-approved debt.
-**Deployment boundary.** These contract controls are live in the CC3 v0.2.0 deployment. The public Console remains on the populated v1 index until the v0.2 Lens is brought online. Bad-faith registration still requires a production adjudication and registrar-penalty process.
+**Deployment boundary.** These contract controls are live in the CC3 v0.2.0 deployment. Its independent Lens and the Console release selector expose the provenance and quarantine boundary without rewriting the populated v1 state. Bad-faith registration still requires a production adjudication and registrar-penalty process.
 
 ### T-09 — Wash underwriting
 **Vector.** An obligor bonds themselves through a sock puppet to manufacture a creditworthy track record, or a registrar/creditor/underwriter tri-collusion fabricates a clean repayment history.

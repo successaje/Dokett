@@ -34,6 +34,8 @@ async function main() {
     {
       register,
       bond: process.env.BOND_ADDRESS || null,
+      encumbrance: process.env.ENCUMBRANCE_ADAPTER_ADDRESS || null,
+      releaseVersion: process.env.RELEASE_VERSION || 'v1',
       // Without this the first sync scans from genesis and times out.
       deployBlock: process.env.DEPLOY_BLOCK || 0,
       chunk: process.env.LOG_CHUNK || 50_000,
@@ -42,12 +44,18 @@ async function main() {
   );
 
   const first = await index.sync();
-  log.info(`indexed ${first.obligations} obligation(s), ${first.bonds} bond(s) at block ${first.head}`);
+  log.info(
+    `indexed ${first.obligations} obligation(s), ${first.bonds} bond(s), ` +
+      `${first.witnessedLiens} witnessed lien(s) at block ${first.head}`,
+  );
 
   const timer = setInterval(async () => {
     try {
       const r = await index.sync();
-      log.info(`resynced: ${r.obligations} obligation(s), ${r.bonds} bond(s) @ ${r.head}`);
+      log.info(
+        `resynced: ${r.obligations} obligation(s), ${r.bonds} bond(s), ` +
+          `${r.witnessedLiens} witnessed lien(s) @ ${r.head}`,
+      );
     } catch (err) {
       // Serving slightly stale data beats serving none: the index is a
       // projection, and the previous projection is still internally consistent.

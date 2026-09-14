@@ -40,7 +40,8 @@
     "prove:fresh": "node --env-file-if-exists=.env demo/prove-fresh.js",
     "seed:underwriter2": "node --env-file-if-exists=.env script/seed-underwriter2.js",
     "seed:encumbered": "node --env-file-if-exists=.env script/seed-encumbered.js",
-    "seed:rwa": "node --env-file-if-exists=.env script/seed-rwa.js"
+    "seed:rwa": "node --env-file-if-exists=.env script/seed-rwa.js",
+    "encumbrance:aave": "node --env-file-if-exists=.env script/encumbrance-aave.js"
   },
   "keywords": [],
   "author": "",

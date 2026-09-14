@@ -171,8 +171,8 @@ The protocol therefore separates existence from weight:
 
 The v0.2.0 CC3 deployment implements subject authorization for EOAs and EIP-1271
 smart accounts, with an inspectable active authorization and authenticated relayed
-dispute. The public Console remains on the populated immutable v1 deployment while
-the v0.2 index is brought online.
+dispute. A separate v0.2 Lens indexes that deployment from block `5,482,440`, and
+the public Console selects between it and the populated immutable v1 deployment.
 Domain-specific registrar policies and adjudication of bad-faith registration
 remain future work. Integrations should treat Dokett as an evidence registry
 with disclosed provenance, not as a legal judgment engine.

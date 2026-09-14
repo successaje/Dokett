@@ -12,11 +12,13 @@ import {
   UnbondedFlag,
 } from '../components/primitives';
 import type { Obligation } from '../lib/types';
+import { selectedRelease, selectedReleaseId } from '../lib/releases';
 
 const ADVERSE = new Set(['Delinquent', 'Default', 'ChargedOff']);
 const TERMINAL = new Set(['Settled', 'ChargedOff']);
 
 function Head() {
+  const release = selectedRelease();
   return (
     <div className="page page-head">
       <div className="eyebrow">The record</div>
@@ -24,6 +26,9 @@ function Head() {
       <p className="page-lede">
         Every promise to pay recorded on this chain, and the evidence that moved it. Registration is
         permissionless; weight comes from the registrar's bond.
+      </p>
+      <p className="note" style={{ marginTop: 10 }}>
+        Reading {release.label} from CC3 deployment block {height(release.deployBlock)}.
       </p>
     </div>
   );
@@ -57,6 +62,7 @@ export default function Registry() {
   const all: Obligation[] = res.data.obligations;
   const live = all.filter((o) => !TERMINAL.has(o.status));
   const adverse = all.filter((o) => ADVERSE.has(o.status));
+  const quarantined = all.filter((o) => o.dispute?.authenticated);
 
   /*
    * Bonded only, terminal states excluded, and — the part that matters —
@@ -103,6 +109,14 @@ export default function Registry() {
       <Head />
 
       <div className="page">
+        {selectedReleaseId() === 'v2' && (
+          <div className="protocol-notice">
+            <strong>Two provenance paths, already on-chain.</strong>{' '}
+            <a href="#/obligation/1">Record #1</a> is active with the subject's signature and a
+            committed terms hash. <a href="#/obligation/2">Record #2</a> carries an authenticated
+            subject dispute and is quarantined from solvency totals.
+          </div>
+        )}
         <Figures>
           <Figure label="Registered" value={all.length} sub={`${live.length} live`} />
           <Figure
@@ -118,9 +132,9 @@ export default function Registry() {
             title={`Exactly ${units(coverage.toString())}`}
           />
           <Figure
-            label="Adverse"
-            value={adverse.length}
-            sub="delinquent, default or charged off"
+            label={quarantined.length ? 'Quarantined' : 'Adverse'}
+            value={quarantined.length || adverse.length}
+            sub={quarantined.length ? 'authenticated subject disputes' : 'delinquent, default or charged off'}
           />
         </Figures>
 
@@ -167,6 +181,7 @@ export default function Registry() {
                   <tr>
                     <th>ID</th>
                     <th>Status</th>
+                    <th>Provenance</th>
                     <th>Registrar</th>
                     <th>Obligor</th>
                     <th className="num">Outstanding</th>
@@ -191,6 +206,15 @@ export default function Registry() {
                       </td>
                       <td>
                         <StatusPill status={o.status} />
+                      </td>
+                      <td>
+                        {o.dispute?.authenticated ? (
+                          <span className="record-flag" data-kind="quarantined">Quarantined</span>
+                        ) : o.provenance === 'SubjectAuthorized' ? (
+                          <span className="record-flag" data-kind="authorized">Subject signed</span>
+                        ) : (
+                          <span className="record-flag">Registrar asserted</span>
+                        )}
                       </td>
                       <td style={uniformRegistrar ? { color: 'var(--ink-4)' } : undefined}>
                         <span className="row" style={{ gap: 7 }}>

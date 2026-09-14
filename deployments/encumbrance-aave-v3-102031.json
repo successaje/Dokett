@@ -1,0 +1,42 @@
+{
+  "description": "USC witness of an Aave V3 Ethereum reserve enabled as collateral",
+  "chainKey": 3,
+  "expectedChainId": 1,
+  "adapter": "0x73713DD8865353270f548917F707DF29Cc944B2f",
+  "venue": {
+    "id": 0,
+    "name": "Aave V3 Ethereum",
+    "emitter": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+    "event": "ReserveUsedAsCollateralEnabled(address,address)",
+    "topic0": "0x00058a56ea94653cdf4f152d227ace22d4c00ad99e2a43f58cb7d9e3feb295f2",
+    "assetTopic": 1,
+    "holderTopic": 2,
+    "enabled": true
+  },
+  "sourceEvidence": {
+    "transactionHash": "0xe45561ef5eb49fea25c32269ced29e7484385d2e5cf9d4b489f448d31410ad14",
+    "ethereumBlock": 25970885,
+    "receiptLogIndex": 5,
+    "asset": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "assetSymbol": "USDC",
+    "holder": "0xa09e27f3b7b731bb991ff567b849220b73f0e421",
+    "dataProvider": "0x0a16f2FCC0D44FaE41cc54e079281D84A363bECD",
+    "stateVerifiedAtEthereumBlock": 25970960,
+    "aTokenBalanceAtVerifiedBlock": "3000003009",
+    "usageAsCollateralAtVerifiedBlock": true
+  },
+  "collateralRef": "0xd0ee30c2dbc93ad826004a05279b63f16891b009472dc8072a684d0a28c19be6",
+  "governance": {
+    "status": "queued",
+    "queueTransaction": "0x89eff9feae6e6ebe48bb858ccd5656f0cdee6fcf4ba7c54cdd94dd292264829d",
+    "queueBlock": 5483149,
+    "activationEta": "2026-09-15T22:30:00.000Z"
+  },
+  "proof": {
+    "status": "awaiting-venue-activation"
+  },
+  "sources": {
+    "addressBook": "https://github.com/aave-dao/aave-address-book/blob/main/src/AaveV3Ethereum.sol",
+    "eventInterface": "https://github.com/aave/aave-v3-core/blob/master/contracts/interfaces/IPool.sol"
+  }
+}

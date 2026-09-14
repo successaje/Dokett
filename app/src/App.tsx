@@ -15,6 +15,12 @@ import Doc from './routes/Doc';
 import { PostsIndex, PostDetail } from './routes/Posts';
 import Onboarding from './components/Onboarding';
 import SessionMenu from './components/SessionMenu';
+import {
+  RELEASES,
+  selectRelease,
+  selectedReleaseId,
+  type ProtocolRelease,
+} from './lib/releases';
 
 /**
  * Hash routing: no dependency, and every view stays a shareable deep link.
@@ -115,6 +121,26 @@ function ThemeToggle() {
     >
       {theme === 'system' ? '◑' : theme === 'light' ? '☀' : '☾'}
     </button>
+  );
+}
+
+function ReleaseSelector() {
+  const active = selectedReleaseId();
+  return (
+    <label className="release-selector" title="Choose which immutable deployment the Console reads">
+      <span className="sr-only">Protocol release</span>
+      <select
+        value={active}
+        onChange={(event) => selectRelease(event.target.value as ProtocolRelease)}
+        aria-label="Protocol release"
+      >
+        {(Object.keys(RELEASES) as ProtocolRelease[]).map((id) => (
+          <option key={id} value={id}>
+            {RELEASES[id].label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -301,6 +327,7 @@ export default function App() {
               <span className="wordmark-sub">Register of Obligations</span>
             </a>
             <div className="masthead-actions">
+              <ReleaseSelector />
               <SessionMenu />
               <ThemeToggle />
             </div>

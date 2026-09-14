@@ -420,6 +420,31 @@ hr {
   flex-shrink: 0;
 }
 
+.release-selector select {
+  height: 30px;
+  max-width: 190px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  background: var(--paper);
+  color: var(--ink-2);
+  font: 600 10px/1 var(--sans);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.release-selector select:hover,
+.release-selector select:focus-visible {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+@media (max-width: 520px) {
+  .release-selector select {
+    max-width: 150px;
+  }
+}
+
 /*
  * A square icon control, sized to its glyph rather than to text-button
  * padding. The theme toggle carries a single character (◑ / ☀ / ☾), and
@@ -1068,6 +1093,40 @@ table.data th:last-child {
 table.data td .mono,
 table.data td.num {
   white-space: nowrap;
+}
+
+.protocol-notice {
+  margin: 0 0 28px;
+  padding: 13px 15px;
+  border: 1px solid var(--rule-strong);
+  border-left: 3px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.record-flag {
+  display: inline-block;
+  padding: 3px 6px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  color: var(--ink-3);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.record-flag[data-kind='authorized'] {
+  border-color: var(--st-current);
+  color: var(--st-current);
+}
+
+.record-flag[data-kind='quarantined'] {
+  border-color: var(--st-delinquent);
+  color: var(--st-delinquent);
 }
 
 /* ──────────────────────── definition list ───────────────────────────── */

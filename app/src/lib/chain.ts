@@ -1,4 +1,5 @@
 import { defineChain } from 'viem';
+import { selectedRelease } from './releases';
 
 /**
  * The write side of the Console.
@@ -30,13 +31,12 @@ export const CC3 = defineChain({
   testnet: true,
 });
 
+const releaseAddresses = selectedRelease().addresses;
+
 export const ADDRESSES = {
-  verifier: (import.meta.env.VITE_VERIFIER_ADDRESS ??
-    '0x02406b6d17E743deA7fBbfAE8A15c82e4481E168') as `0x${string}`,
-  bond: (import.meta.env.VITE_BOND_ADDRESS ??
-    '0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e') as `0x${string}`,
-  register: (import.meta.env.VITE_REGISTER_ADDRESS ??
-    '0xCaFF129Ec344A98Da8C9a4091a239DF158Cf31A5') as `0x${string}`,
+  verifier: releaseAddresses.verifier,
+  bond: releaseAddresses.bond,
+  register: releaseAddresses.register,
   /** Testnet collateral. `mint` is public, which is what makes the faucet possible. */
   collateral: (import.meta.env.VITE_MOCK_USDC ??
     '0xEFE4479B9056B6520831A4d5A7987A07e8dF3402') as `0x${string}`,

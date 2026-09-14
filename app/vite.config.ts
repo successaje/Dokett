@@ -34,6 +34,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: () => '/cure',
       },
+      '/api-v2': {
+        target: process.env.LENS_V2_URL || 'https://dokett-lens-v2.fly.dev',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api-v2/, ''),
+      },
       '/api': {
         target: process.env.LENS_URL || 'http://localhost:8787',
         changeOrigin: true,

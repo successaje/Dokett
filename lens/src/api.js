@@ -16,9 +16,16 @@ const http = require('node:http');
  */
 function createServer(index, log = console) {
   const routes = [
-    [/^\/health$/, () => ({ ok: true, asOfBlock: index.lastBlock, obligations: index.obligations.size })],
+    [/^\/health$/, () => ({
+      ok: true,
+      releaseVersion: index.releaseVersion,
+      asOfBlock: index.lastBlock,
+      obligations: index.obligations.size,
+      witnessedLiens: index.witnessedLiens.size,
+    })],
     [/^\/solvency\/(0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64})$/, (m) => index.solvency(m[1])],
     [/^\/encumbrance\/(0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64})$/, (m) => index.encumbrance(m[1])],
+    [/^\/encumbrance-venues$/, () => index.encumbranceVenues()],
     [/^\/obligation\/(\d+)$/, (m) => index.obligation(m[1])],
     [/^\/underwriter\/(0x[0-9a-fA-F]{40})$/, (m) => index.underwriter(m[1])],
     [/^\/profile\/(0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64})$/, (m) => index.profile(m[1])],
@@ -60,6 +67,7 @@ function createServer(index, log = console) {
         'GET /health',
         'GET /solvency/:entity      — what does this counterparty already owe?',
         'GET /encumbrance/:asset    — is this collateral already pledged?',
+        'GET /encumbrance-venues    — governed schemas for external pledge evidence',
         'GET /obligation/:id',
         'GET /underwriter/:address',
         'GET /profile/:subject      — proven record, and separately, what is claimed',

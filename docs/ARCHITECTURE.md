@@ -323,7 +323,7 @@ Never hardcode. `AscVerify.assertChainId(chainKey, expectedChainId)` resolves vi
 ## 7. Out of scope for the hackathon
 
 - ZK selective disclosure. v1 identity is a commitment, but `sourcePayer`, `sourcePayee` and amounts are **public by construction**. Documented, not hidden; the v2 answer is a source-chain payment router giving each obligation an ephemeral payer address.
-- `EncumbranceAdapter` event indexing. The adapter is deployed in v0.2.0; the public v1 Lens currently derives encumbrance from active obligations sharing a `collateralRef`.
+- Release-event reconciliation and current-state expiry for external encumbrance venues. The v0.2 Lens now indexes `LienWitnessed` independently from registered obligation claims; the first Aave V3 schema is in its 48-hour governance delay.
 - Multi-source-chain support — blocked on ASC, not on us.
 - Native-value (non-ERC-20) repayment adapters. Note this is where the `receiptStatus` guard does real work (§10, C4).
 - Legal lien perfection; cohort bonds; tranching; secondary trading of capacity; mainnet.

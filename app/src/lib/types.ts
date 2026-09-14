@@ -93,6 +93,7 @@ export interface Encumbrance {
   asset: string;
   asOfBlock: number;
   encumbered: boolean;
+  witnessedLiens?: WitnessedLien[];
   claims: {
     id: string;
     status: Status;
@@ -103,6 +104,28 @@ export interface Encumbrance {
     bonded: boolean;
     dispute?: Obligation['dispute'];
   }[];
+}
+
+export interface WitnessedLien {
+  collateralRef: string;
+  venueId: string;
+  holder: string;
+  chainKey: number;
+  height: string;
+  emitter: string;
+  cc3Transaction: string;
+  blockNumber: number;
+}
+
+export interface EncumbranceVenue {
+  venueId: string;
+  emitter: string;
+  topic0: string;
+  assetTopic: number;
+  holderTopic: number;
+  enabled: boolean;
+  status: 'active' | 'queued' | 'update-queued' | 'disabled';
+  eta: string | null;
 }
 
 export interface Underwriter {
@@ -121,8 +144,10 @@ export interface ObligationDetail extends Obligation {
 
 export interface Health {
   ok: boolean;
+  releaseVersion?: string;
   asOfBlock: number;
   obligations: number;
+  witnessedLiens?: number;
 }
 
 /* ─────────────────────────── profile ─────────────────────────── */

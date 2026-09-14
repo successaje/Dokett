@@ -8,8 +8,7 @@ import type {
   Underwriter,
   Profile,
 } from './types';
-
-const BASE = import.meta.env.VITE_LENS_URL ?? '/api';
+import { selectedRelease } from './releases';
 
 export class LensError extends Error {
   constructor(
@@ -22,15 +21,16 @@ export class LensError extends Error {
 }
 
 async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const base = selectedRelease().lensUrl;
   let res: Response;
   try {
-    res = await fetch(`${BASE}${path}`, { signal });
+    res = await fetch(`${base}${path}`, { signal });
   } catch (err) {
     if ((err as Error).name === 'AbortError') throw err;
     // Distinguish "the Lens is not running" from "the Lens said no". A judge
     // hitting a dead indexer should be told that, not shown an empty registry.
     throw new LensError(
-      `Cannot reach the Lens at ${BASE}. Is it running? \`npm run lens\``,
+      `Cannot reach the Lens at ${base}. Is it running? \`npm run lens\``,
       0,
     );
   }
@@ -50,6 +50,8 @@ export const lens = {
   obligation: (id: string, s?: AbortSignal) => get<ObligationDetail>(`/obligation/${id}`, s),
   solvency: (entity: string, s?: AbortSignal) => get<Solvency>(`/solvency/${entity}`, s),
   encumbrance: (asset: string, s?: AbortSignal) => get<Encumbrance>(`/encumbrance/${asset}`, s),
+  encumbranceVenues: (s?: AbortSignal) =>
+    get<{ asOfBlock: number; venues: import('./types').EncumbranceVenue[] }>('/encumbrance-venues', s),
   underwriter: (addr: string, s?: AbortSignal) => get<Underwriter>(`/underwriter/${addr}`, s),
   profile: (subject: string, s?: AbortSignal) => get<Profile>(`/profile/${subject}`, s),
 };

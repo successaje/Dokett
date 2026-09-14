@@ -1,0 +1,37 @@
+# Dokett Lens v0.2 — an independent projection over the immutable v0.2 release.
+# The v1 app remains deployed so demonstrations and published links keep working.
+app = "dokett-lens-v2"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  REGISTER_ADDRESS = "0xdcCF757C996Ee36E7f40B81a583B4B3692956281"
+  BOND_ADDRESS = "0xb08fbE5b83CaE7FC167ad670CDd73Ece211D0ceA"
+  ENCUMBRANCE_ADAPTER_ADDRESS = "0x73713DD8865353270f548917F707DF29Cc944B2f"
+  DEPLOY_BLOCK = "5482440"
+  RELEASE_VERSION = "v0.2.0"
+  LOG_CHUNK = "50000"
+
+[processes]
+  app = "node lens/src/index.js"
+
+[http_service]
+  internal_port = 8787
+  processes = ["app"]
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
