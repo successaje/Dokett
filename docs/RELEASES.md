@@ -55,7 +55,7 @@ path, and MockUSDC was allowlisted for bonds in
 
 ### Live provenance checks
 
-Two synthetic obligations make the new security boundary independently
+Three synthetic obligations make the new security boundary independently
 inspectable:
 
 - Obligation 1 entered through a subject's EIP-712 authorization:
@@ -64,10 +64,18 @@ inspectable:
   subject signed a one-shot dispute relayed by the registrar:
   [registration](https://creditcoin-testnet.blockscout.com/tx/0x6cde56eb900d6fb484db99b93a1640acb1e919b27fd4652165c3bb22c3ce1e54) ·
   [authenticated dispute](https://creditcoin-testnet.blockscout.com/tx/0x469eca2ccf238972ba806449d37f56bd416f8421eb1a50ae2c557db7eb3c1d9e).
+- Obligation 3 is a bonded
+  [registrar assertion without a subject signature](https://creditcoin-testnet.blockscout.com/tx/0x99e6e24b0151426e93e600244dc004cecf5b5146f9637d44334fee850f52a9a0),
+  retained as a separate exposure class for the DemoBank policy demonstration.
 
 The public signer addresses, terms commitments, evidence hash and blocks are in
 [`seed-provenance-v0.2.0-102031.json`](https://github.com/successaje/Dokett/blob/main/deployments/seed-provenance-v0.2.0-102031.json).
 No synthetic subject private key is stored.
+
+The Lens reports gross registered, subject-authorized, registrar-asserted,
+contested and underwriting-eligible exposure separately. DemoBank consumes
+those facts and stops automatic approval for asserted or contested records
+without representing either as zero debt.
 
 ### Service cutover and first external venue
 

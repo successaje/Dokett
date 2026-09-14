@@ -6,6 +6,10 @@ Dokett is a shared obligation registry on Creditcoin. It uses Attestcoin proofs
 of Ethereum payments and attested block height to maintain a record that
 lenders and RWA platforms can query before taking risk.
 
+Before approving a loan, a lender checks Dokett for registered obligations,
+their authorization, verified payment history and observed collateral claims.
+The reference lender shows exactly how that evidence changes the decision.
+
 **Testnet infrastructure · real Ethereum mainnet evidence · synthetic borrowers**
 
 [Run the lender demo](https://demobank-credit.vercel.app) ·
@@ -22,8 +26,14 @@ lenders and RWA platforms can query before taking risk.
 | What is the product? | A queryable record of obligations and collateral claims for lenders and RWA platforms. |
 | Why Creditcoin? | Creditcoin holds the durable credit record; Attestcoin lets its contracts verify Ethereum payment events and the attested Ethereum height. |
 | What is unusual? | The contract can degrade an obligation when no qualifying proof was recorded before an attested-height deadline, without letting a reporter choose the result. |
-| What is live? | 16 CC3 obligations, real Ethereum mainnet evidence, every lifecycle state, a public read API, and an executed default plus first-loss slash. |
-| What can I try immediately? | [DemoBank](https://demobank-credit.vercel.app) runs a lender decision from public Dokett data; the [Solvency query](https://dokett-console.vercel.app/#/solvency?q=0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a) opens with a populated example. |
+| What is live? | A populated v1 demonstration plus three v0.2 provenance cases on CC3, real Ethereum mainnet evidence, a public read API, and an executed default plus first-loss slash. |
+| What can I try immediately? | [DemoBank](https://demobank-credit.vercel.app) applies different lender rules to subject-authorized, registrar-asserted and authenticated-dispute records returned by the v0.2 API. |
+
+| Boundary | Current state |
+|---|---|
+| **Working today** | Versioned CC3 deployments and Lens APIs; subject-authorized origination; registrar assertions; authenticated dispute quarantine; DemoBank policy decisions; lifecycle evidence; default and atomic first-loss slash. |
+| **Pending** | Aave venue activation and USC witness after its mandatory 48-hour review period; one external lender consuming the API; encumbrance release reconciliation. |
+| **Trust assumptions** | Attestcoin's current permissioned attestor set; permissionless registration does not establish legal validity; a witnessed event proves what happened at a source height rather than permanent current title. |
 
 ```text
 Ethereum payment ──Attestcoin proof──▶ Creditcoin obligation record
@@ -407,14 +417,17 @@ verified on Blockscout. The exact source and transaction record are in the
 | `EncumbranceAdapter` | [`0x73713DD8865353270f548917F707DF29Cc944B2f`](https://creditcoin-testnet.blockscout.com/address/0x73713DD8865353270f548917F707DF29Cc944B2f) |
 | `Bond` | [`0xb08fbE5b83CaE7FC167ad670CDd73Ece211D0ceA`](https://creditcoin-testnet.blockscout.com/address/0xb08fbE5b83CaE7FC167ad670CDd73Ece211D0ceA) |
 
-Two synthetic records exercise the new path on-chain: an
+Three synthetic records exercise the lender policy boundary on-chain: an
 [active subject-authorized obligation](https://creditcoin-testnet.blockscout.com/tx/0x2fbe3e11f09b61c9f89462ce699f1b9d4424a354f03c6ade33f2fe5dd0c64180)
 and a second record with an
-[authenticated relayed dispute](https://creditcoin-testnet.blockscout.com/tx/0x469eca2ccf238972ba806449d37f56bd416f8421eb1a50ae2c557db7eb3c1d9e).
+[authenticated relayed dispute](https://creditcoin-testnet.blockscout.com/tx/0x469eca2ccf238972ba806449d37f56bd416f8421eb1a50ae2c557db7eb3c1d9e),
+plus a [bonded registrar assertion without a subject signature](https://creditcoin-testnet.blockscout.com/tx/0x99e6e24b0151426e93e600244dc004cecf5b5146f9637d44334fee850f52a9a0).
 
 The independent [v0.2 Lens](https://dokett-lens-v2.fly.dev) rebuilds this release
-from deployment block `5,482,440`. The Console release selector exposes its
-native provenance class, subject signer, immutable terms commitment and
+from deployment block `5,482,440`. Its solvency response separates gross,
+subject-authorized, registrar-asserted, contested and underwriting-eligible
+exposure. The Console release switch exposes each record's native provenance
+class, subject signer, immutable terms commitment and
 authenticated dispute quarantine while retaining the populated v1 view.
 
 ### First external encumbrance venue

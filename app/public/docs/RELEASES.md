@@ -29,7 +29,7 @@ new release has passed live checks.
 **Bootstrap block:** [`5,482,454`](https://creditcoin-testnet.blockscout.com/block/5482454)
 **Status:** deployed, bootstrapped and source verified
 
-**Validation:** 85 Foundry tests, 11 Lens tests and 16 relay tests; Console
+**Validation:** 85 Foundry tests, 13 Lens tests and 16 relay tests; Console
 production build passed.
 
 This release adds subject-signed origination, immutable terms provenance,
@@ -55,7 +55,7 @@ path, and MockUSDC was allowlisted for bonds in
 
 ### Live provenance checks
 
-Two synthetic obligations make the new security boundary independently
+Three synthetic obligations make the new security boundary independently
 inspectable:
 
 - Obligation 1 entered through a subject's EIP-712 authorization:
@@ -64,10 +64,33 @@ inspectable:
   subject signed a one-shot dispute relayed by the registrar:
   [registration](https://creditcoin-testnet.blockscout.com/tx/0x6cde56eb900d6fb484db99b93a1640acb1e919b27fd4652165c3bb22c3ce1e54) ·
   [authenticated dispute](https://creditcoin-testnet.blockscout.com/tx/0x469eca2ccf238972ba806449d37f56bd416f8421eb1a50ae2c557db7eb3c1d9e).
+- Obligation 3 is a bonded
+  [registrar assertion without a subject signature](https://creditcoin-testnet.blockscout.com/tx/0x99e6e24b0151426e93e600244dc004cecf5b5146f9637d44334fee850f52a9a0),
+  retained as a separate exposure class for the DemoBank policy demonstration.
 
 The public signer addresses, terms commitments, evidence hash and blocks are in
 [`seed-provenance-v0.2.0-102031.json`](https://github.com/successaje/Dokett/blob/main/deployments/seed-provenance-v0.2.0-102031.json).
 No synthetic subject private key is stored.
+
+The Lens reports gross registered, subject-authorized, registrar-asserted,
+contested and underwriting-eligible exposure separately. DemoBank consumes
+those facts and stops automatic approval for asserted or contested records
+without representing either as zero debt.
+
+### Service cutover and first external venue
+
+The v0.2 Lens is live at [dokett-lens-v2.fly.dev](https://dokett-lens-v2.fly.dev)
+and indexes from deployment block `5,482,440`. The Console selects between this
+projection and the unchanged v1 demonstration instead of migrating either
+release's state.
+
+The first governed external schema is Aave V3 Ethereum's
+`ReserveUsedAsCollateralEnabled(address,address)` event. It was
+[queued on CC3](https://creditcoin-testnet.blockscout.com/tx/0x89eff9feae6e6ebe48bb858ccd5656f0cdee6fcf4ba7c54cdd94dd292264829d)
+and becomes activatable at `2026-09-15T22:30:00Z`, after the adapter's mandatory
+48-hour delay. Its selected Ethereum receipt, indexed asset and holder, verified
+state at the attested head, and derived collateral reference are recorded in
+[`deployments/encumbrance-aave-v3-102031.json`](../deployments/encumbrance-aave-v3-102031.json).
 
 ## v0.1.0 — first public deployment
 
@@ -84,5 +107,5 @@ No synthetic subject private key is stored.
 | SilenceAdapter | [`0x8e827a12C78dED9459268eb05cce2C5d709FE6AF`](https://creditcoin-testnet.blockscout.com/address/0x8e827a12C78dED9459268eb05cce2C5d709FE6AF) |
 | Bond | [`0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e`](https://creditcoin-testnet.blockscout.com/address/0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e) |
 
-The v1 Console and populated demonstration remain available while the v0.2 Lens
-is brought online. No v1 state is migrated or rewritten.
+The v1 populated demonstration remains available through the Console release
+selector. No v1 state is migrated or rewritten.

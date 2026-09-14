@@ -250,7 +250,7 @@ a keeper, a public Lens API, the Dokett Console and DemoBank reference lender.
 The current public demonstration covers every lifecycle state, real Ethereum
 mainnet payment evidence, permissionless proof submission, an autonomous default
 and an executed first-loss slash. Contract, projection and relay behavior is
-covered by 112 tests.
+covered by 115 tests.
 
 ## 11. Development path
 
@@ -259,10 +259,10 @@ value:
 
 1. Complete one integration review against a real underwriting or collateral
    workflow.
-2. Deploy and independently review subject-signed origination and authenticated dispute quarantine.
-3. Pilot named first-loss capital with an independent credit venue.
-4. Standardize the obligation interface and add a second evidence backend.
-5. Extend selective disclosure before any use with real borrower data.
+2. Complete the first USC-witnessed external collateral record after its governed venue delay.
+3. Have an independent lender consume provenance, contested exposure and encumbrance evidence before taking risk.
+4. Reconcile collateral enable and release events into a source-height-ordered current-state projection.
+5. Standardize the obligation interface, add a second evidence backend and extend selective disclosure before any use with real borrower data.
 
 The protocol becomes shared infrastructure when an independent venue queries the
 record before taking risk and can verify every fact it relied upon.

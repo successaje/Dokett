@@ -26,6 +26,7 @@
     "bootstrap": "forge script script/Deploy.s.sol:Bootstrap --rpc-url cc3_testnet --broadcast --gas-estimate-multiplier 1000",
     "verify:release": "node --env-file-if-exists=.env script/verify-release.js",
     "seed:provenance": "node --env-file-if-exists=.env script/seed-provenance.js",
+    "seed:demobank-v2": "node --env-file-if-exists=.env script/seed-demobank-v2.js",
     "deploy:probe": "forge script script/ProveOne.s.sol:DeployProbe --rpc-url cc3_testnet --broadcast --gas-estimate-multiplier 300 && npm run verify",
     "verify": "bash script/verify.sh",
     "prove:batch": "node --env-file-if-exists=.env demo/prove-batch.js",

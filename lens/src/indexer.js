@@ -371,16 +371,34 @@ class Index {
         o.sourcePayee.toLowerCase() === needle,
     );
 
-    const bucket = (list) => ({
-      count: list.length,
-      outstanding: list.reduce((a, o) => a + BigInt(o.outstanding), 0n).toString(),
-      obligations: list,
-    });
+    const bucket = (list) => {
+      const denominations = new Map();
+      for (const o of list) {
+        const key = o.sourceToken.toLowerCase();
+        const current = denominations.get(key) || { sourceToken: o.sourceToken, outstanding: 0n };
+        current.outstanding += BigInt(o.outstanding);
+        denominations.set(key, current);
+      }
+      return {
+        count: list.length,
+        // Kept for API compatibility. Consumers must use byDenomination when
+        // more than one token is present rather than adding unlike units.
+        outstanding: list.reduce((a, o) => a + BigInt(o.outstanding), 0n).toString(),
+        byDenomination: [...denominations.values()].map((d) => ({
+          sourceToken: d.sourceToken,
+          outstanding: d.outstanding.toString(),
+        })),
+        obligations: list,
+      };
+    };
 
     const quarantined = matches.filter((o) => o.dispute?.authenticated);
     const admitted = matches.filter((o) => !o.dispute?.authenticated);
     const bonded = admitted.filter((o) => o.bonded);
     const unbonded = admitted.filter((o) => !o.bonded);
+    const subjectAuthorized = admitted.filter((o) => o.provenance === 'SubjectAuthorized');
+    const registrarAsserted = admitted.filter((o) => o.provenance !== 'SubjectAuthorized');
+    const underwritingEligible = subjectAuthorized.filter((o) => o.bonded);
     const bad = admitted.filter((o) => ['Delinquent', 'Default', 'ChargedOff'].includes(o.status));
 
     return {
@@ -389,10 +407,17 @@ class Index {
       bonded: bucket(bonded),
       unbonded: bucket(unbonded),
       disputed: bucket(quarantined),
+      exposure: {
+        grossRegistered: bucket(matches),
+        subjectAuthorized: bucket(subjectAuthorized),
+        registrarAsserted: bucket(registrarAsserted),
+        contested: bucket(quarantined),
+        underwritingEligible: bucket(underwritingEligible),
+      },
       adverse: { count: bad.length, statuses: bad.map((o) => ({ id: o.id, status: o.status })) },
       note:
-        'Bonded, unbonded and subject-disputed claims are reported separately and must not be summed. ' +
-        'Only a dispute authenticated by the signer who authorized the obligation is quarantined.',
+        'Gross registered exposure includes every matching claim. Underwriting-eligible exposure includes only bonded, subject-authorized, undisputed claims. ' +
+        'Registrar assertions and authenticated subject disputes remain visible in separate buckets, must not be summed into eligible exposure, and require the consumer to apply its own policy.',
     };
   }
 

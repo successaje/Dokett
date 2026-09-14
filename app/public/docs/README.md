@@ -6,6 +6,10 @@ Dokett is a shared obligation registry on Creditcoin. It uses Attestcoin proofs
 of Ethereum payments and attested block height to maintain a record that
 lenders and RWA platforms can query before taking risk.
 
+Before approving a loan, a lender checks Dokett for registered obligations,
+their authorization, verified payment history and observed collateral claims.
+The reference lender shows exactly how that evidence changes the decision.
+
 **Testnet infrastructure · real Ethereum mainnet evidence · synthetic borrowers**
 
 [Run the lender demo](https://demobank-credit.vercel.app) ·
@@ -22,8 +26,14 @@ lenders and RWA platforms can query before taking risk.
 | What is the product? | A queryable record of obligations and collateral claims for lenders and RWA platforms. |
 | Why Creditcoin? | Creditcoin holds the durable credit record; Attestcoin lets its contracts verify Ethereum payment events and the attested Ethereum height. |
 | What is unusual? | The contract can degrade an obligation when no qualifying proof was recorded before an attested-height deadline, without letting a reporter choose the result. |
-| What is live? | 16 CC3 obligations, real Ethereum mainnet evidence, every lifecycle state, a public read API, and an executed default plus first-loss slash. |
-| What can I try immediately? | [DemoBank](https://demobank-credit.vercel.app) runs a lender decision from public Dokett data; the [Solvency query](https://dokett-console.vercel.app/#/solvency?q=0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a) opens with a populated example. |
+| What is live? | A populated v1 demonstration plus three v0.2 provenance cases on CC3, real Ethereum mainnet evidence, a public read API, and an executed default plus first-loss slash. |
+| What can I try immediately? | [DemoBank](https://demobank-credit.vercel.app) applies different lender rules to subject-authorized, registrar-asserted and authenticated-dispute records returned by the v0.2 API. |
+
+| Boundary | Current state |
+|---|---|
+| **Working today** | Versioned CC3 deployments and Lens APIs; subject-authorized origination; registrar assertions; authenticated dispute quarantine; DemoBank policy decisions; lifecycle evidence; default and atomic first-loss slash. |
+| **Pending** | Aave venue activation and USC witness after its mandatory 48-hour review period; one external lender consuming the API; encumbrance release reconciliation. |
+| **Trust assumptions** | Attestcoin's current permissioned attestor set; permissionless registration does not establish legal validity; a witnessed event proves what happened at a source height rather than permanent current title. |
 
 ```text
 Ethereum payment ──Attestcoin proof──▶ Creditcoin obligation record
@@ -382,7 +392,7 @@ None of those are credit-specific. They are what anyone reading another chain's 
 | `src/Register.sol` | Obligations, the status machine, registration bonds, disputes. |
 | `src/adapters/PaymentAdapter.sol` | Proof present → advance. Also the cure path. |
 | `src/adapters/SilenceAdapter.sol` | Proof absent → delinquency, cure, default. |
-| `src/adapters/EncumbranceAdapter.sol` | Collateral-reference claims and release state; deployed in v0.2.0. |
+| `src/adapters/EncumbranceAdapter.sol` | USC-proven collateral events from governed external venue schemas; deployed in v0.2.0. |
 | `src/Bond.sol` | Named first-loss capital; pro-rata slashing; premium escrow. |
 | `worker/` | Keeper: poke / prove / sweep, on independent timers. |
 | `lens/` | Indexer + free public read API. A pure projection; holds no privileged state. |
@@ -407,10 +417,32 @@ verified on Blockscout. The exact source and transaction record are in the
 | `EncumbranceAdapter` | [`0x73713DD8865353270f548917F707DF29Cc944B2f`](https://creditcoin-testnet.blockscout.com/address/0x73713DD8865353270f548917F707DF29Cc944B2f) |
 | `Bond` | [`0xb08fbE5b83CaE7FC167ad670CDd73Ece211D0ceA`](https://creditcoin-testnet.blockscout.com/address/0xb08fbE5b83CaE7FC167ad670CDd73Ece211D0ceA) |
 
-Two synthetic records exercise the new path on-chain: an
+Three synthetic records exercise the lender policy boundary on-chain: an
 [active subject-authorized obligation](https://creditcoin-testnet.blockscout.com/tx/0x2fbe3e11f09b61c9f89462ce699f1b9d4424a354f03c6ade33f2fe5dd0c64180)
 and a second record with an
-[authenticated relayed dispute](https://creditcoin-testnet.blockscout.com/tx/0x469eca2ccf238972ba806449d37f56bd416f8421eb1a50ae2c557db7eb3c1d9e).
+[authenticated relayed dispute](https://creditcoin-testnet.blockscout.com/tx/0x469eca2ccf238972ba806449d37f56bd416f8421eb1a50ae2c557db7eb3c1d9e),
+plus a [bonded registrar assertion without a subject signature](https://creditcoin-testnet.blockscout.com/tx/0x99e6e24b0151426e93e600244dc004cecf5b5146f9637d44334fee850f52a9a0).
+
+The independent [v0.2 Lens](https://dokett-lens-v2.fly.dev) rebuilds this release
+from deployment block `5,482,440`. Its solvency response separates gross,
+subject-authorized, registrar-asserted, contested and underwriting-eligible
+exposure. The Console release switch exposes each record's native provenance
+class, subject signer, immutable terms commitment and
+authenticated dispute quarantine while retaining the populated v1 view.
+
+### First external encumbrance venue
+
+Venue `0` describes the canonical Aave V3 Ethereum Pool and its
+`ReserveUsedAsCollateralEnabled(address,address)` event. A real successful
+[Ethereum transaction](https://etherscan.io/tx/0xe45561ef5eb49fea25c32269ced29e7484385d2e5cf9d4b489f448d31410ad14)
+enabled `3,000.003009 USDC` as collateral for its indexed holder; the position
+was still funded and collateral-enabled at the Ethereum height currently
+attested on CC3. The emitter and event schema entered Dokett's mandatory
+48-hour governance delay in [this CC3 transaction](https://creditcoin-testnet.blockscout.com/tx/0x89eff9feae6e6ebe48bb858ccd5656f0cdee6fcf4ba7c54cdd94dd292264829d).
+After activation, the same receipt can be USC-proven permissionlessly with
+`npm run encumbrance:aave -- prove`. The full machine-readable evidence and
+governance record is in
+[`deployments/encumbrance-aave-v3-102031.json`](deployments/encumbrance-aave-v3-102031.json).
 
 ### v0.1.0 — populated demonstration
 
@@ -426,8 +458,9 @@ returned `is_verified: true`). Chain id **102031**, deployed at block
 | `SilenceAdapter` | [`0x8e827a12C78dED9459268eb05cce2C5d709FE6AF`](https://creditcoin-testnet.blockscout.com/address/0x8e827a12C78dED9459268eb05cce2C5d709FE6AF) | Proof absent → delinquent → default |
 | `Bond` | [`0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e`](https://creditcoin-testnet.blockscout.com/address/0x545Ac0DaAa0b7095e62c7fa702C43a3A0F152d2e) | Named first-loss capital, pro-rata slashing |
 
-These addresses remain the immutable, populated v1 demonstration used by the
-public Console. No state was migrated or rewritten for v0.2.0.
+These addresses remain the immutable, populated v1 demonstration available
+through the Console release selector. No state was migrated or rewritten for
+v0.2.0.
 
 **Attestcoin precompiles this build calls:** `BlockProver` at
 `0x…0FD2` (single + batch verification, batch limit 10) and `ChainInfo` at
@@ -439,7 +472,8 @@ CC3 testnet Ethereum mainnet is chainKey 3, on mainnet it is 1).
 | | |
 |---|---|
 | Console | [dokett-console.vercel.app](https://dokett-console.vercel.app) |
-| Read API | [dokett-lens.fly.dev](https://dokett-lens.fly.dev) — free, unauthenticated, CORS-open |
+| v0.2 Read API | [dokett-lens-v2.fly.dev](https://dokett-lens-v2.fly.dev) — block `5,482,440` onward; provenance, disputes and external lien evidence |
+| v1 Read API | [dokett-lens.fly.dev](https://dokett-lens.fly.dev) — immutable populated demonstration |
 | DemoBank | [demobank-credit.vercel.app](https://demobank-credit.vercel.app) — a separate reference lender, built by the Dokett team, reading only the public API |
 | Cure relay | `dokett-relay.fly.dev` — pays a borrower's gas so curing needs no CTC |
 | Demo video | [youtu.be/JbFceGWRdt8](https://youtu.be/JbFceGWRdt8) |
@@ -611,7 +645,8 @@ Deliberately not buried:
 
 - **Privacy is v1.** Identity is a commitment (≥128-bit salt, client-side, never reused), but `sourcePayer`, `sourcePayee` and all amounts are **public by construction**. The roadmap answer is a source-chain payment router giving each obligation an ephemeral payer address, plus ZK selective disclosure. Do not put real people's data in this registry today.
 - **One source chain.** Ethereum mainnet only, because that is what ASC attests today.
-- **Registration provenance is explicit; validity is not adjudicated.** The v0.2.0 CC3 deployment supports EIP-712/EIP-1271 subject-authorized origination, immutable terms commitments and one-shot authenticated disputes; the current Lens code quarantines only disputes signed by the recorded subject controller. The public Console remains on the populated v1 dataset while the v0.2 index is brought online. Registrar-asserted claims still prove only that a bonded registrar made an assertion, and Dokett does not adjudicate bad-faith registration.
+- **Registration provenance is explicit; validity is not adjudicated.** The v0.2.0 CC3 deployment supports EIP-712/EIP-1271 subject-authorized origination, immutable terms commitments and one-shot authenticated disputes; the v0.2 Lens quarantines only disputes signed by the recorded subject controller. The Console exposes v0.2 and the populated v1 demonstration as separate selectable releases. Registrar-asserted claims still prove only that a bonded registrar made an assertion, and Dokett does not adjudicate bad-faith registration.
+- **A witnessed event is evidence of the configured event, not permanent legal title.** The first external venue proves that Aave emitted `ReserveUsedAsCollateralEnabled` for the indexed reserve and holder. It does not prove that the collateral remains enabled forever; release-event reconciliation and current-state expiry are the next adapter work.
 - **Wash underwriting is priced, not prevented.** Fabricating a history costs its face value in real on-chain transfers — unlike a self-reported score — but Dokett does not solve identity. It makes identity someone's *priced* problem.
 - **False-default residual.** A borrower who paid but whose proof nobody submits within window + cure is wrongly defaulted. Mitigated by permissionless submission, near-zero cost, a 7-day cure, borrower self-service in the Console, and keeper incentives. This residual is the honest price of having no trusted reporter.
 - **On-chain registration is not legal lien perfection** in any jurisdiction.
@@ -625,8 +660,9 @@ Each phase is a capability that the next one depends on, not a feature list.
 |---|---|---|
 | **1 · Evidence** | *Can we prove what happened?* | Ethereum → Creditcoin via Attestcoin. **Done** — measured, [documented](docs/research/001-attestcoin-cost-model.md), reproducible against real mainnet transactions. |
 | **2 · Obligations** | *Can we represent a promise to pay?* | The status machine, the inversion, the liveness gate. **Done** — a live autonomous default with [linked transactions](docs/research/002-autonomous-default.md). |
-| **3 · Visibility** | *Can anything query those obligations?* | Registry, Solvency, Encumbrance, and the free read API. **Live today**; next is the first external caller — one real venue querying before it lends. |
+| **3 · Visibility** | *Can anything query those obligations?* | Registry, Solvency, Encumbrance, two versioned Lens APIs and a Console release selector. **Live today**; next is the first external caller — one real venue querying before it lends. |
 | **3b · Provenance** | *Who authorized the terms, and who may contest them?* | Subject-signed EIP-712/EIP-1271 origination, immutable terms commitments and authenticated dispute quarantine. **Live in the v0.2.0 CC3 contracts, with two inspectable synthetic records.** |
+| **3c · External collateral** | *Can Dokett discover a pledge without the venue integrating?* | A governed Aave V3 event schema and a real funded Ethereum collateral position. **Schema queued on CC3; USC witness follows the contract's 48-hour review delay.** |
 | **4 · Capital** | *Can markets price and finance them?* | Bonded underwriting with real first-loss capital, and a first proven mainnet default with a real slash. **First slash demonstrated on testnet** — [linked transactions](docs/research/003-first-slash.md). |
 | **4b · Origination UI** | *Can a person create one without an ABI?* | **Done.** `#/register` turns the 16-field struct into seven inputs with a derived-terms panel, and the cure relay's faucet — the dependency that deferred this — is live, so a registrar bond no longer requires already holding CTC. |
 | **5 · Shared layer** | *Can any credit protocol build on this state?* | An ERC standard for Obligations, a Registrar Council, attested Register mirrors on other chains, and a second evidence backend behind the same `AscVerify` interface. |

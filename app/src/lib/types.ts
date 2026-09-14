@@ -68,6 +68,7 @@ export interface Bond {
 export interface Bucket {
   count: number;
   outstanding: string;
+  byDenomination?: Array<{ sourceToken: string; outstanding: string }>;
   obligations: Obligation[];
 }
 
@@ -85,6 +86,13 @@ export interface Solvency {
   bonded: Bucket;
   unbonded: Bucket;
   disputed?: Bucket;
+  exposure?: {
+    grossRegistered: Bucket;
+    subjectAuthorized: Bucket;
+    registrarAsserted: Bucket;
+    contested: Bucket;
+    underwritingEligible: Bucket;
+  };
   adverse: { count: number; statuses: { id: string; status: Status }[] };
   note: string;
 }

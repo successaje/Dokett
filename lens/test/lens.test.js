@@ -118,6 +118,25 @@ test('an authenticated subject dispute is quarantined from solvency totals', () 
   assert.equal(r.bonded.outstanding, '1000');
   assert.equal(r.disputed.outstanding, '9000');
   assert.equal(r.disputed.count, 1);
+  assert.equal(r.exposure.grossRegistered.outstanding, '10000');
+  assert.equal(r.exposure.contested.outstanding, '9000');
+  assert.equal(r.exposure.underwritingEligible.outstanding, '0');
+});
+
+test('solvency separates subject-authorized, registrar-asserted and eligible exposure', () => {
+  const idx = stubIndex([
+    obligation({ id: '1', outstanding: '4000', provenance: 'SubjectAuthorized' }),
+    obligation({ id: '2', outstanding: '6000', provenance: 'RegistrarAsserted' }),
+  ]);
+
+  const r = idx.solvency(ALICE);
+  assert.equal(r.exposure.grossRegistered.outstanding, '10000');
+  assert.equal(r.exposure.subjectAuthorized.outstanding, '4000');
+  assert.equal(r.exposure.registrarAsserted.outstanding, '6000');
+  assert.equal(r.exposure.underwritingEligible.outstanding, '4000');
+  assert.deepEqual(r.exposure.grossRegistered.byDenomination, [
+    { sourceToken: '0x' + 'd'.repeat(40), outstanding: '10000' },
+  ]);
 });
 
 test('an unauthenticated legacy dispute cannot quarantine a claim', () => {

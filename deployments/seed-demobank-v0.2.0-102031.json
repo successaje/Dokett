@@ -1,0 +1,11 @@
+{
+  "releaseVersion": "v0.2.0",
+  "description": "Synthetic registrar-asserted record used by the DemoBank provenance policy demonstration",
+  "register": "0xdcCF757C996Ee36E7f40B81a583B4B3692956281",
+  "id": "3",
+  "obligor": "0x4defbfe5d881b39857ebde445c9e37800dc8f3d012a634b31f2fd25c6ec441fa",
+  "sourcePayer": "0x436cb95cC81f89f737C1890e363FB93be9d7e2aB",
+  "attestedEthereumHead": "25976540",
+  "registrationTransaction": "0x99e6e24b0151426e93e600244dc004cecf5b5146f9637d44334fee850f52a9a0",
+  "registrationBlock": 5487198
+}

@@ -19,7 +19,7 @@ function BucketColumn({
   caption,
 }: {
   bucket: Bucket;
-  kind: 'bonded' | 'unbonded' | 'disputed';
+  kind: 'bonded' | 'unbonded' | 'disputed' | 'subject authorized' | 'registrar asserted';
   caption: string;
 }) {
   /*
@@ -129,6 +129,7 @@ function Result({ entity }: { entity: string }) {
 
   const s = res.data;
   const disputed = s.disputed ?? { count: 0, outstanding: '0', obligations: [] };
+  const exposure = s.exposure;
 
   if (s.bonded.count === 0 && s.unbonded.count === 0 && disputed.count === 0) {
     return (
@@ -141,29 +142,63 @@ function Result({ entity }: { entity: string }) {
 
   return (
     <>
-      <Section
-        title="Registered claims"
-        aside={
-          <>
-            Reported by provenance and dispute state, never as one total. Registration is
-            permissionless, so a combined figure would make defamation-by-registration free.
-          </>
-        }
-      >
-        <div className="split">
-          <BucketColumn
-            bucket={s.bonded}
-            kind="bonded"
-            caption="Registrar posted a bond. Spam here has a price, so these claims carry weight."
-          />
-          <div className="split-rule" aria-hidden />
-          <BucketColumn
-            bucket={s.unbonded}
-            kind="unbonded"
-            caption="No bond posted. Free to register, therefore free to fabricate. Read with suspicion."
-          />
-        </div>
-      </Section>
+      {exposure ? (
+        <Section
+          title="Exposure by provenance"
+          aside="Gross exposure remains visible even when a record is asserted or contested. Only bonded, subject-authorized and undisputed claims enter the underwriting-eligible bucket."
+        >
+          <div className="table-wrap" style={{ marginBottom: 24 }}>
+            <table className="data">
+              <tbody>
+                <tr>
+                  <td>Gross registered claims</td>
+                  <td className="num">{exposure.grossRegistered.count}</td>
+                </tr>
+                <tr>
+                  <td>Underwriting-eligible claims</td>
+                  <td className="num">{exposure.underwritingEligible.count}</td>
+                </tr>
+                <tr>
+                  <td>Contested claims retained for review</td>
+                  <td className="num">{exposure.contested.count}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="split">
+            <BucketColumn
+              bucket={exposure.subjectAuthorized}
+              kind="subject authorized"
+              caption="The recorded subject signed the committed terms. Undisputed bonded claims are eligible for automated policy."
+            />
+            <div className="split-rule" aria-hidden />
+            <BucketColumn
+              bucket={exposure.registrarAsserted}
+              kind="registrar asserted"
+              caption="A registrar recorded the claim without a subject signature. Keep it in gross exposure and apply independent review."
+            />
+          </div>
+        </Section>
+      ) : (
+        <Section
+          title="Registered claims"
+          aside="Bonded and unbonded claims are reported separately because registration is permissionless."
+        >
+          <div className="split">
+            <BucketColumn
+              bucket={s.bonded}
+              kind="bonded"
+              caption="Registrar posted a bond. Spam here has a price, so these claims carry weight."
+            />
+            <div className="split-rule" aria-hidden />
+            <BucketColumn
+              bucket={s.unbonded}
+              kind="unbonded"
+              caption="No bond posted. Free to register, therefore free to fabricate. Read with suspicion."
+            />
+          </div>
+        </Section>
+      )}
 
       {disputed.count > 0 && (
         <Section

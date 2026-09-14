@@ -3,317 +3,217 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DemoBank — Credit Origination</title>
-<meta name="description" content="A reference consumer of the Dokett obligation register: a credit decision made from public HTTP, with no account, key or permission.">
-
-<!--
-  DemoBank is a reference consumer of the Dokett register, written by the
-  Dokett team. It is not an independent third party and does not pretend to
-  be one — pasting it into a separate repository would not have made it one.
-
-  It exists to test one claim Dokett makes about itself: that the register is
-  infrastructure rather than an application, and that a lender can make a
-  credit decision from it with no account, no API key, no permission and no
-  proprietary score. That claim is checkable regardless of who wrote this
-  file, which is why the file is worth having.
-
-  So this file has no build step, no framework, no SDK and no dependency on
-  anything Dokett publishes except its public HTTP endpoints. It is one file
-  served as static HTML. If that claim were false, this file could not exist.
-
-  ── THE BOUNDARY THAT MATTERS ─────────────────────────────────────────────
-  Dokett returns facts. It never returns a recommendation, and it must not:
-  the moment a registry ships a verdict it has become a credit score with
-  extra steps, which is the thing Dokett argues against at length.
-
-  So the decision below is computed HERE, by POLICY, which belongs to DemoBank.
-  Another lender would set it differently against the identical facts and
-  reasonably reach the opposite answer. That is the whole design.
--->
-
+<title>DemoBank — Dokett Credit Decision</title>
+<meta name="description" content="A reference lender showing how Dokett v0.2 provenance, disputes and external collateral evidence change a credit decision.">
 <style>
-  /* Deliberately not Dokett's design system. On video the cut from the Console
-     to here has to read instantly as a different application, not another of
-     its tabs — that is a real distinction even though the author is the same. */
   :root{
-    --ink:#10192b; --dim:#5b6b85; --line:#d6dde8; --bg:#eef1f6; --card:#fff;
-    --brand:#123c8c; --bad:#a4262c; --ok:#1a7f4b; --warn:#8a5a00;
-    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    --navy:#091a31;--navy-2:#122b4c;--blue:#255fc2;--blue-soft:#eaf1ff;
+    --ink:#10213a;--muted:#60708a;--line:#d8e0eb;--bg:#f3f6fa;--card:#fff;
+    --green:#147447;--green-soft:#e8f6ef;--amber:#8b5700;--amber-soft:#fff4d8;
+    --red:#a22d35;--red-soft:#fbeaec;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
-  .bar{background:var(--brand);color:#fff;padding:14px 28px;display:flex;
-    align-items:baseline;gap:14px}
-  .bar b{font-size:17px;letter-spacing:.02em}
-  .bar span{font-size:12px;opacity:.75}
-  .boundary{background:#dce5f4;border-bottom:1px solid #b7c6dd;padding:10px 28px;
-    color:#263b5f;font-size:12.5px;line-height:1.45}
-  .boundary b{font-size:10px;letter-spacing:.11em;text-transform:uppercase;margin-right:9px}
-  .wrap{max-width:1080px;margin:0 auto;padding:28px}
-  h1{font-size:20px;margin:0 0 4px}
-  .sub{color:var(--dim);font-size:13px;margin:0 0 22px}
-  .cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
-  @media(max-width:880px){.cols{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:6px;
-    padding:20px;margin-bottom:22px}
-  .card h2{font-size:11px;letter-spacing:.09em;text-transform:uppercase;
-    color:var(--dim);margin:0 0 14px;font-weight:700}
-  label{display:block;font-size:12px;color:var(--dim);margin:12px 0 5px}
-  input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:4px;
-    font-family:var(--mono);font-size:12.5px;background:#fbfcfe;color:var(--ink)}
-  button{margin-top:18px;width:100%;padding:12px;background:var(--brand);color:#fff;
-    border:0;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer}
-  button:disabled{opacity:.5;cursor:default}
-  .log{font-family:var(--mono);font-size:11.5px;line-height:1.9;min-height:150px}
-  .log div{display:flex;gap:8px;opacity:0;animation:in .25s forwards}
-  @keyframes in{to{opacity:1}}
-  .log .m{color:var(--dim);flex:0 0 34px}
-  .log .u{color:var(--ink);word-break:break-all;flex:1}
-  .log .s{color:var(--ok);flex:0 0 30px;text-align:right}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  td{padding:7px 0;border-bottom:1px solid var(--line)}
-  td:last-child{text-align:right;font-family:var(--mono);font-weight:600}
-  tr:last-child td{border-bottom:0}
-  .rule{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);
-    font-size:12.5px;align-items:baseline}
-  .rule:last-child{border-bottom:0}
-  .rule .g{flex:0 0 16px;font-weight:700}
-  .rule .t{flex:1}
-  .rule .v{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
-  .pass .g{color:var(--ok)} .fail .g{color:var(--bad)} .fail .t{font-weight:600}
-  .verdict{border-radius:6px;padding:20px;margin-bottom:14px;color:#fff}
-  .verdict.d{background:var(--bad)} .verdict.a{background:var(--ok)}
-  .verdict b{font-size:26px;letter-spacing:.06em;display:block}
-  .verdict p{margin:6px 0 0;font-size:13px;opacity:.93}
-  .foot{font-size:12px;color:var(--dim);border-top:1px solid var(--line);
-    padding-top:14px;margin-top:4px}
-  .foot b{color:var(--ink)}
-  pre{background:#0e1626;color:#d8e2f2;border-radius:5px;padding:15px;
-    font-family:var(--mono);font-size:11.5px;line-height:1.65;overflow-x:auto;margin:0}
-  pre .k{color:#7fb4ff} pre .n{color:#f0b072} pre .c{color:#6f7f99}
-  .hide{display:none}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  button,input{font:inherit}
+  .top{background:var(--navy);color:#fff}
+  .top-inner{max-width:1180px;margin:auto;padding:18px 26px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand{display:flex;align-items:center;gap:12px}.brand-mark{width:31px;height:31px;border:1px solid #7990ad;border-radius:50%;display:grid;place-items:center;font-weight:800}
+  .brand b{font-size:18px}.brand small{display:block;color:#9fb0c8;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+  .live{font:700 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#b9e7ce;display:flex;align-items:center;gap:7px}
+  .live:before{content:"";width:7px;height:7px;border-radius:50%;background:#42c985;box-shadow:0 0 0 3px #42c98522}
+  .hero{background:var(--navy-2);color:#fff}.hero-inner{max-width:1180px;margin:auto;padding:36px 26px}
+  .eyebrow{font:700 10px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#7f91aa}
+  .hero .eyebrow{color:#9eb8df}.hero h1{font-size:clamp(25px,4vw,39px);line-height:1.12;max-width:860px;margin:11px 0 13px;letter-spacing:-.025em}
+  .hero p{max-width:780px;margin:0;color:#c6d2e3;font-size:15px}
+  .boundary{max-width:1180px;margin:0 auto;padding:11px 26px;color:#53647d;font-size:12px;border-bottom:1px solid var(--line)}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px}
+  .section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:0 0 13px}.section-head h2{margin:0;font-size:17px}.section-head p{margin:0;color:var(--muted);font-size:12px}
+  .scenarios{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+  .scenario{margin:0;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;color:var(--ink);cursor:pointer;min-height:108px}
+  .scenario:hover,.scenario[aria-pressed="true"]{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+  .scenario[aria-pressed="true"]{background:var(--blue-soft)}
+  .scenario b{display:block;font-size:13px;margin:6px 0 3px}.scenario span{display:block;color:var(--muted);font-size:11.5px}.scenario .tag{font:700 9px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+  .grid{display:grid;grid-template-columns:minmax(300px,.78fr) minmax(430px,1.22fr);gap:18px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:19px;margin-bottom:18px;box-shadow:0 2px 10px #172b4d0a}
+  .card-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.card h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0}.card-title span{font:600 10px/1 var(--mono);color:var(--blue)}
+  label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.04em}
+  input{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:5px;background:#fbfcfe;color:var(--ink);font-family:var(--mono);font-size:11.5px}
+  input:focus{outline:2px solid #255fc233;border-color:var(--blue)}
+  .primary{width:100%;margin-top:16px;padding:11px 14px;border:0;border-radius:5px;background:var(--blue);color:#fff;font-weight:750;cursor:pointer}.primary:disabled{opacity:.55;cursor:wait}
+  .log{font:11px/1.65 var(--mono);min-height:95px}.log-row{display:grid;grid-template-columns:23px 1fr 28px;gap:7px;padding:5px 0;border-bottom:1px solid #edf0f5}.log-row:last-child{border:0}.log-path{word-break:break-all}.log-status{color:var(--green);text-align:right}.muted{color:var(--muted)}
+  .placeholder{padding:35px 10px;text-align:center;color:var(--muted)}.placeholder b{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
+  .verdict{border-radius:7px;padding:20px;margin-bottom:17px;border:1px solid}.verdict strong{font-size:24px;letter-spacing:.045em;display:block}.verdict p{margin:5px 0 0}.verdict.approved{background:var(--green-soft);border-color:#aad8c1;color:var(--green)}.verdict.review{background:var(--amber-soft);border-color:#ead293;color:var(--amber)}.verdict.declined{background:var(--red-soft);border-color:#e4b8bc;color:var(--red)}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:6px;margin-bottom:17px}.metric{padding:12px;border-right:1px solid var(--line)}.metric:last-child{border:0}.metric span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.metric b{display:block;font:700 17px/1.3 var(--mono);margin-top:5px}
+  table{width:100%;border-collapse:collapse}td,th{padding:8px 0;border-bottom:1px solid var(--line);text-align:left;font-size:12px}th{color:var(--muted);font-size:9px;letter-spacing:.08em;text-transform:uppercase}td:last-child,th:last-child{text-align:right}tr:last-child td{border:0}.mono{font-family:var(--mono)}
+  .rule{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:start;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}.rule:last-child{border:0}.rule .mark{font-weight:800}.rule.pass .mark{color:var(--green)}.rule.review .mark{color:var(--amber)}.rule.fail .mark{color:var(--red)}.rule .value{font:10.5px/1.4 var(--mono);color:var(--muted);text-align:right}
+  .note{color:var(--muted);font-size:11.5px;margin:12px 0 0}.note b{color:var(--ink)}
+  .evidence{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.evidence>div{border-top:2px solid var(--line);padding-top:10px}.evidence b{display:block;font-size:12px}.evidence span{font-size:11.5px;color:var(--muted)}
+  pre{background:#091426;color:#cad7e8;border-radius:6px;padding:16px;overflow:auto;font:11px/1.65 var(--mono);margin:0}.code-blue{color:#86b5ff}.code-gold{color:#f1c27d}.hide{display:none}
+  a{color:var(--blue)}
+  @media(max-width:900px){.scenarios{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}}
+  @media(max-width:560px){.top-inner,.hero-inner,.boundary,.wrap{padding-left:16px;padding-right:16px}.scenarios{grid-template-columns:1fr}.scenario{min-height:0}.section-head{display:block}.section-head p{margin-top:4px}.metrics{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.evidence{grid-template-columns:1fr}.rule{grid-template-columns:18px 1fr}.rule .value{grid-column:2;text-align:left}}
 </style>
 </head>
 <body>
+<header class="top"><div class="top-inner">
+  <div class="brand"><div class="brand-mark">D</div><div><b>DemoBank</b><small>Credit origination desk</small></div></div>
+  <div class="live" id="live">Dokett v0.2</div>
+</div></header>
+<section class="hero"><div class="hero-inner">
+  <div class="eyebrow">Decision evidence, not a credit score</div>
+  <h1>See exactly how a Dokett record changes a lender’s decision.</h1>
+  <p>DemoBank checks authorization, registered exposure, disputes and observed collateral claims before approving an advance. Dokett supplies facts; this application owns the policy and verdict.</p>
+</div></section>
+<div class="boundary"><b>Reference consumer:</b> built by the Dokett team, deployed separately and reading only the same unauthenticated public API available to any lender.</div>
 
-<div class="bar"><b>DemoBank</b><span>Credit Origination · Underwriting Desk</span></div>
-<div class="boundary">
-  <b>Separate reference application</b>
-  Built by the Dokett team to show the integration boundary. DemoBank reads public registry facts,
-  then applies its own lender policy. Dokett does not issue this credit decision.
-</div>
+<main class="wrap">
+  <div class="section-head"><h2>Choose an application</h2><p>Three on-chain v0.2 records · one real Ethereum collateral source</p></div>
+  <div class="scenarios" id="scenarios"></div>
 
-<div class="wrap">
-  <h1>New credit application</h1>
-  <p class="sub">
-    A reference consumer, written by the Dokett team — not an independent third
-    party. It holds no Dokett account, key or permission, because there is
-    nothing to hold: it reads the public register the way anyone can.
-  </p>
-
-  <div class="cols">
+  <div class="grid">
     <div>
-      <div class="card">
-        <h2>Application</h2>
-        <label>Applicant — obligor commitment</label>
-        <input id="subject" value="0x986a7f70b1677d3c4ea6c16116f2b47b53eebc59ae822d4ed18030c008aa928a">
-        <label>Amount requested (USD)</label>
-        <input id="amount" value="7500">
-        <button id="go">Check Dokett</button>
-      </div>
-
-      <div class="card">
-        <h2>Registry queries</h2>
-        <div class="log" id="log"><span style="color:var(--dim);font-size:13px;
-          font-family:inherit">No queries issued yet.</span></div>
-      </div>
+      <section class="card">
+        <div class="card-title"><h2>Credit application</h2><span id="scenarioLabel">01</span></div>
+        <label for="subject">Applicant commitment</label><input id="subject">
+        <label for="amount">New advance requested (USDC)</label><input id="amount" inputmode="decimal">
+        <label for="collateral">Collateral reference — optional</label><input id="collateral" placeholder="0x… or none">
+        <button class="primary" id="go">Run pre-credit check</button>
+      </section>
+      <section class="card">
+        <div class="card-title"><h2>Public query trail</h2><span>No key · no SDK</span></div>
+        <div class="log" id="log"><div class="muted">Run an application to inspect every request.</div></div>
+      </section>
+      <section class="card">
+        <div class="card-title"><h2>Evidence boundary</h2></div>
+        <div class="evidence">
+          <div><b>Synthetic borrowers</b><span>Three inspectable CC3 records created for this policy demonstration.</span></div>
+          <div><b>Real Ethereum evidence</b><span>Aave V3 collateral activity sourced from Ethereum mainnet.</span></div>
+          <div><b>Independent adoption</b><span>External lender integration remains pending and is not claimed.</span></div>
+        </div>
+      </section>
     </div>
 
     <div>
-      <div class="card hide" id="factsCard">
-        <h2>Dokett record — facts only</h2>
-        <table id="facts"></table>
-        <p class="foot" id="factsNote"></p>
-      </div>
-
-      <div class="card hide" id="policyCard">
-        <h2>DemoBank policy v1.2 — our rules, not Dokett's</h2>
+      <section class="card" id="resultCard">
+        <div class="card-title"><h2>Underwriting decision</h2><span>DemoBank policy 2.0</span></div>
+        <div class="placeholder" id="placeholder"><b>No decision yet</b>Select a case and run the public checks.</div>
+        <div id="result" class="hide">
+          <div id="verdict"></div>
+          <div class="metrics" id="metrics"></div>
+          <table id="facts"></table>
+          <p class="note" id="factNote"></p>
+        </div>
+      </section>
+      <section class="card hide" id="policyCard">
+        <div class="card-title"><h2>Rules applied</h2><span>Owned by DemoBank</span></div>
         <div id="rules"></div>
-      </div>
+        <p class="note">A different lender may apply different thresholds to the same Dokett facts. Dokett returns no score or recommendation.</p>
+      </section>
+      <section class="card">
+        <div class="card-title"><h2>The integration</h2><span>Public HTTP</span></div>
+        <pre><span class="code-blue">const</span> exposure = <span class="code-blue">await</span> fetch(
+  <span class="code-gold">`${LENS}/solvency/${applicant}`</span>
+).then(r =&gt; r.json());
 
-      <div class="card hide" id="verdictCard">
-        <h2>Decision</h2>
-        <div id="verdict"></div>
-        <p class="foot" id="prov"></p>
-      </div>
+<span class="code-blue">const</span> collateral = collateralRef
+  ? <span class="code-blue">await</span> fetch(<span class="code-gold">`${LENS}/encumbrance/${collateralRef}`</span>)
+  : <span class="code-blue">null</span>;
+
+<span class="code-blue">const</span> decision = applyDemoBankPolicy(exposure, collateral);</pre>
+      </section>
     </div>
   </div>
-
-  <div class="card">
-    <h2>The entire integration</h2>
-    <pre><span class="c">// No SDK. No auth. No account. Public HTTP, from a static file.</span>
-<span class="k">const</span> r = <span class="k">await</span> fetch(<span class="n">`https://dokett-lens.fly.dev/solvency/${subject}`</span>).then(r => r.json());
-
-<span class="c">// Dokett returns facts. The verdict is ours, and another lender's</span>
-<span class="c">// policy would reach a different answer from the same facts.</span>
-<span class="k">const</span> POLICY = { maxExistingOutstanding: <span class="n">5000</span>, maxTotalExposure: <span class="n">10000</span>,
-                 maxDefaults: <span class="n">0</span>, allowDelinquent: <span class="k">false</span>,
-                 minEvidenceRatio: <span class="n">0.80</span>, requireBonded: <span class="k">true</span>,
-                 requireUnencumbered: <span class="k">true</span> };</pre>
-  </div>
-</div>
+</main>
 
 <script>
-const LENS = 'https://dokett-lens.fly.dev';
-const usd  = n => '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
-const wait = ms => new Promise(r => setTimeout(r, ms));
+const LENS = 'https://dokett-lens-v2.fly.dev';
+const AAVE_REF = '0xd0ee30c2dbc93ad826004a05279b63f16891b009472dc8072a684d0a28c19be6';
+const SCENARIOS = [
+  { id:'authorized', tag:'Eligible', title:'Subject-authorized', description:'Terms signed by the recorded subject; no dispute.', subject:'0x173ebe9df3963ed6fa11765b64da2f6d21e8e7ae88b885046406d44210c1ddbe', amount:'2500', collateral:'' },
+  { id:'asserted', tag:'Review', title:'Registrar assertion', description:'Bonded claim recorded without the subject’s signature.', subject:'0x4defbfe5d881b39857ebde445c9e37800dc8f3d012a634b31f2fd25c6ec441fa', amount:'2500', collateral:'' },
+  { id:'contested', tag:'Review', title:'Authenticated dispute', description:'Subject-authorized terms later contested by that signer.', subject:'0xfeaf1f1d0259be1cd89df13cbc748cc21e44bbcd0c286e0cd6d6fb67b17f4f63', amount:'2500', collateral:'' },
+  { id:'aave', tag:'Collateral', title:'Aave evidence', description:'Offer the collateral reference selected for the USC witness.', subject:'0x173ebe9df3963ed6fa11765b64da2f6d21e8e7ae88b885046406d44210c1ddbe', amount:'2500', collateral:AAVE_REF },
+];
+const POLICY = { maxEligibleExposure:12500, maxTotalAfterAdvance:15000, maxDefaults:0, allowDelinquent:false, rejectObservedEncumbrance:true };
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const usd = n => '$' + Number(n || 0).toLocaleString('en-US',{maximumFractionDigits:0});
+const amount = bucket => Number(bucket?.outstanding || 0) / 1e6;
+let activeScenario = SCENARIOS[0];
+let requestNo = 0;
 
-/* DemoBank's own underwriting policy. Nothing here comes from Dokett, and
-   nothing here is the only reasonable setting — a lender with more appetite
-   would raise the caps and approve what this one declines. */
-const POLICY = {
-  maxExistingOutstanding: 5000,
-  maxTotalExposure:       10000,
-  maxDefaults:            0,
-  allowDelinquent:        false,
-  minEvidenceRatio:       0.80,
-  requireBonded:          true,
-  requireUnencumbered:    true,
-};
+function renderScenarios(){
+  $('scenarios').innerHTML = SCENARIOS.map((s,i) => `<button class="scenario" data-id="${s.id}" aria-pressed="${s.id===activeScenario.id}"><span class="tag">${esc(s.tag)}</span><b>${i+1}. ${esc(s.title)}</b><span>${esc(s.description)}</span></button>`).join('');
+  document.querySelectorAll('.scenario').forEach(button => button.addEventListener('click',()=>selectScenario(button.dataset.id)));
+}
+function selectScenario(id){
+  activeScenario = SCENARIOS.find(s=>s.id===id) || SCENARIOS[0];
+  $('subject').value=activeScenario.subject;$('amount').value=activeScenario.amount;$('collateral').value=activeScenario.collateral;
+  $('scenarioLabel').textContent=String(SCENARIOS.indexOf(activeScenario)+1).padStart(2,'0');
+  renderScenarios();
+}
+function addLog(path,status='···'){
+  if(!requestNo)$('log').innerHTML='';
+  const row=document.createElement('div');row.className='log-row';
+  row.innerHTML=`<span class="muted">${String(++requestNo).padStart(2,'0')}</span><span class="log-path">GET ${esc(path)}</span><span class="log-status">${status}</span>`;
+  $('log').appendChild(row);return row;
+}
+async function get(path){
+  const row=addLog(path);const response=await fetch(LENS+path);row.lastElementChild.textContent=response.status;
+  if(!response.ok)throw new Error(`${path} returned ${response.status}`);return response.json();
+}
+function check(label,state,value,kind='hard',failure){return {label,state,value,kind,failure:failure||label.toLowerCase()};}
 
-let n = 0;
-const logEl = document.getElementById('log');
+async function run(){
+  const subject=$('subject').value.trim();const ask=Number($('amount').value)||0;const collateralRef=$('collateral').value.trim();
+  if(!/^0x([0-9a-fA-F]{40}|[0-9a-fA-F]{64})$/.test(subject)){alert('Enter an address or bytes32 applicant commitment.');return;}
+  const button=$('go');button.disabled=true;button.textContent='Reading Dokett v0.2…';requestNo=0;
+  try{
+    const health=await get('/health');
+    const solvency=await get('/solvency/'+subject);
+    let encumbrance=null,venues=null;
+    if(collateralRef){encumbrance=await get('/encumbrance/'+collateralRef);venues=await get('/encumbrance-venues');}
+    const exposure=solvency.exposure || {};
+    const gross=exposure.grossRegistered || solvency.bonded;
+    const authorized=exposure.subjectAuthorized || {count:0,outstanding:'0',obligations:[]};
+    const asserted=exposure.registrarAsserted || {count:0,outstanding:'0',obligations:[]};
+    const contested=exposure.contested || solvency.disputed || {count:0,outstanding:'0',obligations:[]};
+    const eligible=exposure.underwritingEligible || authorized;
+    const defaults=(solvency.adverse?.statuses||[]).filter(x=>x.status==='Default').length;
+    const delinquent=(solvency.adverse?.statuses||[]).filter(x=>x.status==='Delinquent').length;
+    const externalLiens=encumbrance?.witnessedLiens?.length||0;
+    const registeredClaims=encumbrance?.claims?.length||0;
+    const venuePending=collateralRef && !encumbrance?.encumbered && (venues?.venues||[]).some(v=>v.status!=='active');
+    const checks=[
+      check('Eligible existing exposure within limit',amount(eligible)<=POLICY.maxEligibleExposure,`${usd(amount(eligible))} / ${usd(POLICY.maxEligibleExposure)}`,'hard','eligible exposure exceeds the policy limit'),
+      check('Total eligible exposure after advance within limit',amount(eligible)+ask<=POLICY.maxTotalAfterAdvance,`${usd(amount(eligible)+ask)} / ${usd(POLICY.maxTotalAfterAdvance)}`,'hard','total exposure after this advance exceeds the policy limit'),
+      check('No default on admitted record',defaults<=POLICY.maxDefaults,`${defaults} default${defaults===1?'':'s'}`,'hard','the admitted record contains a default'),
+      check('No current delinquency',POLICY.allowDelinquent||delinquent===0,`${delinquent} delinquent`,'hard','the admitted record contains a current delinquency'),
+      check('No authenticated contested exposure',contested.count===0,`${contested.count} claim · ${usd(amount(contested))}`,'review','the applicant has authenticated contested exposure'),
+      check('No unsupported registrar assertion',asserted.count===0,`${asserted.count} claim · ${usd(amount(asserted))}`,'review','the applicant has an unsupported registrar assertion'),
+    ];
+    if(collateralRef){
+      checks.push(check('Offered collateral has no observed prior claim',!encumbrance.encumbered,`${externalLiens} USC event · ${registeredClaims} registered claim${registeredClaims===1?'':'s'}`,'hard','the offered collateral has an observed prior claim'));
+      checks.push(check('External collateral evidence is active',!venuePending,venuePending?'venue schema awaiting activation':'evidence venue active','review','the Aave evidence schema is still awaiting governance activation'));
+    }
+    const hardFails=checks.filter(c=>!c.state&&c.kind==='hard');const reviews=checks.filter(c=>!c.state&&c.kind==='review');
+    const status=hardFails.length?'declined':reviews.length?'review':'approved';
+    const heading=status==='approved'?'CREDIT APPROVED':status==='review'?'REVIEW REQUIRED':'CREDIT DECLINED';
+    const explanation=status==='approved'?`${usd(ask)} fits DemoBank’s policy after admitting ${usd(amount(eligible))} of eligible exposure.`:status==='review'?`Automatic approval stopped because ${reviews.map(r=>r.failure).join(' and ')}.`:`Application failed ${hardFails.length} risk ${hardFails.length===1?'rule':'rules'}: ${hardFails.map(r=>r.failure).join('; ')}.`;
 
-/** Every registry read, shown as it happens. The URL is the point. */
-async function get(path) {
-  if (!n) logEl.innerHTML = '';
-  const row = document.createElement('div');
-  row.innerHTML = `<span class="m">${String(++n).padStart(2,'0')}</span>`
-                + `<span class="u">GET ${path}</span><span class="s">···</span>`;
-  logEl.appendChild(row);
-  const res  = await fetch(LENS + path);
-  const body = await res.json();
-  row.querySelector('.s').textContent = res.status;
-  await wait(190);                       // legible on video; not load-bearing
-  return body;
+    $('placeholder').classList.add('hide');$('result').classList.remove('hide');$('policyCard').classList.remove('hide');
+    $('verdict').innerHTML=`<div class="verdict ${status}"><strong>${heading}</strong><p>${esc(explanation)}</p></div>`;
+    $('metrics').innerHTML=`<div class="metric"><span>Gross registered</span><b>${usd(amount(gross))}</b></div><div class="metric"><span>Policy eligible</span><b>${usd(amount(eligible))}</b></div><div class="metric"><span>Contested</span><b>${usd(amount(contested))}</b></div>`;
+    $('facts').innerHTML=`<tr><th>Dokett classification</th><th>Claims</th><th>Exposure</th></tr><tr><td>Subject-authorized, undisputed</td><td>${authorized.count}</td><td class="mono">${usd(amount(authorized))}</td></tr><tr><td>Registrar-asserted</td><td>${asserted.count}</td><td class="mono">${usd(amount(asserted))}</td></tr><tr><td>Authenticated dispute</td><td>${contested.count}</td><td class="mono">${usd(amount(contested))}</td></tr>${collateralRef?`<tr><td>Observed collateral claims</td><td>${externalLiens+registeredClaims}</td><td class="mono">${encumbrance.encumbered?'ENCUMBERED':'NONE WITNESSED'}</td></tr>`:''}`;
+    $('factNote').innerHTML=`Observed at CC3 block <b>${Number(solvency.asOfBlock).toLocaleString()}</b> through Lens <b>${esc(health.releaseVersion)}</b>. Gross exposure remains visible when a claim is contested; only the policy-eligible figure is excluded from automatic underwriting.`;
+    $('rules').innerHTML=checks.map(c=>`<div class="rule ${c.state?'pass':c.kind==='review'?'review':'fail'}"><span class="mark">${c.state?'✓':c.kind==='review'?'!':'✕'}</span><span>${esc(c.label)}</span><span class="value">${esc(c.value)}</span></div>`).join('');
+  }catch(error){
+    $('log').insertAdjacentHTML('beforeend',`<div class="log-row"><span>!!</span><span class="log-path" style="color:var(--red)">${esc(error.message)}</span><span></span></div>`);
+  }finally{button.disabled=false;button.textContent='Run pre-credit check';}
 }
 
-/* addEventListener rather than an onclick property.
-   To be accurate about why: the onclick form was NOT broken. A browser
-   automation harness failed to fire it during verification, which looked like
-   a page bug and wasn't — its ref-to-coordinate mapping was mis-scaled and the
-   click was landing on the body. The listener form behaves identically there.
-   Kept anyway, because it composes: a listener survives anything that later
-   assigns to the property, and there is exactly one click in this demo. */
-document.getElementById('go').addEventListener('click', async () => {
-  const subject = document.getElementById('subject').value.trim();
-  const ask     = Number(document.getElementById('amount').value) || 0;
-  const btn     = document.getElementById('go');
-  btn.disabled = true; btn.textContent = 'Querying registry…';
-  n = 0;
-
-  try {
-    await get('/health');
-    const sol = await get('/solvency/' + subject);
-
-    /* Pull each bonded obligation individually rather than trusting the
-       summary — the whole premise is that a lender verifies rather than
-       accepts a report, and that includes reports from the registry. */
-    const ids  = (sol.bonded.obligations || []).map(o => o.id);
-    const full = [];
-    for (const id of ids) full.push(await get('/obligation/' + id));
-
-    /* Any collateral pledged behind these claims: is it already spoken for? */
-    const refs = [...new Set(full
-      .map(o => (o.obligation || o).collateralRef)
-      .filter(c => c && /[1-9a-f]/i.test(c.slice(2))))];
-    const enc = [];
-    for (const ref of refs) enc.push(await get('/encumbrance/' + ref));
-
-    /* ── Facts, straight from the register ──────────────────────────── */
-    const obs         = full.map(o => o.obligation || o);
-    const outstanding = Number(sol.bonded.outstanding) / 1e6;
-    const defaults    = (sol.adverse.statuses || []).filter(s => s.status === 'Default').length;
-    const delinquent  = (sol.adverse.statuses || []).filter(s => s.status === 'Delinquent').length;
-    const proven      = obs.reduce((a, o) => a + Number(o.periodsSatisfied || 0), 0);
-    const scheduled   = obs.reduce((a, o) => a + Number(o.periodsTotal || 0), 0);
-    const ratio       = scheduled ? proven / scheduled : 1;
-    const allBonded   = sol.unbonded.count === 0;
-
-    /* The applicant's own claims on a pledged asset are not the interesting
-       part. What matters is whether OTHER lenders already have a claim on the
-       same security — the question no borrower would volunteer and no other
-       venue can answer, because each one sees only its own book. */
-    const mine   = new Set(ids);
-    const others = enc.flatMap(e => (e.claims || []).filter(c => !mine.has(c.id)));
-    const encOthers = others.reduce((a, c) => a + Number(c.outstanding) / 1e6, 0);
-
-    document.getElementById('facts').innerHTML = `
-      <tr><td>Outstanding obligations</td><td>${usd(outstanding)}</td></tr>
-      <tr><td>Active obligations</td><td>${sol.bonded.count}</td></tr>
-      <tr><td>Delinquent now</td><td>${delinquent}</td></tr>
-      <tr><td>In default</td><td>${defaults}</td></tr>
-      <tr><td>Payment evidence</td><td>${proven} / ${scheduled} periods proven</td></tr>
-      <tr><td>Collateral pledged</td><td>${refs.length
-        ? refs.length + ' asset' + (refs.length === 1 ? '' : 's') : 'none'}</td></tr>
-      <tr><td>&nbsp;&nbsp;↳ prior claims by other lenders</td><td>${refs.length
-        ? others.length + ' · ' + usd(encOthers) : '—'}</td></tr>
-      <tr><td>Unbonded (unweighted) claims</td><td>${sol.unbonded.count}</td></tr>`;
-    document.getElementById('factsNote').innerHTML =
-      `Observed at Creditcoin block <b>${sol.asOfBlock.toLocaleString()}</b>. `
-      + `Every figure is recomputable from chain events. `
-      + `<b>Dokett returned no score and no recommendation.</b>`;
-    document.getElementById('factsCard').classList.remove('hide');
-
-    /* ── DemoBank applies its own policy ────────────────────────────── */
-    const checks = [
-      ['Existing outstanding within limit', outstanding <= POLICY.maxExistingOutstanding,
-       `${usd(outstanding)} vs cap ${usd(POLICY.maxExistingOutstanding)}`],
-      ['Total exposure after advance within limit', outstanding + ask <= POLICY.maxTotalExposure,
-       `${usd(outstanding + ask)} vs cap ${usd(POLICY.maxTotalExposure)}`],
-      ['No obligation in default', defaults <= POLICY.maxDefaults,
-       `${defaults} default${defaults === 1 ? '' : 's'} on record`],
-      ['Nothing currently delinquent', POLICY.allowDelinquent || delinquent === 0,
-       `${delinquent} delinquent`],
-      ['Payment evidence above threshold', ratio >= POLICY.minEvidenceRatio,
-       `${(ratio * 100).toFixed(0)}% vs floor ${(POLICY.minEvidenceRatio * 100).toFixed(0)}%`],
-      ['All claims carry a registrar bond', !POLICY.requireBonded || allBonded,
-       `${sol.unbonded.count} unbonded`],
-      ['Pledged collateral free of prior claims',
-       !POLICY.requireUnencumbered || others.length === 0,
-       `${others.length} prior claim${others.length === 1 ? '' : 's'} · ${usd(encOthers)}`],
-    ];
-
-    document.getElementById('rules').innerHTML = checks.map(([t, ok, v]) =>
-      `<div class="rule ${ok ? 'pass' : 'fail'}"><span class="g">${ok ? '✓' : '✕'}</span>`
-      + `<span class="t">${t}</span><span class="v">${v}</span></div>`).join('');
-    document.getElementById('policyCard').classList.remove('hide');
-
-    const failed   = checks.filter(c => !c[1]);
-    const approved = failed.length === 0;
-    document.getElementById('verdict').innerHTML =
-      `<div class="verdict ${approved ? 'a' : 'd'}">
-         <b>${approved ? 'CREDIT APPROVED' : 'CREDIT DECLINED'}</b>
-         <p>${approved
-              ? `${usd(ask)} advance is within DemoBank's exposure limits.`
-              : `Application for ${usd(ask)} fails ${failed.length} of `
-                + `${checks.length} policy checks: ${failed.map(f => f[0].toLowerCase()).join('; ')}.`}</p>
-       </div>`;
-    document.getElementById('prov').innerHTML =
-      `Decision based on <b>${n} public Dokett queries</b>. `
-      + `No Dokett account. No Dokett permission. No proprietary credit score. `
-      + `The registry supplied the evidence; the policy above is DemoBank's, and a `
-      + `lender with more appetite would set it differently and approve this.`;
-    document.getElementById('verdictCard').classList.remove('hide');
-  } catch (err) {
-    logEl.insertAdjacentHTML('beforeend',
-      `<div><span class="m">!!</span><span class="u" style="color:var(--bad)">`
-      + `${err.message}</span></div>`);
-  } finally {
-    btn.disabled = false; btn.textContent = 'Check Dokett';
-  }
-});
+$('go').addEventListener('click',run);selectScenario('authorized');
+fetch(LENS+'/health').then(r=>r.json()).then(h=>{$('live').textContent=`${h.releaseVersion} · block ${Number(h.asOfBlock).toLocaleString()}`}).catch(()=>{$('live').textContent='Lens unavailable'});
 </script>
 </body>
 </html>
