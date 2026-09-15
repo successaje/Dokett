@@ -340,7 +340,7 @@ Never hardcode. `AscVerify.assertChainId(chainKey, expectedChainId)` resolves vi
 | ✅ | `AscVerifier` + `PaymentAdapter` + `SilenceAdapter` + I7 liveness gate + cure | 14 integration tests green, incl. stall-recovery |
 | ✅ | `Bond` + pro-rata slashing + premium escrow | 13 tests green, INV-1 fuzzed at 1025 runs |
 | 21–28 Aug | Re-verify the whole path against live CC3 testnet | Real proof, real head, real slash |
-| ✅ | Keeper (poke/prove/sweep) + Lens (projection + API) | 11 projection tests green; both smoke-tested |
+| ✅ | Keeper (poke/prove/sweep) + Lens (projection + API) | 14 projection tests green; both smoke-tested |
 | 29 Aug–1 Sep | Unattended end-to-end run against live CC3 testnet | Keeper proves and defaults with no human in the loop |
 | 2–3 Sep | Demo UI | §6 runs start to finish |
 | 4–6 Sep | Video, README, technical doc, deck | Submitted ≥24h early |

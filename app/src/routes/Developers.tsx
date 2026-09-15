@@ -287,7 +287,7 @@ export default function Developers() {
               <pre className="mono doc-example" style={{ fontSize: 12.5, lineHeight: 1.7 }}>
 {`git clone ${REPO} && cd Dokett
 npm install
-npm test            # 85 contract + 11 projection + 16 relay tests
+npm test            # 85 contract + 14 projection + 16 relay tests
 npm run demo        # seeded Lens + Console on :5173 — no chain required`}
               </pre>
             </div>

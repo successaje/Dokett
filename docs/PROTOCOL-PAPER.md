@@ -254,15 +254,20 @@ covered by 115 tests.
 
 ## 11. Development path
 
-Dokett's next milestones are measured by external use rather than deposited
-value:
+The v0.2 lender flow and exposure separation are complete: three inspectable CC3
+records drive distinct decisions for subject-authorized, registrar-asserted and
+authenticated-contested debt. The remaining milestones are narrower:
 
-1. Complete one integration review against a real underwriting or collateral
-   workflow.
-2. Complete the first USC-witnessed external collateral record after its governed venue delay.
-3. Have an independent lender consume provenance, contested exposure and encumbrance evidence before taking risk.
-4. Reconcile collateral enable and release events into a source-height-ordered current-state projection.
-5. Standardize the obligation interface, add a second evidence backend and extend selective disclosure before any use with real borrower data.
+1. Complete the Aave USC witness, apply it to a lender decision and reconcile
+   later collateral events into a source-height-ordered current-state projection.
+2. Publish the delayed-payment case with its exact payment height, window close,
+   cure boundary and cure transaction. Demonstrate separately that failure to
+   obtain one proof does not become evidence of non-payment while the attested
+   head remains fresh.
+3. Have an independent lender consume provenance, contested exposure and
+   encumbrance evidence before taking risk.
+4. Standardize the obligation interface, add a second evidence backend and
+   extend selective disclosure before any use with real borrower data.
 
 The protocol becomes shared infrastructure when an independent venue queries the
 record before taking risk and can verify every fact it relied upon.

@@ -145,7 +145,7 @@ function Result({ entity }: { entity: string }) {
       {exposure ? (
         <Section
           title="Exposure by provenance"
-          aside="Gross exposure remains visible even when a record is asserted or contested. Only bonded, subject-authorized and undisputed claims enter the underwriting-eligible bucket."
+          aside="Gross exposure remains visible even when a record is asserted or contested. Debt admitted for underwriting means existing debt a lender may include in its exposure limits; it does not mean the subject qualifies for a new loan."
         >
           <div className="table-wrap" style={{ marginBottom: 24 }}>
             <table className="data">
@@ -155,7 +155,7 @@ function Result({ entity }: { entity: string }) {
                   <td className="num">{exposure.grossRegistered.count}</td>
                 </tr>
                 <tr>
-                  <td>Underwriting-eligible claims</td>
+                  <td>Debt admitted for underwriting</td>
                   <td className="num">{exposure.underwritingEligible.count}</td>
                 </tr>
                 <tr>

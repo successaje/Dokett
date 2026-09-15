@@ -187,7 +187,7 @@ edges are.
 - `Bond`: pro-rata slashing, premium escrow, INV-1 fuzzed at 1025 runs
 - Deploy → bootstrap → wiring, rehearsed on anvil with every link verified on-chain
 - Keeper (poke / prove / sweep on independent timers), Lens, Console, landing
-- 85 contract tests, 11 Lens projection tests, 16 relay tests
+- 85 contract tests, 14 Lens projection tests, 16 relay tests
 - Fixtures are **real Ethereum mainnet transactions**, encoded with the real SDK
 
 **Mocked**

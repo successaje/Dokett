@@ -29,7 +29,7 @@ new release has passed live checks.
 **Bootstrap block:** [`5,482,454`](https://creditcoin-testnet.blockscout.com/block/5482454)
 **Status:** deployed, bootstrapped and source verified
 
-**Validation:** 85 Foundry tests, 13 Lens tests and 16 relay tests; Console
+**Validation:** 85 Foundry tests, 14 Lens tests and 16 relay tests; Console
 production build passed.
 
 This release adds subject-signed origination, immutable terms provenance,
