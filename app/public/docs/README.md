@@ -605,7 +605,7 @@ something that was not a door.
 ```bash
 git clone https://github.com/successaje/Dokett && cd Dokett
 npm run setup        # installs the root and Console from both lockfiles
-npm run judge:verify # 85 contract + 14 projection + 16 relay tests, then Console build
+npm run judge:verify # 85 contract + 14 projection + 16 relay tests, count drift check, Console build
 npm run demo        # seeded Lens + Console on :5173 — no chain required
 ```
 

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "setup": "npm ci && npm ci --prefix app",
-    "judge:verify": "npm test && npm run app:build",
+    "judge:verify": "npm test && npm run check:counts && npm run app:build",
     "test": "forge test && npm run test:lens && npm run test:relay",
     "test:lens": "node --test \"lens/test/*.test.js\"",
     "keeper": "node --env-file-if-exists=.env worker/src/index.js",
@@ -42,7 +42,8 @@
     "seed:underwriter2": "node --env-file-if-exists=.env script/seed-underwriter2.js",
     "seed:encumbered": "node --env-file-if-exists=.env script/seed-encumbered.js",
     "seed:rwa": "node --env-file-if-exists=.env script/seed-rwa.js",
-    "encumbrance:aave": "node --env-file-if-exists=.env script/encumbrance-aave.js"
+    "encumbrance:aave": "node --env-file-if-exists=.env script/encumbrance-aave.js",
+    "check:counts": "node script/check-counts.js"
   },
   "keywords": [],
   "author": "",
